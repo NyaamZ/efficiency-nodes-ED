@@ -5,7 +5,7 @@
 =======
 ### 워크플로 (EXIF 있음):
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/3052478d-cd68-4b22-8225-d963efa99f04" width="800" style="display: inline-block;">
+  <img src="https://github.com/user-attachments/assets/22246adb-ab46-48ae-ad57-58206d98630e" width="800" style="display: inline-block;">
 </p>
 원본과 다르게 💬ED노드는 Context 링크를 주고 받는다.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-( 오른쪽 아래에 BiRefNet이 포함되어 있다. 필요없으면 워크플로에서 삭제하자.<br>
