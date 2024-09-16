@@ -1,0 +1,161 @@
+/* ==UserStyle==
+@name         comfyui custom css
+@version      1.1
+@namespace    ?
+@-moz-document domain("127.0.0.1")
+==/UserStyle== */
+
+/*  
+Original post: https://www.reddit.com/r/comfyui/comments/15yd0vw/theme_the_comfyui_menu_and_fix_some_annoying/
+Original userstyle by knigitz: https://codefile.io/f/seArZMvMyP
+
+Version 1.1
+By: Sample_Text (discord)
+https://github.com/SampleTexting/ComfyUI-Userstyle
+To be used in conjuction with the custom color palette from "https://github.com/yolain/ComfyUI-Easy-Use". Works with the others as well, but I used this as my base.
+Also use Comfy Workspace Manager "https://github.com/11cafe/comfyui-workspace-manager"
+
+Notes: I'd like to find a way to change the red box in the upper left hand corner to be a cyan box, so it reflects with all of the other borders.
+       However, I don't believe that's possible and would likely require an HTML edit. That would be against what this stylesheet is for.
+*/
+
+/* Reomiving buttons I don't use on the menu panel */
+
+.comfy-menu div label {
+    display: none !important;
+}
+
+hr {
+    display: none !important;
+}
+
+/* Choose the color of your menu panel buttons */
+.comfy-menu button {
+    background-color: rgba(57, 57, 57, .58) !important;
+    font-size: 14px;
+}
+
+#queue-front-button,
+#comfy-view-queue-button,
+#comfy-view-history-button,
+.comfy-list-actions button {
+    font-size: 11px !important;
+}
+
+
+.comfy-list-items button {
+    background-color: rgba(68, 61, 61, .58) !important;
+    font-size: 11px !important;
+}
+
+
+.comfy-menu button.comfy-queue-btn {
+    background-color: rgba(255, 0, 0, .75) !important;
+}
+
+/* stylize the menu panel */
+.comfy-menu {
+    border: 1px solid rgb(126, 179, 189) !important;
+    border-radius: 0px 0px 0px 10px !important;
+    backdrop-filter: blur(2px);
+    background-color: rgba(0, 0, 0, .5) !important;
+    transition: background-color .5s;
+
+}
+
+.comfy-menu:hover {
+    background-color: rgba(0, 0, 0, 1) !important;
+    transition: background-color .5s;
+}
+
+/* hide the drag handle because it's stuck in place anyway */
+.comfy-menu span.drag-handle {
+    visibility:hidden
+}
+
+/* font */
+.comfy-menu * {
+    /* Global font: */
+    font-family: 'Source Sans Pro', sans-serif;
+    font-variant-ligatures: common-ligatures;
+    /* Disable tap highlight (for touchscreens): */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    -webkit-tap-highlight-color: transparent;
+    /* Disable text selection: */
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Chrome and Opera */
+}
+
+/* this is ugly, don't look at it 
+.comfy-menu:after {
+    font-weight: bold;
+    content: "_______________ Welcome to ComfyUI ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  Useful hotkeys: ⁢⁢⁢Space+Move Mouse Ctrl/Shift+Click Ctrl+Z/Ctrl+Y Shift+Drag DoubleCLick LMB";
+}*/
+
+/* Stylize the ComfyUI Manager Menu */
+.comfy-modal {
+    background-color: rgba(0, 0, 0, .95) !important;
+    border: 1px solid rgb(126, 179, 189) !important;
+    backdrop-filter: blur(2px);
+}
+
+/* Stylize the doubleclick searchbox */
+.litesearchbox {
+    border: 1px solid rgb(126, 179, 189) !important; 
+}
+
+.litegraph {
+    background-color: rgba(0, 0, 0, .53) !important;
+}
+
+.litegraph div.helper {
+     background-color: rgba(0, 0, 0, .11) !important;
+     border-radius: 5px 0px 0px 5px !important;
+}
+
+.litegraph div.helper div.lite-search-item:hover {
+     background-color: rgba(74, 70, 70, .75) !important;
+     border-radius: 13px 0px 0px 13px !important;
+}
+
+/* Stylize the options menu (This isn't done as well as I'd like, thanks to my lack of care for actually understanding CSS) */
+.comfy-table {
+    background-color: rgba(0, 0, 0, .42) !important;
+    color: rgb(255, 255, 255) !important;
+}
+
+/* Stylize the menu from Comfy Workspace Manager (If it doesn't work, try switching to dark mode in this nodes settings panel) */
+.chakra-card {
+    border: 1px solid rgb(126, 179, 189) !important;
+    background-color: rgba(0, 0, 0, .58) !important;
+    border-radius: 0px 0px 10px 0px !important;
+    backdrop-filter: blur(2px);
+    transition: background-color .5s;
+}
+
+.chakra-card:hover {
+    background-color: rgba(0, 0, 0, 1) !important;
+    transition: background-color .5s;
+}
+
+.css-1kubmca {
+    background-color: rgba(145, 144, 144, .21) !important;
+    color: rgb(255, 255, 255) !important;
+    border: 2px solid rgb(126, 179, 189) !important;
+    border-radius: 10px 0px 10px 0px !important;
+}
+
+.css-1an9aux:hover {
+    background-color: rgba(145, 144, 144, .21) !important;
+}
+
+.comfy-multiline-input {
+    font-size: 16px !important;
+    font-family: consolas;
+}
