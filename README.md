@@ -509,7 +509,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
 <li>Ultimate SD 💬ED addon requires <a href="https://github.com/ssitu/ComfyUI_UltimateSDUpscale">Ultimate SD Upscale</a></li>
 <li>SUPIR 💬ED addon requires <a href="https://github.com/kijai/ComfyUI-SUPIR">ComfyUI-SUPIR</a></li>
 <p></p>
-<li>Install recommended of <a href=“https://github.com/rgthree/rgthree-comfy”>rgthree's custom nodes</a> for context input, output.</li>
+<li>Install recommended of <a href="https://github.com/rgthree/rgthree-comfy">rgthree's custom nodes</a> for context input, output.</li>
 <p></p>
 
 ## **Install:**
