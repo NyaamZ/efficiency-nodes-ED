@@ -37,7 +37,7 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
 <ul>
     <p></p>
     <li>클릭 한번으로 Txt2Img, Img2Img, Inpaint 모드 설정이 가능하다.<br><i>(Txt2Img로 설정시 처음에 연결된 Ksampler (Efficient) 💬ED의 denoise 값이 자동으로 1로 설정됨.)</i><br>
-      <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/0f8549b8-cbe0-4662-b922-df21545e2d8f" width="250" style="display: inline-block;">
+      <img src="https://github.com/user-attachments/assets/3052478d-cd68-4b22-8225-d963efa99f04" width="250" style="display: inline-block;">
       </li>
     <p></p>
     <li>Inpaint(MaskDetailer) 모드가 추가 되었다.<br><i>(그냥 Inpaint를 사용하면 점점 화질이 열화되는데 Impact Pack의 MaskDetailer를 임포트 시켰다.</i><br>
