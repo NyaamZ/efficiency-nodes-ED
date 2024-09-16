@@ -285,12 +285,19 @@ function handleEfficientLoaderPaintMode_ED(node, widget) {
 
 // Efficient Loader ED Flux Mode Handlers
 function handleEfficientLoaderFluxMode_ED(node, widget) {
-	const bypass_n_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "FluxGuidance"];
+	const mute_n_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "FluxGuidance"];
+	const bypass_n_type = ["LoRA Stacker 💬ED", "Embedding Stacker 💬ED"];
 	const opposite_n_type = ["FreeU", "FreeU_V2"];
 	const adjustment  = node.size[1];
 	
+	let mute_group = [];
 	let bypass_group = [];
 	let opposite_group = [];
+	
+	mute_n_type.forEach(function (t) {
+		let i = app.graph._nodes.find((n) => n.type === t);
+		if (i) mute_group.push(i);
+	});	
 	
 	bypass_n_type.forEach(function (t) {
 		let i = app.graph._nodes.find((n) => n.type === t);
@@ -312,7 +319,8 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 	
     if (value == '🔌 model_opt input') {
 		toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
-		bypass_group.forEach(n => n.mode = 0);
+		mute_group.forEach(n => n.mode = 0);
+		bypass_group.forEach(n => n.mode = 4);
 		opposite_group.forEach(n => n.mode = 2);
 		
 		let w =  findWidgetByName(node, 'cfg');
@@ -327,7 +335,8 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		if (node.size[1] < adjustment) node.setSize([node.size[0], adjustment]);
     } else {		
         toggleWidget_2(node, findWidgetByName(node, 'clip_skip'), true);
-		bypass_group.forEach(n => n.mode = 2);
+		mute_group.forEach(n => n.mode = 2);
+		bypass_group.forEach(n => n.mode = 0);
 		opposite_group.forEach(n => n.mode = 0);
 		
 		let w =  findWidgetByName(node, 'cfg');
