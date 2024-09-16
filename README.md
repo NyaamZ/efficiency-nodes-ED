@@ -1,11 +1,12 @@
-✨🍬A version of Efficiency Nodes for ComfyUI that improves the UX by adding various features. See https://github.com/jags111/efficiency-nodes-comfyui for the original description.🍬
+✨🍬A version of Efficiency Nodes for ComfyUI that improves UX by adding various features. See https://github.com/jags111/efficiency-nodes-comfyui for the original description.🍬
 
 
 <b> Efficiency Nodes 💬ExtendeD (V6)
 =======
 <details>
     <summary><b>한국어 설명</b></summary>
-### 참고 워크플로:
+    
+### 워크플로 예제:
 <p align="left">
   <img src="https://github.com/user-attachments/assets/22246adb-ab46-48ae-ad57-58206d98630e" width="800" style="display: inline-block;">
 </p>
@@ -147,15 +148,15 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
 <!-------------------------------------------------------------------------------------------------------------------------------------------------------->
 <details>
   <p></p>
-  <summary><b>LoRA Stacker</b></summary>
+  <summary><b>LoRA Stacker 💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/857d98ec-b7f5-4957-9fc3-68a7245829cc" width="300">
+  <img src="https://github.com/user-attachments/assets/a8b132f3-65d5-4bc9-a44d-566b1e9a4b33" width="300">
   </p>
   - 최대 8개까지의 로라를 한번에 로딩할 수있는 노드이다.<p></p>
   <p></p>
   <li>Efficient Loader 💬ED와 마찬가지로 이름 입력 창은 하위 폴더별로 서브메뉴가 만들어지며 로라의 프리뷰 이미지 표시<br>
-    <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/68240631-6962-4601-9f7a-2913a9eebedb" width="300"><br>
+    <img src="https://github.com/user-attachments/assets/2e98c870-1d8f-407d-83da-953c6ab13e87" width="300"><br>
     <i>(로라의 프리뷰 이미지가 있다면 이름 옆에 '*'로 표시된다.</i><br>
     <i>폴더와 로라가 함께 있을땐 유형 별로 정렬이 안되는데 그땐 폴더 이름 맨 앞에 <code>-</code>를 붙여주면 정렬이 된다.)</i><br>
   </li>
@@ -260,18 +261,34 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
   - context를 입력받을 수 있게 수정한 버전.<p></p>
   - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, upscale 모델 로더를 통합한 노드.
 </details>
+<details>
+  <p></p>
+  <summary><b>SUPIR 💬ED</b></summary>
+  <p></p>
+  <p align="left">
+  <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
+  </p>
+  - ComfyUI-SUPIR의 애드온. SUPIR는 High-res Fix에 탁월한 성능을 보여주지만 6개나 되는 노드가 필요한데, 그것을 단 두 개로 줄였다.<p></p>
+  - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, 로더는 upscale 모델 로더와 업스케일러가 통합되어 있음.<p></p>
+  - 업스케일은 업스케일 모델로 업스케일 하고 나서 원하는 크기에 맞춰 다운 스케일하고 upscaled image에 출력한다.<p></p>
+  - 예시 동영상<p></p>
+<video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video> 
+</details>
 <p></p>
 
 ### 요구사항:
-<li>Efficiency Nodes 💬ED는 <a href="https://github.com/pythongosssss/ComfyUI-Custom-Scripts">ComfyUI-Custom-Scripts</a>가 필요함. <b>(필수)</b></li></li>
+<li>Efficiency Nodes 💬ED는 <a href="https://github.com/jags111/efficiency-nodes-comfyui">Efficiency Nodes for ComfyUI</a>가 필요함. <b>(필수)</b></li>
+<li>Efficiency Nodes 💬ED는 <a href="https://github.com/pythongosssss/ComfyUI-Custom-Scripts">ComfyUI-Custom-Scripts</a>가 필요함. <b>(필수)</b></li>
 <p></p>
-<li>FaceDetailer 💬ED 와 Ultimate SD Upscale 💬ED 사용을 위해서는 각각 <a href="https://github.com/ltdrdata/ComfyUI-Impact-Pack">Impact Pack</a>과 <a href="https://github.com/ssitu/ComfyUI_UltimateSDUpscale">Ultimate SD Upscale</a>이 필요함. <b>(선택)</b></li>
+<li>FaceDetailer 💬ED 애드온은 <a href="https://github.com/ltdrdata/ComfyUI-Impact-Pack">Impact Pack</a>이 필요함. <b>(선택)</li>
+<li>Ultimate SD 💬ED 애드온은 <a href="https://github.com/ssitu/ComfyUI_UltimateSDUpscale">Ultimate SD Upscale</a>이 필요함. <b>(선택)</b></li>
+<li>SUPIR 💬ED 애드온은 <a href="https://github.com/kijai/ComfyUI-SUPIR">ComfyUI-SUPIR</a>가 필요함. <b>(선택)</b></li>
 <p></p>
 <li>context 입력, 출력 등을 위해 <a href="https://github.com/rgthree/rgthree-comfy">rgthree's custom nodes</a> 설치를 권장. <b>(선택)</b></li>
 <p></p>
 
 ## **설치:**
-매니저 -> Install via git URL -> https://github.com/NyaamZ/efficiency-nodes-comfyui 입력<br><br>
+매니저 -> Install via git URL -> https://github.com/NyaamZ/efficiency-nodes-ED 입력<br><br>
 
 ## ***에러 발생시 해결법***
 대부분 뭐가 없으면 나오는 문제다. 그리고 아래 나오는 에러들은 커스텀 노드에서만 발생하는게 아니라 바닐라 CompyUI 에서도 똑같이 발생하는 에러다.<br><br>
@@ -317,7 +334,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
       <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/0f8549b8-cbe0-4662-b922-df21545e2d8f" width="250" style="display: inline-block;">
       </li>
     <p></p>
-    <li>Added Inpaint (MaskDetailer) mode.
+    <li>Added Inpaint (MaskDetailer) mode.<br>
       <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b04b764-f995-4350-b897-e42041686a2d" width="250" style="display: inline-block;">
       </li>
     <li>Set seed, cfg, sampler, scheduler and save them in context. Later, you can use those settings in Ksampler (Efficient) 💬ED, etc.</li>
@@ -407,11 +424,11 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
   <summary><b>LoRA Stacker💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/857d98ec-b7f5-4957-9fc3-68a7245829cc" width="300">
+  <img src="https://github.com/user-attachments/assets/a8b132f3-65d5-4bc9-a44d-566b1e9a4b33" width="300">
   </p>
   <p></p>
   <li>As with Efficient Loader 💬ED, you'll see a preview image of Lora.<br>
-    <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/68240631-6962-4601-9f7a-2913a9eebedb" width="300"><br>    
+    <img src="https://github.com/user-attachments/assets/2e98c870-1d8f-407d-83da-953c6ab13e87" width="300"><br>    
   </li>
   <p></p>
 </details>
@@ -498,6 +515,19 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
   - Node modified to accept context input.<p></p>
   - Like the '💬ED sampler', there is a set_seed_cfg_sampler setting.<p></p>
 </details>
+<details>
+  <p></p>
+  <summary><b>SUPIR 💬ED</b></summary>
+  <p></p>
+  <p align="left">
+  <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
+  </p>
+  - ComfyUI-SUPIR add-on. SUPIR is great for high-res fixes, but it requires six nodes, which I reduced to just two.<p></p>
+  - Like the 💬ED sampler, there is a 'set_seed_cfg_sampler' setting, and the loader is a combination of upscale model loader and upscaler.<p></p>
+  - Upscale using the model, then downscale to 'upscale by' and output to the upscaled image.<p></p>
+  - Example video<p></p>
+<video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video> 
+</details>
 <p></p>
 
 ### Requirements:
@@ -508,11 +538,11 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
 <li>Ultimate SD 💬ED addon requires <a href="https://github.com/ssitu/ComfyUI_UltimateSDUpscale">Ultimate SD Upscale</a></li>
 <li>SUPIR 💬ED addon requires <a href="https://github.com/kijai/ComfyUI-SUPIR">ComfyUI-SUPIR</a></li>
 <p></p>
-<li>Install recommended of <a href=“https://github.com/rgthree/rgthree-comfy”>rgthree's custom nodes</a> for context input, output.</li>
+<li>Install recommended of <a href="https://github.com/rgthree/rgthree-comfy">rgthree's custom nodes</a> for context input, output.</li>
 <p></p>
 
-## **install:**
-Manager -> Install via git URL -> Input https://github.com/NyaamZ/efficiency-nodes-comfyui <br><br>
+## **Install:**
+Manager -> Install via git URL -> Input https://github.com/NyaamZ/efficiency-nodes-ED <br><br>
 
 
 
