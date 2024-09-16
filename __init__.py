@@ -1,3 +1,10 @@
+"""
+@author: NyaamZ
+@title: Efficiency Nodes ExtendeD
+@nickname: Efficiency Nodes ED
+@description: Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.
+"""
+
 import os
 import subprocess
 import importlib.util

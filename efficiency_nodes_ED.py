@@ -1,4 +1,4 @@
-# Efficiency Nodes ExtendeD - Expansion nodes of Efficiency Nodes for ComfyUI Version 2.0+
+# Efficiency Nodes ExtendeD - Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.
 # by NyaamZ - 2023 - 2024
 # https://github.com/LucianoCirino/efficiency-nodes-ED
 
