@@ -317,7 +317,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
       <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/0f8549b8-cbe0-4662-b922-df21545e2d8f" width="250" style="display: inline-block;">
       </li>
     <p></p>
-    <li>Added Inpaint (MaskDetailer) mode.
+    <li>Added Inpaint (MaskDetailer) mode.<br>
       <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b04b764-f995-4350-b897-e42041686a2d" width="250" style="display: inline-block;">
       </li>
     <li>Set seed, cfg, sampler, scheduler and save them in context. Later, you can use those settings in Ksampler (Efficient) 💬ED, etc.</li>
