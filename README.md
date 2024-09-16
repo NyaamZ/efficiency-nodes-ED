@@ -272,7 +272,7 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
 <p></p>
 
 ## **설치:**
-매니저 -> Install via git URL -> https://github.com/NyaamZ/efficiency-nodes-comfyui 입력<br><br>
+매니저 -> Install via git URL -> https://github.com/NyaamZ/efficiency-nodes-ED 입력<br><br>
 
 ## ***에러 발생시 해결법***
 대부분 뭐가 없으면 나오는 문제다. 그리고 아래 나오는 에러들은 커스텀 노드에서만 발생하는게 아니라 바닐라 CompyUI 에서도 똑같이 발생하는 에러다.<br><br>
@@ -513,7 +513,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
 <p></p>
 
 ## **Install:**
-Manager -> Install via git URL -> Input https://github.com/NyaamZ/efficiency-nodes-comfyui <br><br>
+Manager -> Install via git URL -> Input https://github.com/NyaamZ/efficiency-nodes-ED <br><br>
 
 
 
