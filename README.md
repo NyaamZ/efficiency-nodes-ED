@@ -5,7 +5,8 @@
 =======
 <details>
     <summary><b>한국어 설명</b></summary>
-### 참고 워크플로:
+    
+### 워크플로 예제:
 <p align="left">
   <img src="https://github.com/user-attachments/assets/22246adb-ab46-48ae-ad57-58206d98630e" width="800" style="display: inline-block;">
 </p>
@@ -511,7 +512,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
 <li>Install recommended of <a href=“https://github.com/rgthree/rgthree-comfy”>rgthree's custom nodes</a> for context input, output.</li>
 <p></p>
 
-## **install:**
+## **Install:**
 Manager -> Install via git URL -> Input https://github.com/NyaamZ/efficiency-nodes-comfyui <br><br>
 
 
