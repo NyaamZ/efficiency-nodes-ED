@@ -24,6 +24,7 @@ const NODE_COLORS = {
 	"Save Image 🔔ED": "red",
 	"Control Net Script 💬ED": "green",
 	"Embedding Stacker 💬ED": "blue",
+	"LoRA Stacker 💬ED": "blue",
 	"Apply LoRA Stack 💬ED": "blue",
 	"Int Holder 💬ED": "blue",
 	
