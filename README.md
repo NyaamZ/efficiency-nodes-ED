@@ -524,9 +524,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
   </p>
   - ComfyUI-SUPIR add-on. SUPIR is great for high-res fixes, but it requires six nodes, which I reduced to just two.<p></p>
   - Like the 💬ED sampler, there is a 'set_seed_cfg_sampler' setting, and the loader is a combination of upscale model loader and upscaler.<p></p>
-  - Upscale using the model, then downscale to 'upscale by' and output to the upscaled image.<p></p>
-  - Example video<p></p>
-<video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video> 
+  - Upscale using the model, then downscale to 'upscale by' and output to the upscaled image.
 </details>
 <p></p>
 
