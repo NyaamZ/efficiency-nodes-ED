@@ -269,7 +269,7 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
   <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
   </p>
   - ComfyUI-SUPIR의 애드온. SUPIR는 High-res Fix에 탁월한 성능을 보여주지만 6개나 되는 노드가 필요한데, 그것을 단 두 개로 줄였다.<p></p>
-  - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, 로더는 upscale 모델 로더와 업스케일러가 통합되어 있음.<p></p>
+  - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, 로더는 upscale + SUPIR 모델 로더와 업스케일러가 통합되어 있음.<p></p>
   - 업스케일은 업스케일 모델로 업스케일 하고 나서 원하는 크기에 맞춰 다운 스케일하고 upscaled image에 출력한다.<p></p>
   - 예시 동영상<p></p>
 <video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video> 
@@ -523,7 +523,7 @@ Unlike the original, 💬ED nodes send and receive Context links.<br>
   <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
   </p>
   - ComfyUI-SUPIR add-on. SUPIR is great for high-res fixes, but it requires six nodes, which I reduced to just two.<p></p>
-  - Like the 💬ED sampler, there is a 'set_seed_cfg_sampler' setting, and the loader is a combination of upscale model loader and upscaler.<p></p>
+  - Like the 💬ED sampler, there is a 'set_seed_cfg_sampler' setting, and the loader is a combination of upscale model + SUPIR loader and upscaler.<p></p>
   - Upscale using the model, then downscale to 'upscale by' and output to the upscaled image.
 </details>
 <p></p>
