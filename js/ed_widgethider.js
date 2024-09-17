@@ -285,7 +285,7 @@ function handleEfficientLoaderPaintMode_ED(node, widget) {
 
 // Efficient Loader ED Flux Mode Handlers
 function handleEfficientLoaderFluxMode_ED(node, widget) {
-	const mute_n_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "FluxGuidance"];
+	const mute_n_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "UNETLoader", "DualCLIPLoader", "FluxGuidance"];
 	const bypass_n_type = ["LoRA Stacker 💬ED", "Embedding Stacker 💬ED"];
 	const opposite_n_type = ["FreeU", "FreeU_V2"];
 	const adjustment  = node.size[1];
