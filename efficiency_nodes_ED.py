@@ -797,7 +797,7 @@ MAX_CASHE_ED_CONTROLNET = 1
 class Control_Net_Script_ED:
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {"control_net_name": (folder_paths.get_filename_list("controlnet"), ),
+        return {"required": {"control_net": ("CONTROL_NET",),
                              "image": ("IMAGE",),
                              "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
                              "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001}),
@@ -811,15 +811,15 @@ class Control_Net_Script_ED:
     FUNCTION = "control_net_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def control_net_script_ed(self, control_net_name, image, strength, start_percent, end_percent, cnet_stack=None, script=None):
+    def control_net_script_ed(self, control_net, image, strength, start_percent, end_percent, cnet_stack=None, script=None):
         script = script or {}
-        cash = cashload_ed("control_net", control_net_name)
-        if cash is not None:
-            control_net = cash
-        else:            
-            controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-            control_net = comfy.controlnet.load_controlnet(controlnet_path)
-            cashsave_ed("control_net", control_net_name, control_net, MAX_CASHE_ED_CONTROLNET)
+        # cash = cashload_ed("control_net", control_net_name)
+        # if cash is not None:
+            # control_net = cash
+        # else:            
+            # controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
+            # control_net = comfy.controlnet.load_controlnet(controlnet_path)
+            # cashsave_ed("control_net", control_net_name, control_net, MAX_CASHE_ED_CONTROLNET)
         
         # If control_net_stack is None, initialize as an empty list        
         cnet_stack = [] if cnet_stack is None else cnet_stack

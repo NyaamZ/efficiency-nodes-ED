@@ -1,6 +1,6 @@
 {
-  "last_node_id": 1139,
-  "last_link_id": 2125,
+  "last_node_id": 1142,
+  "last_link_id": 2128,
   "nodes": [
     {
       "id": 1082,
@@ -16,7 +16,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 14,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -58,7 +58,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 13,
+      "order": 14,
       "mode": 2,
       "inputs": [
         {
@@ -104,7 +104,7 @@
         "collapsed": true,
         "pinned": false
       },
-      "order": 15,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -221,7 +221,7 @@
         "Turn on Apply Lora": false
       },
       "widgets_values": [
-        751,
+        852,
         "randomize"
       ],
       "color": "#222233",
@@ -242,7 +242,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 12,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -355,7 +355,7 @@
         },
         "flux1-vae.safetensors",
         -2,
-        "🦱 Img2Img",
+        "✍️ Txt2Img",
         1,
         -1,
         null,
@@ -393,8 +393,8 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            1845,
-            2013
+            2013,
+            2127
           ],
           "slot_index": 0,
           "shape": 3
@@ -412,7 +412,7 @@
           "name": "PROMPT_TEXT",
           "type": "STRING",
           "links": [
-            1996
+            2128
           ],
           "slot_index": 2,
           "shape": 3
@@ -443,7 +443,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 17,
+      "order": 18,
       "mode": 0,
       "inputs": [
         {
@@ -455,47 +455,6 @@
           "name": "image_opt",
           "type": "IMAGE",
           "link": 2059
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "Save Image 🔔ED",
-        "Play sound": true,
-        "Sound Volume": 0.9
-      },
-      "widgets_values": [
-        "%date:yyyy-MM-dd%/%date:MM-dd%"
-      ],
-      "color": "#332222",
-      "bgcolor": "#553333",
-      "shape": 1
-    },
-    {
-      "id": 1045,
-      "type": "Save Image 🔔ED",
-      "pos": {
-        "0": 3130,
-        "1": 1030
-      },
-      "size": {
-        "0": 210,
-        "1": 290
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 25,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "context_opt",
-          "type": "RGTHREE_CONTEXT",
-          "link": null
-        },
-        {
-          "name": "image_opt",
-          "type": "IMAGE",
-          "link": 2066
         }
       ],
       "outputs": [],
@@ -707,207 +666,6 @@
       ]
     },
     {
-      "id": 1118,
-      "type": "LoadRembgByBiRefNetModel",
-      "pos": {
-        "0": 2860,
-        "1": 1040
-      },
-      "size": {
-        "0": 230,
-        "1": 110
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 4,
-      "mode": 4,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "model",
-          "type": "BiRefNetMODEL",
-          "links": [
-            2064
-          ],
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadRembgByBiRefNetModel"
-      },
-      "widgets_values": [
-        "General.safetensors",
-        "AUTO",
-        false
-      ]
-    },
-    {
-      "id": 1007,
-      "type": "MaskToImage",
-      "pos": {
-        "0": 2870,
-        "1": 1270
-      },
-      "size": {
-        "0": 210,
-        "1": 50
-      },
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 26,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 2067
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            1865
-          ],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "title": "Mask to Image",
-      "properties": {
-        "Node name for S&R": "MaskToImage"
-      }
-    },
-    {
-      "id": 1117,
-      "type": "RembgByBiRefNet",
-      "pos": {
-        "0": 2870,
-        "1": 1220
-      },
-      "size": {
-        "0": 230,
-        "1": 50
-      },
-      "flags": {
-        "collapsed": true,
-        "pinned": true
-      },
-      "order": 21,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "BiRefNetMODEL",
-          "link": 2064
-        },
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 2065
-        }
-      ],
-      "outputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "links": [
-            2066
-          ],
-          "slot_index": 0,
-          "shape": 3
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "links": [
-            2067
-          ],
-          "slot_index": 1,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "RembgByBiRefNet"
-      }
-    },
-    {
-      "id": 1008,
-      "type": "PreviewImage",
-      "pos": {
-        "0": 3360,
-        "1": 1030
-      },
-      "size": {
-        "0": 210,
-        "1": 290
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 28,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 1865
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 1080,
-      "type": "ShowText|pysssss",
-      "pos": {
-        "0": 1280,
-        "1": 1410
-      },
-      "size": {
-        "0": 460,
-        "1": 340
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 1996,
-          "widget": {
-            "name": "text"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": null,
-          "shape": 6
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss"
-      },
-      "widgets_values": [
-        [
-          "668.text [DPRandomGenerator] ==> score_9, score_8_up, score_7_up, BREAK, source_real, raw, photo, amateur,\n\n\nNSFW, (1girl, slim, full_body,), (completely_nude), (loli, small girl, female child, aged down:1.7), (white girl, ), (small breasts,:1.3), cute, (blush:0.5), twintails, (closed_eyes, brown_eyes), open_mouth, (crying:1.2), embarrassed, nipples, skinny, tears, (twin_braids, princess crown, gold neck choker, ), ((hetero, age_difference,)), pussy,\n\nAND\n\n1boy, (old dwarf man:1.3), (dark-skinned_male:1.3), (size_difference, giant_male, nude male, chest hair:1.4),\nmuscular_male, beard, (bald, white hair:0.5), \n\nsitting, testicles,\n\n( grabbing_another's_leg, spread_another's legs :1.3), , \n\nindoors, ((Dark Ruins)),\n\nphoto, realistic, irl, perfect hands,\nraw, photorealism, vhs, screencap, analog photography, film grain,\n\n(Masterpiece, highres), (best quality), (soft lighting), intricate detail, (((high detailed skin))), ((best anatomy)), detailed eyes, 8k uhd, (best proportions),\n668.seed [DPRandomGenerator] ==> 200\n671.text [DPRandomGenerator] ==> score_1, score_2, score_3, score_6_up, score_5_up, score_4_up, source_western, source_comic, source_furry,\npenis_grab, flaccid, (female_pubic_hair, ), sex, anal, (( tongue, tongue_out, :1.4),\nartist name, blooming, (worst quality, low quality:1.4), (low res:1.4), multiple view, bad anatomy, text, error, missing fingers, extra digit, collage, fewer digits, cropped, normal quality, jpeg artifacts, signature, watermark, username, blurry, missing arms, long neck, Humpbacked, more than two arms, more than two legs, more than two head, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed,\n\n text, watermark, low-quality, signature, moiré pattern, downsampling, aliasing, distorted, blurry, glossy, blur, jpeg artifacts, compression artifacts, poorly drawn, low-resolution, bad, distortion, twisted, excessive, exaggerated pose, exaggerated limbs, grainy, symmetrical, duplicate, error, pattern, beginner, pixelated, fake, hyper, glitch, overexposed, high-contrast, bad-contrast,\n671.seed [DPRandomGenerator] ==> 1630\n739.exclude_tags [WD14Tagger|pysssss] ==> \n990.seed [KSampler (Efficient) 💬ED] ==> 683504466249230\n991.seed [Efficient Loader 💬ED] ==> 615324398734735\n\nImage Size: 832 x 1216"
-        ],
-        "668.text [DPRandomGenerator] ==> cute anime girl with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a maid outfit with a long black dress with a gold leaf pattern and a white apron eating a slice of an apple pie in the kitchen of an old dark victorian mansion with a bright window and very expensive stuff everywhere\n668.seed [DPRandomGenerator] ==> 2034\n671.text [DPRandomGenerator] ==> \n671.seed [DPRandomGenerator] ==> 1716\n739.exclude_tags [WD14Tagger|pysssss] ==> \n990.seed [KSampler (Efficient) 💬ED] ==> 931283774409145\n1093.seed [Efficient Loader 💬ED] ==> 145561343179860\n\nImage Size: 1024 x 1024"
-      ]
-    },
-    {
       "id": 1084,
       "type": "LoRA Stacker 💬ED",
       "pos": {
@@ -1022,7 +780,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 29,
+      "order": 30,
       "mode": 4,
       "inputs": [
         {
@@ -1080,7 +838,7 @@
       },
       "widgets_values": [
         "from context",
-        854762353852508,
+        675423181868889,
         "randomize",
         20,
         6.5,
@@ -1116,7 +874,7 @@
       "flags": {
         "collapsed": true
       },
-      "order": 19,
+      "order": 20,
       "mode": 0,
       "inputs": [
         {
@@ -1559,88 +1317,6 @@
       "bgcolor": "#212121"
     },
     {
-      "id": 320,
-      "type": "Fast Groups Bypasser (rgthree)",
-      "pos": {
-        "0": 2790,
-        "1": -190
-      },
-      "size": {
-        "0": 250,
-        "1": 130
-      },
-      "flags": {
-        "collapsed": false,
-        "pinned": true
-      },
-      "order": 5,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "OPT_CONNECTION",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "Fast Groups Bypasser",
-      "properties": {
-        "matchColors": "",
-        "matchTitle": "Hires|Ksampler|BiRefNet",
-        "showNav": false,
-        "sort": "position",
-        "customSortAlphabet": "",
-        "toggleRestriction": "always one"
-      },
-      "color": "#461478",
-      "bgcolor": "#320064"
-    },
-    {
-      "id": 739,
-      "type": "WD14Tagger|pysssss",
-      "pos": {
-        "0": 730,
-        "1": 1410
-      },
-      "size": {
-        "0": 460,
-        "1": 340
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "link": 1845
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": null,
-          "slot_index": 0,
-          "shape": 6
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "WD14Tagger|pysssss"
-      },
-      "widgets_values": [
-        "wd-vit-tagger-v3",
-        0.35,
-        0.85,
-        false,
-        false,
-        "",
-        "1girl, solo, long_hair, looking_at_viewer, blush, smile, open_mouth, blue_eyes, blonde_hair, long_sleeves, dress, holding, animal_ears, tail, :d, frills, food, indoors, puffy_sleeves, black_dress, apron, animal_ear_fluff, maid, fox_ears, maid_headdress, window, fox_tail, fox_girl, fire, white_apron, maid_apron, plate, frilled_apron, cake, candle, holding_plate, kitchen, fireplace"
-      ]
-    },
-    {
       "id": 1115,
       "type": "KSampler (Efficient) 💬ED",
       "pos": {
@@ -1654,7 +1330,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 16,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -1710,13 +1386,13 @@
       },
       "widgets_values": [
         "from context",
-        652663119058299,
+        1098162029469042,
         "randomize",
         20,
         1,
         "ddim",
         "sgm_uniform",
-        0.9,
+        1,
         "auto",
         512,
         true,
@@ -1728,62 +1404,6 @@
       "color": "#232",
       "bgcolor": "#353",
       "shape": 1
-    },
-    {
-      "id": 484,
-      "type": "StringFunction|pysssss",
-      "pos": {
-        "0": 2860,
-        "1": 240
-      },
-      "size": {
-        "0": 210,
-        "1": 280
-      },
-      "flags": {
-        "pinned": true
-      },
-      "order": 22,
-      "mode": 4,
-      "inputs": [
-        {
-          "name": "text_b",
-          "type": "STRING",
-          "link": 1110,
-          "widget": {
-            "name": "text_b"
-          }
-        },
-        {
-          "name": "text_c",
-          "type": "STRING",
-          "link": null,
-          "widget": {
-            "name": "text_c"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [],
-          "slot_index": 0,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "StringFunction|pysssss"
-      },
-      "widgets_values": [
-        "append",
-        "no",
-        "(closed eyes),",
-        "",
-        ""
-      ],
-      "color": "#233",
-      "bgcolor": "#355"
     },
     {
       "id": 1046,
@@ -1799,7 +1419,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 33,
+      "order": 34,
       "mode": 4,
       "inputs": [
         {
@@ -1840,7 +1460,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 30,
+      "order": 31,
       "mode": 4,
       "inputs": [
         {
@@ -1886,10 +1506,9 @@
         "1": 186
       },
       "flags": {
-        "collapsed": true,
-        "pinned": true
+        "collapsed": true
       },
-      "order": 32,
+      "order": 33,
       "mode": 4,
       "inputs": [
         {
@@ -2033,7 +1652,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 31,
+      "order": 32,
       "mode": 4,
       "inputs": [
         {
@@ -2084,7 +1703,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 20,
+      "order": 21,
       "mode": 4,
       "inputs": [
         {
@@ -2168,7 +1787,7 @@
         512,
         true,
         1536,
-        696102852568377,
+        634607864278570,
         "randomize",
         20,
         6.5,
@@ -2211,7 +1830,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 24,
+      "order": 25,
       "mode": 4,
       "inputs": [
         {
@@ -2242,7 +1861,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 23,
+      "order": 24,
       "mode": 4,
       "inputs": [
         {
@@ -2286,7 +1905,7 @@
         "from context",
         "4x_NMKD-Siax_200k.pth",
         2,
-        1096294875123681,
+        556977120598735,
         "randomize",
         20,
         8,
@@ -2325,7 +1944,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 27,
+      "order": 28,
       "mode": 4,
       "inputs": [
         {
@@ -2376,7 +1995,7 @@
         "Node name for S&R": "SUPIR model loader 💬ED"
       },
       "widgets_values": [
-        "4x_NMKD-Siax_200k.pth",
+        "🚫 Do not upscale",
         2,
         "nearest-exact",
         "SUPIR\\SUPIR-v0Q_fp16.safetensors",
@@ -2387,43 +2006,6 @@
       "color": "#3c6446",
       "bgcolor": "#285032",
       "shape": 1
-    },
-    {
-      "id": 1137,
-      "type": "Fast Groups Bypasser (rgthree)",
-      "pos": {
-        "0": 3530,
-        "1": -190
-      },
-      "size": {
-        "0": 250,
-        "1": 150
-      },
-      "flags": {
-        "collapsed": false,
-        "pinned": true
-      },
-      "order": 6,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "OPT_CONNECTION",
-          "type": "*",
-          "links": null
-        }
-      ],
-      "title": "Fast Groups Bypasser",
-      "properties": {
-        "matchColors": "",
-        "matchTitle": "Ultimate|SUPIR",
-        "showNav": false,
-        "sort": "position",
-        "customSortAlphabet": "",
-        "toggleRestriction": "always one"
-      },
-      "color": "#461478",
-      "bgcolor": "#320064"
     },
     {
       "id": 1120,
@@ -2440,7 +2022,7 @@
         "collapsed": false,
         "pinned": true
       },
-      "order": 18,
+      "order": 19,
       "mode": 0,
       "inputs": [
         {
@@ -2482,14 +2064,14 @@
         "0": 610,
         "1": 310
       },
-      "size": [
-        580,
-        500
-      ],
+      "size": {
+        "0": 580,
+        "1": 500
+      },
       "flags": {
         "pinned": true
       },
-      "order": 7,
+      "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2521,14 +2103,14 @@
         "0": 610,
         "1": 860
       },
-      "size": [
-        580,
-        370
-      ],
+      "size": {
+        "0": 580,
+        "1": 370
+      },
       "flags": {
         "pinned": true
       },
-      "order": 8,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2552,6 +2134,512 @@
       ],
       "color": "#323",
       "bgcolor": "#535"
+    },
+    {
+      "id": 1140,
+      "type": "ShowText|pysssss",
+      "pos": {
+        "0": 1280,
+        "1": 1400
+      },
+      "size": {
+        "0": 510,
+        "1": 490
+      },
+      "flags": {
+        "pinned": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2128,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        [
+          "668.text [DPRandomGenerator] ==> cute anime girl with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a maid outfit with a long black dress with a gold leaf pattern and a white apron eating a slice of an apple pie in the kitchen of an old dark victorian mansion with a bright window and very expensive stuff everywhere\n668.seed [DPRandomGenerator] ==> 2034\n671.text [DPRandomGenerator] ==> \n671.seed [DPRandomGenerator] ==> 1716\n739.exclude_tags [WD14Tagger|pysssss] ==> \n990.seed [KSampler (Efficient) 💬ED] ==> 931283774409145\n1093.seed [Efficient Loader 💬ED] ==> 145561343179860\n\nImage Size: 1024 x 1024"
+        ],
+        "668.text [DPRandomGenerator] ==> cute anime girl with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a maid outfit with a long black dress with a gold leaf pattern and a white apron eating a slice of an apple pie in the kitchen of an old dark victorian mansion with a bright window and very expensive stuff everywhere\n668.seed [DPRandomGenerator] ==> 2034\n671.text [DPRandomGenerator] ==> \n671.seed [DPRandomGenerator] ==> 1716\n739.exclude_tags [WD14Tagger|pysssss] ==> \n990.seed [KSampler (Efficient) 💬ED] ==> 931283774409145\n1093.seed [Efficient Loader 💬ED] ==> 145561343179860\n\nImage Size: 1024 x 1024"
+      ]
+    },
+    {
+      "id": 1141,
+      "type": "Miaoshouai_Tagger",
+      "pos": {
+        "0": 330,
+        "1": 1400
+      },
+      "size": {
+        "0": 370,
+        "1": 400
+      },
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2127
+        },
+        {
+          "name": "filenames",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "filenames"
+          }
+        },
+        {
+          "name": "captions",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "captions"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null,
+          "shape": 6
+        },
+        {
+          "name": "filenames",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        },
+        {
+          "name": "captions",
+          "type": "STRING",
+          "links": [
+            2126
+          ],
+          "slot_index": 2,
+          "shape": 6
+        },
+        {
+          "name": "folder_path",
+          "type": "STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "batch_size",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Miaoshouai_Tagger"
+      },
+      "widgets_values": [
+        "promptgen_large_v1.5",
+        "Path to your image folder",
+        "mixed",
+        1024,
+        4,
+        "never",
+        "",
+        "",
+        "",
+        "",
+        "replace_tags eg:search1:replace1;search2:replace2"
+      ]
+    },
+    {
+      "id": 1142,
+      "type": "ShowText|pysssss",
+      "pos": {
+        "0": 740,
+        "1": 1400
+      },
+      "size": {
+        "0": 500,
+        "1": 490
+      },
+      "flags": {
+        "pinned": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2126,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "a digital illustration in an anime style, featuring a young woman with distinct animal-like features, she has long, blonde hair and large, expressive blue eyes, her skin is fair and smooth, with a slight blush on her cheeks, she wears a traditional french maid outfit consisting of a black dress with puffed sleeves and a white apron, adorned with a white headband featuring large, fox-like ears, her left arm is extended, holding a small, red cupcakes with a lit candle on top, the background shows a cozy kitchen setting with wooden cabinets and a stainless steel sink, there are shelves filled with blue vases, and a window allowing natural light to stream in, casting soft shadows on the kitchen floor, the overall atmosphere is warm and inviting, with soft, natural light streaming in from the window, casting gentle shadows and highlighting the textures of the kitchen surfaces and the maid's dress, the illustration is highly detailed, with smooth lines and vibrant colors, typical of high-quality digital art\n\n \\(league of legends\\), 1girl, solo, long hair, breasts, looking at viewer, blush, smile, open mouth, bangs, blue hair, blonde eyes, thighhighs, long sleeves, holding, animal ears, food, sleeveless, puffy sleeves, indoors, apron"
+      ]
+    },
+    {
+      "id": 1118,
+      "type": "LoadRembgByBiRefNetModel",
+      "pos": {
+        "0": 2840,
+        "1": 1040
+      },
+      "size": {
+        "0": 230,
+        "1": 110
+      },
+      "flags": {
+        "pinned": true
+      },
+      "order": 6,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "BiRefNetMODEL",
+          "links": [
+            2064
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadRembgByBiRefNetModel"
+      },
+      "widgets_values": [
+        "General.safetensors",
+        "AUTO",
+        false
+      ]
+    },
+    {
+      "id": 1007,
+      "type": "MaskToImage",
+      "pos": {
+        "0": 2840,
+        "1": 1300
+      },
+      "size": [
+        230,
+        50
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 27,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2067
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            1865
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "title": "Mask to Image",
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      }
+    },
+    {
+      "id": 1117,
+      "type": "RembgByBiRefNet",
+      "pos": {
+        "0": 2840,
+        "1": 1200
+      },
+      "size": {
+        "0": 230,
+        "1": 50
+      },
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 22,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "BiRefNetMODEL",
+          "link": 2064
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 2065
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            2066
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            2067
+          ],
+          "slot_index": 1,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RembgByBiRefNet"
+      }
+    },
+    {
+      "id": 1045,
+      "type": "Save Image 🔔ED",
+      "pos": {
+        "0": 3130,
+        "1": 1040
+      },
+      "size": [
+        230,
+        320
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 26,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "context_opt",
+          "type": "RGTHREE_CONTEXT",
+          "link": null
+        },
+        {
+          "name": "image_opt",
+          "type": "IMAGE",
+          "link": 2066
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Save Image 🔔ED",
+        "Play sound": true,
+        "Sound Volume": 0.9
+      },
+      "widgets_values": [
+        "%date:yyyy-MM-dd%/%date:MM-dd%"
+      ],
+      "color": "#332222",
+      "bgcolor": "#553333",
+      "shape": 1
+    },
+    {
+      "id": 1008,
+      "type": "PreviewImage",
+      "pos": {
+        "0": 3400,
+        "1": 1040
+      },
+      "size": [
+        230,
+        320
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 29,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1865
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 320,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": {
+        "0": 2790,
+        "1": -190
+      },
+      "size": [
+        250,
+        120
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Fast Groups Bypasser",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "Hires|Ksampler|BiRefNet",
+        "showNav": false,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "always one"
+      },
+      "color": "#461478",
+      "bgcolor": "#320064"
+    },
+    {
+      "id": 1137,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": {
+        "0": 3530,
+        "1": -190
+      },
+      "size": [
+        250,
+        120
+      ],
+      "flags": {
+        "collapsed": false,
+        "pinned": true
+      },
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "title": "Fast Groups Bypasser",
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "Ultimate|SUPIR",
+        "showNav": false,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "always one"
+      },
+      "color": "#461478",
+      "bgcolor": "#320064"
+    },
+    {
+      "id": 484,
+      "type": "StringFunction|pysssss",
+      "pos": {
+        "0": 2860,
+        "1": 240
+      },
+      "size": {
+        "0": 210,
+        "1": 280
+      },
+      "flags": {
+        "pinned": true
+      },
+      "order": 23,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "text_b",
+          "type": "STRING",
+          "link": 1110,
+          "widget": {
+            "name": "text_b"
+          }
+        },
+        {
+          "name": "text_c",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "text_c"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StringFunction|pysssss"
+      },
+      "widgets_values": [
+        "append",
+        "no",
+        "",
+        "",
+        ""
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
     }
   ],
   "links": [
@@ -2570,14 +2658,6 @@
       939,
       0,
       "RGTHREE_CONTEXT"
-    ],
-    [
-      1845,
-      794,
-      0,
-      739,
-      0,
-      "IMAGE"
     ],
     [
       1860,
@@ -2602,14 +2682,6 @@
       1047,
       1,
       "MODEL"
-    ],
-    [
-      1996,
-      794,
-      2,
-      1080,
-      0,
-      "STRING"
     ],
     [
       2007,
@@ -2882,60 +2954,42 @@
       1086,
       7,
       "STRING"
+    ],
+    [
+      2126,
+      1141,
+      2,
+      1142,
+      0,
+      "STRING"
+    ],
+    [
+      2127,
+      794,
+      0,
+      1141,
+      0,
+      "IMAGE"
+    ],
+    [
+      2128,
+      794,
+      2,
+      1140,
+      0,
+      "STRING"
     ]
   ],
   "groups": [
     {
-      "title": "SUPIR",
-      "bounding": [
-        3880,
-        60,
-        920,
-        620
-      ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {
-        "pinned": true
-      }
-    },
-    {
-      "title": "Ultimate SD",
-      "bounding": [
-        3520,
-        60,
-        330,
-        540
-      ],
-      "color": "#3f789e",
-      "font_size": 24,
-      "flags": {
-        "pinned": true
-      }
-    },
-    {
-      "title": "Make Image",
-      "bounding": [
-        590,
-        60,
-        1910,
-        1240
-      ],
-      "color": "#4c8a00",
-      "font_size": 24,
-      "flags": {
-        "pinned": true
-      }
-    },
-    {
-      "title": "Hires Fix",
+      "title": "BiRefNet",
       "bounding": [
         2790,
-        60,
-        2470,
-        880
+        960,
+        860,
+        420
       ],
-      "color": "#b06634",
+      "color": "#444",
       "font_size": 24,
       "flags": {
         "pinned": true
@@ -2956,14 +3010,56 @@
       }
     },
     {
-      "title": "BiRefNet",
+      "title": "Hires Fix",
       "bounding": [
         2790,
-        960,
-        800,
-        370
+        60,
+        2470,
+        880
       ],
-      "color": "#444",
+      "color": "#b06634",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "title": "Make Image",
+      "bounding": [
+        590,
+        60,
+        1910,
+        1240
+      ],
+      "color": "#4c8a00",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "title": "Ultimate SD",
+      "bounding": [
+        3520,
+        60,
+        330,
+        540
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {
+        "pinned": true
+      }
+    },
+    {
+      "title": "SUPIR",
+      "bounding": [
+        3880,
+        60,
+        920,
+        620
+      ],
+      "color": "#3f789e",
       "font_size": 24,
       "flags": {
         "pinned": true
@@ -2973,10 +3069,10 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.7513148009015777,
+      "scale": 0.5131581182307069,
       "offset": [
-        -1272.7872992852183,
-        206.91958338886369
+        -1055.6038486082298,
+        -459.59239846447394
       ]
     }
   },
