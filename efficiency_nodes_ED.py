@@ -226,26 +226,27 @@ class LoRA_Stacker_ED:
     CATEGORY = "Efficiency Nodes/Stackers"
 
     def lora_stacker_ed(self, input_mode, lora_count, lora_stack=None, **kwargs):
-        for i in range(1, self.MAX_LORA_COUNT):
-            kwargs[f"lora_name_{i}"] = kwargs[f"lora_name_{i}"]["content"]
-        # Extract values from kwargs
-        loras = [kwargs.get(f"lora_name_{i}") for i in range(1, lora_count + 1)]
+        if lora_count > 0:
+            for i in range(1, self.MAX_LORA_COUNT):
+                kwargs[f"lora_name_{i}"] = kwargs[f"lora_name_{i}"]["content"]
+            # Extract values from kwargs
+            loras = [kwargs.get(f"lora_name_{i}") for i in range(1, lora_count + 1)]
 
-        # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-        if input_mode == "simple":
-            weights = [kwargs.get(f"lora_wt_{i}") for i in range(1, lora_count + 1)]
-            loras = [(lora_name, lora_weight, lora_weight) for lora_name, lora_weight in zip(loras, weights) if
-                     lora_name != "None"]
+            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
+            if input_mode == "simple":
+                weights = [kwargs.get(f"lora_wt_{i}") for i in range(1, lora_count + 1)]
+                loras = [(lora_name, lora_weight, lora_weight) for lora_name, lora_weight in zip(loras, weights) if lora_name != "None"]
+            else:
+                model_strs = [kwargs.get(f"model_str_{i}") for i in range(1, lora_count + 1)]
+                clip_strs = [kwargs.get(f"clip_str_{i}") for i in range(1, lora_count + 1)]
+                loras = [(lora_name, model_str, clip_str) for lora_name, model_str, clip_str in zip(loras, model_strs, clip_strs) if lora_name != "None"]
         else:
-            model_strs = [kwargs.get(f"model_str_{i}") for i in range(1, lora_count + 1)]
-            clip_strs = [kwargs.get(f"clip_str_{i}") for i in range(1, lora_count + 1)]
-            loras = [(lora_name, model_str, clip_str) for lora_name, model_str, clip_str in
-                     zip(loras, model_strs, clip_strs) if lora_name != "None"]
-
+            loras = []
+        
         # If lora_stack is not None, extend the loras list with lora_stack
         if lora_stack is not None:
             loras.extend([l for l in lora_stack if l[0] != "None"])
-        #print(f"\033[36mloras////:{(loras,)}\033[0m") 
+        #print(f"\033[36mloras:{(loras,)}\033[0m") 
         return (loras,)
 
 # Apply LoRA Stack ED
@@ -743,27 +744,36 @@ class Embedding_Stacker_ED:
     CATEGORY = "Efficiency Nodes/Stackers"
 
     def embedding_stacker(self, positive_embeddings_count, negative_embeddings_count, lora_stack=None, **kwargs):
-        for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
-            kwargs[f"positive_embedding_{i}"] = kwargs[f"positive_embedding_{i}"]["content"]
-            kwargs[f"negative_embedding_{i}"] = kwargs[f"negative_embedding_{i}"]["content"]
-        # Extract values from kwargs
-        pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
-        # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-        pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
-        pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if
-                     pos_emb != "None"]
-        # Extract values from kwargs
-        neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
-        # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-        neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
-        neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if
-                     neg_emb != "None"]
-        loras = pos_embs + neg_embs
+        # POSITIVE EMBEDDING
+        if positive_embeddings_count > 0:
+            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
+                kwargs[f"positive_embedding_{i}"] = kwargs[f"positive_embedding_{i}"]["content"]
+
+            # Extract values from kwargs
+            pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
+            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
+            pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
+            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None"]
+        else:
+            pos_embs = []
         
+        # NEGTIVE EMBEDDING
+        if negative_embeddings_count > 0:
+            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
+                kwargs[f"negative_embedding_{i}"] = kwargs[f"negative_embedding_{i}"]["content"]
+            # Extract values from kwargs
+            neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
+            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
+            neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
+            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None"]
+        else:
+            neg_embs = []
+        
+        loras = pos_embs + neg_embs        
         # If lora_stack is not None, extend the loras list with lora_stack
         if lora_stack is not None:
             loras.extend([l for l in lora_stack if l[0] != "None"])
-        #print(f"\033[36mlorasEmbedding////:{(loras,)}\033[0m") 
+        #print(f"\033[36mlorasEmbedding:{(loras,)}\033[0m") 
         return (loras,)
 
     def embedding_process(lora_stack, positive, negative, positive_refiner, negative_refiner):
@@ -800,7 +810,8 @@ class Embedding_Stacker_ED:
                 
         if len(new_lora_stack) == 0:
             new_lora_stack = None
-        #print(f"\033[36mnew_lora_stack:{new_lora_stack}\033[0m")
+        #print(f"\033[36mpos:{pos}\033[0m")
+        #print(f"\033[36mneg:{neg}\033[0m")
         return (new_lora_stack, pos, neg, pos_refiner, neg_refiner)
 
 ###############################################################################################################
