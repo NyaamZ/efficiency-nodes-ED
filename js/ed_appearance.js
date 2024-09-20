@@ -15,14 +15,15 @@ const COLOR_THEMES = {
 };
 
 const NODE_COLORS = {
-	"Efficient Loader 💬ED": "random",
+	"Efficient Loader 💬ED": "blue",
 	// "Eff. Loader SDXL 💬ED": "random",
-	"KSampler (Efficient) 💬ED": "random",
+	"KSampler (Efficient) 💬ED": "green",
 	// "KSampler SDXL (Eff.) 💬ED": "random",
-	"KSampler Text 💬ED": "random",
+	"KSampler Text 💬ED": "green",
 	"Load Image 💬ED": "blue",
 	"Save Image 🔔ED": "red",
 	"Control Net Script 💬ED": "green",
+	"Refiner Script 💬ED": "green",
 	"Embedding Stacker 💬ED": "blue",
 	"LoRA Stacker 💬ED": "blue",
 	"Apply LoRA Stack 💬ED": "blue",

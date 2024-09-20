@@ -285,41 +285,38 @@ function handleEfficientLoaderPaintMode_ED(node, widget) {
 
 // Efficient Loader ED Flux Mode Handlers
 function handleEfficientLoaderFluxMode_ED(node, widget) {
-	const mute_n_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "UNETLoader", "DualCLIPLoader", "FluxGuidance"];
+	const mute_n1_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "UNETLoader", "DualCLIPLoader"];
+	const mute_n2_type = ["FluxGuidance"];
 	const bypass_n_type = ["LoRA Stacker 💬ED", "Embedding Stacker 💬ED"];
 	const opposite_n_type = ["FreeU", "FreeU_V2"];
 	const adjustment  = node.size[1];
 	
-	let mute_group = [];
-	let bypass_group = [];
-	let opposite_group = [];
+	function add_group(type_list){
+		let group = [];
+		type_list.forEach(function (t) {
+			let i = app.graph._nodes.find((n) => n.type === t);
+			if (i) group.push(i);
+		});	
+		return group;
+	}
 	
-	mute_n_type.forEach(function (t) {
-		let i = app.graph._nodes.find((n) => n.type === t);
-		if (i) mute_group.push(i);
-	});	
-	
-	bypass_n_type.forEach(function (t) {
-		let i = app.graph._nodes.find((n) => n.type === t);
-		if (i) bypass_group.push(i);
-	});	
-	
-	opposite_n_type.forEach(function (t) {
-		let i = app.graph._nodes.find((n) => n.type === t);
-		if (i) opposite_group.push(i);
-	});	
+	let mute1_group = add_group(mute_n1_type);
+	let mute2_group = add_group(mute_n2_type);
+	let bypass_group = add_group(bypass_n_type);
+	let opposite_group = add_group(opposite_n_type);
 	
 	let value = widget.value;
 	if (value?.content) {
 		value = value.content;
 	}
 	
-	function isFlux_vae(value)  { if(value.toLowerCase().indexOf('flux') != -1 )  return true; }
-	function isSdxl_vae(value)  { if(value.toLowerCase().indexOf('sdxl') != -1 )  return true; }
+	function isFlux(value)  { if(value.toLowerCase().indexOf('flux') != -1 )  return true; }
+	function isSdxl(value)  { if(value.toLowerCase().indexOf('sdxl') != -1 )  return true; }
 	
-    if (value == '🔌 model_opt input') {
+	if (isFlux(value)) { //ckpt_name is flux
 		toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
-		mute_group.forEach(n => n.mode = 0);
+		mute1_group.forEach(n => n.mode = 2);
+		mute2_group.forEach(n => n.mode = 0);
 		bypass_group.forEach(n => n.mode = 4);
 		opposite_group.forEach(n => n.mode = 2);
 		
@@ -327,25 +324,45 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg, true);
 
 		w =  findWidgetByName(node, 'vae_name');
-		let val = w.options.values.find(isFlux_vae);
-		if ((val) && !isFlux_vae(w.value)) {
+		let val = w.options.values.find(isFlux);
+		if ((val) && !isFlux(w.value)) {
+			previous_value.ed_loader_vae = w.value;
+			w.value = val;				
+		}
+		if (node.size[1] < adjustment) node.setSize([node.size[0], adjustment]);
+    }else if (value == '🔌 model_opt input') {
+		toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
+		mute1_group.forEach(n => n.mode = 0);
+		mute2_group.forEach(n => n.mode = 0);
+		bypass_group.forEach(n => n.mode = 4);
+		opposite_group.forEach(n => n.mode = 2);
+		
+		let w =  findWidgetByName(node, 'cfg');
+		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg, true);
+
+		w =  findWidgetByName(node, 'vae_name');
+		let val = w.options.values.find(isFlux);
+		if ((val) && !isFlux(w.value)) {
 			previous_value.ed_loader_vae = w.value;
 			w.value = val;				
 		}
 		if (node.size[1] < adjustment) node.setSize([node.size[0], adjustment]);
     } else {		
-        toggleWidget_2(node, findWidgetByName(node, 'clip_skip'), true);
-		mute_group.forEach(n => n.mode = 2);
+        let w = findWidgetByName(node, 'clip_skip')
+		toggleWidget_2(node, w, true);
+		if (w.value == 0) w.value = -2;
+		mute1_group.forEach(n => n.mode = 2);
+		mute2_group.forEach(n => n.mode = 2);
 		bypass_group.forEach(n => n.mode = 0);
 		opposite_group.forEach(n => n.mode = 0);
 		
-		let w =  findWidgetByName(node, 'cfg');
+		w =  findWidgetByName(node, 'cfg');
 		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg);
 		
 		w =  findWidgetByName(node, 'vae_name');
-		let sdxl_val = w.options.values.find(isSdxl_vae);
-		if ((sdxl_val) && isFlux_vae(w.value)) {
-			if ((previous_value.ed_loader_vae) && !isFlux_vae(previous_value.ed_loader_vae)) w.value = previous_value.ed_loader_vae;
+		let sdxl_val = w.options.values.find(isSdxl);
+		if ((sdxl_val) && isFlux(w.value)) {
+			if ((previous_value.ed_loader_vae) && !isFlux(previous_value.ed_loader_vae)) w.value = previous_value.ed_loader_vae;
 			else w.value = sdxl_val;
 		}
 		node.setSize([node.size[0], adjustment]);

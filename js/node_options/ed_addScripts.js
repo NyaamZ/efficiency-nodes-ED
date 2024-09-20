@@ -8,6 +8,7 @@ const connectionMap = {
     "HighRes-Fix Script": ["input & output", 0],
     "Tiled Upscaler Script": ["input & output", 0],
 	"Control Net Script 💬ED": ["output", 0],
+	"Refiner Script 💬ED": ["output", 0],
 	"KSampler (Efficient) 💬ED": ["input", 1]
 };
 
@@ -103,7 +104,8 @@ function getScriptOptions(nodeType, node) {
         "Noise Control Script",
         "HighRes-Fix Script",
         "Tiled Upscaler Script",
-		"Control Net Script 💬ED"
+		"Control Net Script 💬ED",
+		"Refiner Script 💬ED"
     ];
 
     // Filter script types based on node type

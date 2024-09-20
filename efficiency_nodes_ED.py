@@ -26,7 +26,7 @@ comfy_dir = os.path.abspath(os.path.join(my_dir, '..', '..'))
 
 # Append comfy_dir to sys.path & import files
 sys.path.append(comfy_dir)
-from nodes import CLIPSetLastLayer, CLIPTextEncode, PreviewImage, LoadImage, SaveImage, MAX_RESOLUTION, InpaintModelConditioning, RepeatLatentBatch
+from nodes import CLIPSetLastLayer, CLIPTextEncode, PreviewImage, LoadImage, SaveImage, MAX_RESOLUTION, InpaintModelConditioning, RepeatLatentBatch, ImageBatch
 from nodes import NODE_CLASS_MAPPINGS as nodes_NODE_CLASS_MAPPINGS
 #import nodes
 from comfy_extras.nodes_upscale_model import UpscaleModelLoader, ImageUpscaleWithModel
@@ -334,7 +334,7 @@ class EfficientLoader_ED():
     def INPUT_TYPES(cls):
         types = {"required": { "ckpt_name": (["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints"),),
                               "vae_name": (["Baked VAE"] + folder_paths.get_filename_list("vae"),),
-                              "clip_skip": ("INT", {"default": -1, "min": -24, "max": 0, "step": 1}),                        
+                              "clip_skip": ("INT", {"default": -2, "min": -24, "max": 0, "step": 1}),                        
                               "paint_mode": ( list(EfficientLoader_ED.Paint_Mode.keys()), {"default": "✍️ Txt2Img"}),
                               "batch_size": ("INT", {"default": 1, "min": 1, "max": 262144}),
                               "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
@@ -468,8 +468,8 @@ class EfficientLoader_ED():
             # Load LoRa(s)
             model, clip = load_lora(lora_params, ckpt_name, my_unique_id, cache=lora_cache, ckpt_cache=ckpt_cache, cache_overwrite=True)
 
-            if vae_name == "Baked VAE":
-                vae = get_bvae_by_ckpt_name(ckpt_name)
+            #if vae_name == "Baked VAE":
+                #vae = get_bvae_by_ckpt_name(ckpt_name)
         else:
             #global loaded_objects
             loaded_objects["lora"] = []
@@ -478,7 +478,11 @@ class EfficientLoader_ED():
             
         # Check for custom VAE
         if vae_name != "Baked VAE":
-            vae = load_vae(vae_name, my_unique_id, cache=vae_cache, cache_overwrite=True)                    
+            vae = load_vae(vae_name, my_unique_id, cache=vae_cache, cache_overwrite=True)
+        else:
+            vae = get_bvae_by_ckpt_name(ckpt_name)
+            loaded_objects["vae"] = []
+            loaded_objects["vae"].append(("Baked vae", vae, [my_unique_id]))
                             
         ############################# END EDITED ############################
      
@@ -513,8 +517,18 @@ class EfficientLoader_ED():
         #Encode prompt
         refiner_model = refiner_clip = refiner_clip_skip = None
         
-        if ckpt_name != "🔌 model_opt input" and clip_skip != 0:
-            (clip,) = CLIPSetLastLayer().set_last_layer(clip, clip_skip)
+        modle_type = None
+        if hasattr(model, "model"):
+            modle_type = model.model.__class__.__name__            
+        
+        if ckpt_name == "🔌 model_opt input":
+            print(f"\033[38;5;173mEfficient Loader ED : model from model_opt input, Ignore clip skip\033[0m")
+        elif modle_type == "Flux":
+            print(f"\033[38;5;173mEfficient Loader ED : Model type is {modle_type}, Ignore clip skip\033[0m")
+        elif clip_skip == 0:
+            print(f"\033[38;5;173mEfficient Loader ED : clip skip is 0, Ignore clip skip\033[0m")
+        else:
+            (clip,) = CLIPSetLastLayer().set_last_layer(clip, clip_skip)            
         
         (positive_encoded,) = CLIPTextEncode().encode(clip, positive)
         (negative_encoded,) = CLIPTextEncode().encode(clip, negative)
@@ -831,6 +845,41 @@ class Control_Net_Script_ED:
 
 ###############################################################################################################
 
+# Refiner Script ED
+class Refiner_Script_ED:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"refiner_model": ("MODEL",),
+                            "refiner_clip": ("CLIP",),
+                            "refiner_vae": ("VAE",),
+                            "refiner_add_noise": (["enable", "disable"], ),
+                            #"seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                            "refiner_steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
+                            "refiner_cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
+                            "refiner_sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
+                            "refiner_scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "karras"}),
+                            #"denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                            "refiner_start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
+                            "refiner_end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
+                              },
+                "optional": {"script": ("SCRIPT",)}
+                }
+    RETURN_TYPES = ("SCRIPT",)
+    RETURN_NAMES = ("SCRIPT",)
+    FUNCTION = "refiner_script_ed"
+    CATEGORY = "Efficiency Nodes/Scripts"
+
+    def refiner_script_ed(self, refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, script=None):
+        script = script or {}
+        # if clip_skip != 0:
+            # (refiner_clip,) = CLIPSetLastLayer().set_last_layer(refiner_clip, clip_skip)
+        refiner_script = (refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step)
+        
+        script["refiner_script"] = refiner_script
+        return (script,)
+
+###############################################################################################################
+
 # Int Holder ED
 class Int_Holder_ED:
     @classmethod
@@ -868,6 +917,7 @@ NODE_CLASS_MAPPINGS = {
     "Load Image 💬ED": LoadImage_ED,
     "Save Image 🔔ED": SaveImage_ED,
     "Control Net Script 💬ED": Control_Net_Script_ED,
+    "Refiner Script 💬ED": Refiner_Script_ED,
     "Embedding Stacker 💬ED": Embedding_Stacker_ED,
     "Apply LoRA Stack 💬ED": Apply_LoRA_Stack_ED,
     "LoRA Stacker 💬ED": LoRA_Stacker_ED,
@@ -937,7 +987,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         return_with_leftover_noise=None, sampler_type="regular"):
 
                 # Unpack from CONTEXT 
-                _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, c_seed, c_cfg, c_sampler, c_scheduler, mask, inpaint_mode = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "seed", "cfg", "sampler", "scheduler", "mask", "inpaint_mode"])
+                _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, c_seed, c_cfg, c_sampler, c_scheduler, positive_prompt, mask, inpaint_mode = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "mask", "inpaint_mode"])
         
                 mask_detailer_mode = False
                 drop_size = 5
@@ -988,11 +1038,25 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 ####################################### ED Control net script
                 if keys_exist_in_script("control_net"):
                     cnet_stack = script["control_net"]
-                    script.pop("control_net", None)
-                    print(f"KSampler ED: apply control net from script")
+                    #script.pop("control_net", None)
+                    print(f"\033[38;5;173mKSampler ED: apply control net from script\033[0m")
                     controlnet_conditioning = TSC_Apply_ControlNet_Stack().apply_cnet_stack(positive, negative, cnet_stack)
                     positive, negative = controlnet_conditioning[0], controlnet_conditioning[1]                
-        
+                
+                refiner_model = None
+                # refiner script
+                if keys_exist_in_script("refiner_script"):
+                    
+                    refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler,  refiner_start_at_step, refiner_end_at_step = script["refiner_script"]
+                    
+                    # use KSamplerAdvanced
+                    if denoise == 1.0:
+                        sampler_type = "advanced"
+                        add_noise = "enable"
+                        start_at_step = 0
+                        end_at_step = 10000
+                        return_with_leftover_noise = "enable"                 
+
                 if mask_detailer_mode:
                     if not Impact_ed_loading_success:
                         raise Exception("KSampler (Efficient) ED: Inpaint(MaskDetailer) mode is only available when Impact ED loading is successful.\n\n\n\n\n\n")
@@ -1015,13 +1079,36 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         positive, negative, latent_image, preview_method, vae_decode, denoise=denoise, prompt=prompt, 
                         extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
                         optional_vae=vae, script=script, add_noise=add_noise, start_at_step=start_at_step, end_at_step=end_at_step,
-                        return_with_leftover_noise=return_with_leftover_noise, sampler_type="regular")                        
+                        return_with_leftover_noise=return_with_leftover_noise, sampler_type=sampler_type)               
         
                     original_model, _, _, latent_list, _, output_images = return_dict["result"]
                     result_ui = return_dict["ui"]
             
                     context = new_context_ed(context, model=original_model,  latent=latent_list, images=output_images, positive=positive, negative=negative) #RE
                     result = (context, output_images, steps)
+                
+                # apply refiner script 
+                if refiner_model is not None:          
+                    (refiner_positive,) = CLIPTextEncode().encode(refiner_clip, positive_prompt)
+                    (refiner_negative,) = CLIPTextEncode().encode(refiner_clip, "")
+                    
+                    #VAE Encode
+                    if "tiled" in vae_decode:
+                        k = refiner_vae.encode_tiled(output_images[:,:,:,:3], tile_x=320, tile_y=320, )
+                    else:
+                        k = refiner_vae.encode(output_images[:,:,:,:3])
+                    latent_image = {"samples":k}
+                    
+                    print(f"\033[38;5;173mKSampler ED: apply refiner script\033[0m")
+                    return_dict = TSC_KSampler().sample(refiner_model, seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, preview_method, vae_decode, denoise=1.0, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, optional_vae=refiner_vae, script=None, add_noise=refiner_add_noise, start_at_step=refiner_start_at_step, end_at_step=refiner_end_at_step, return_with_leftover_noise="disable", sampler_type="advanced")
+                    
+                    _, _, _, _, _, refiner_images = return_dict["result"]                    
+                    result_ui = return_dict["ui"]
+                    output_images = ImageBatch().batch(output_images, refiner_images)[0]
+                    
+                    context = new_context_ed(context, model=original_model,  latent=latent_list, images=output_images, positive=positive, negative=negative) #RE
+                    result = (context, output_images, steps)                    
+                
                 return {"ui": result_ui, "result": result}
         
         NODE_CLASS_MAPPINGS.update({"KSampler (Efficient) 💬ED": KSampler_ED})
@@ -1693,7 +1780,8 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
                     upscaled_image = SUPIR_Model_Loader_ED.upscale(upscaler, image, upscale_by, rescale_method)
                 else:
                     upscaled_image = image
-
+                
+                
                 (sup_model, sup_vae) = SUPIR_model_loader_v2().process(supir_model, diffusion_dtype, fp8_unet, model, clip, vae, high_vram=False)
                 return (context, sup_model, sup_vae, upscaled_image)       
 
