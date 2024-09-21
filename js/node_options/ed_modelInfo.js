@@ -279,6 +279,9 @@ const infoHandler = {
 	    "LoRA Stacker 💬ED": {
         "loras": generateNames("lora_name_", 50, 1)
     },
+	"LoRA Stacker": {
+        "loras": generateNames("lora_name_", 50, 1)
+    },
 };
 
 // Utility functions and other parts of your code remain unchanged

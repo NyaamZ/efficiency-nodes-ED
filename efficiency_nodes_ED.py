@@ -139,7 +139,6 @@ def context_2_tuple_ed(ctx, inputs_list=None):
         
 #======= CASHE
 cashe_ed = {
-    "control_net": [],
     "ultra_bbox_detector": [],
     "ultra_segm_detector": [],
     "sam_model": [],
@@ -416,10 +415,7 @@ class EfficientLoader_ED():
         
         
         # GET PROPERTIES #
-        token_normalization = "none"
-        weight_interpretation = "comfy"
         this_sync = True
-        multi_sync = False
         tiled_vae_encode = False
         vae_encode_tile_size = 512
         use_apply_lora = False
@@ -431,7 +427,6 @@ class EfficientLoader_ED():
                 if node["id"] == int(my_unique_id):
                     tiled_vae_encode = node["properties"]["Use tiled VAE encode"]
                     this_sync = node["properties"]["Synchronize widget with image size"]
-                    #multi_sync = node["properties"]["Image size sync MultiAreaConditioning"]
                 if node["type"] == "Apply LoRA Stack 💬ED" and not use_apply_lora:
                     if node["properties"]["Turn on Apply Lora"] == True:
                         print(f"\033[36mEfficient Loader ED:Apply LoRA Stack ED is exist, loading Lora is pending.\033[0m")
@@ -567,7 +562,6 @@ class EfficientLoader_ED():
             elif paint_mode == "🎨 Inpaint(MaskDetailer)":
                 if  mask is None:
                     raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
-                inpaint_mode = "mask_detailer"
 
             #RepeatLatentBatch
             (samples_latent,) = RepeatLatentBatch().repeat(k, batch_size)
@@ -578,7 +572,6 @@ class EfficientLoader_ED():
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_height", "type": "text", "data": image_height})
         ################################### LATENT END##############################
 
-        ### Debugging
         ###print_loaded_objects_entries()
         print_loaded_objects_entries(my_unique_id, prompt)
         
@@ -590,6 +583,8 @@ class EfficientLoader_ED():
                 model, clip = Apply_LoRA_Stack_ED.apply_load_lora(lora_params, model, clip, False)                
             
         # Data for XY Plot
+        token_normalization = "none"
+        weight_interpretation = "comfy"
         dependencies = (vae_name, ckpt_name, clip, clip_skip, refiner_name, refiner_clip, refiner_clip_skip,
                         positive, negative, token_normalization, weight_interpretation, ascore,
                         image_width, image_height, lora_params, cnet_stack)
@@ -731,7 +726,6 @@ class Embedding_Stacker_ED:
         for i in range(1, cls.MAX_EMBEDDING_COUNT):
             inputs["required"][f"negative_embedding_{i}"] = embedding_name_array
             inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
-        #print(f"\033[36mlora stacker{i}////:{names}\033[0m") 
 
         inputs["optional"] = {
             "lora_stack": ("LORA_STACK",)
@@ -837,15 +831,7 @@ class Control_Net_Script_ED:
     CATEGORY = "Efficiency Nodes/Scripts"
 
     def control_net_script_ed(self, control_net, image, strength, start_percent, end_percent, cnet_stack=None, script=None):
-        script = script or {}
-        # cash = cashload_ed("control_net", control_net_name)
-        # if cash is not None:
-            # control_net = cash
-        # else:            
-            # controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-            # control_net = comfy.controlnet.load_controlnet(controlnet_path)
-            # cashsave_ed("control_net", control_net_name, control_net, MAX_CASHE_ED_CONTROLNET)
-        
+        script = script or {}        
         # If control_net_stack is None, initialize as an empty list        
         cnet_stack = [] if cnet_stack is None else cnet_stack
 
@@ -869,7 +855,6 @@ class Refiner_Script_ED:
                             "refiner_cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
                             "refiner_sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
                             "refiner_scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "karras"}),
-                            #"denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                             "refiner_start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
                             "refiner_end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
                               },
@@ -908,11 +893,9 @@ class Int_Holder_ED:
     CATEGORY = "Efficiency Nodes/Simple Eval"    
 
     def store_value(self, output_int, int_opt=None, my_unique_id=None):
-        #print(f"\033[36m>>Int_Saver_ED - {int}<<\033[0m")
         if int_opt is not None:
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "output_int", "type": "text", "data": int_opt})
             output_int = int_opt
-
         return (output_int,)
 
 
@@ -998,7 +981,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         return_with_leftover_noise=None, sampler_type="regular"):
 
                 # Unpack from CONTEXT 
-                _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, c_seed, c_cfg, c_sampler, c_scheduler, positive_prompt, mask, inpaint_mode = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "mask", "inpaint_mode"])
+                _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, c_seed, c_cfg, c_sampler, c_scheduler, positive_prompt, mask = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "mask"])
         
                 mask_detailer_mode = False
                 drop_size = 5
@@ -1050,9 +1033,10 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 if keys_exist_in_script("control_net"):
                     cnet_stack = script["control_net"]
                     #script.pop("control_net", None)
-                    print(f"\033[38;5;173mKSampler ED: apply control net from script\033[0m")
+                    print(f"\033[38;5;173mKSampler ED: Apply control net from script\033[0m")
                     controlnet_conditioning = TSC_Apply_ControlNet_Stack().apply_cnet_stack(positive, negative, cnet_stack)
-                    positive, negative = controlnet_conditioning[0], controlnet_conditioning[1]                
+                    positive, negative = controlnet_conditioning[0], controlnet_conditioning[1]
+                    context = new_context_ed(context, positive=positive, negative=negative)
                 
                 refiner_model = None
                 # refiner script
@@ -1082,7 +1066,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                             detailer_hook, inpaint_model, noise_mask_feather)
                             
                     result_ui = PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
-                    context = new_context_ed(context, model=model, images=output_images, positive=positive, negative=negative, inpaint_mode="") #RE
+                    context = new_context_ed(context, images=output_images) #RE
                     result = (context, output_images, steps,)
             
                 else:
@@ -1092,10 +1076,10 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         optional_vae=vae, script=script, add_noise=add_noise, start_at_step=start_at_step, end_at_step=end_at_step,
                         return_with_leftover_noise=return_with_leftover_noise, sampler_type=sampler_type)               
         
-                    original_model, _, _, latent_list, _, output_images = return_dict["result"]
+                    _, _, _, latent_list, _, output_images = return_dict["result"]
                     result_ui = return_dict["ui"]
             
-                    context = new_context_ed(context, model=original_model,  latent=latent_list, images=output_images, positive=positive, negative=negative) #RE
+                    context = new_context_ed(context, latent=latent_list, images=output_images) #RE
                     result = (context, output_images, steps)
                 
                 # apply refiner script 
@@ -1110,14 +1094,14 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         k = refiner_vae.encode(output_images[:,:,:,:3])
                     latent_image = {"samples":k}
                     
-                    print(f"\033[38;5;173mKSampler ED: apply refiner script\033[0m")
+                    print(f"\033[38;5;173mKSampler ED: Apply refiner script\033[0m")
                     return_dict = TSC_KSampler().sample(refiner_model, seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, preview_method, vae_decode, denoise=1.0, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, optional_vae=refiner_vae, script=None, add_noise=refiner_add_noise, start_at_step=refiner_start_at_step, end_at_step=refiner_end_at_step, return_with_leftover_noise="disable", sampler_type="advanced")
                     
-                    _, _, _, _, _, refiner_images = return_dict["result"]                    
+                    _, _, _, latent_list, _, refiner_images = return_dict["result"]                    
                     result_ui = return_dict["ui"]
                     output_images = ImageBatch().batch(output_images, refiner_images)[0]
                     
-                    context = new_context_ed(context, model=original_model,  latent=latent_list, images=output_images, positive=positive, negative=negative) #RE
+                    context = new_context_ed(context, latent=latent_list, images=output_images) #RE
                     result = (context, output_images, steps)                    
                 
                 return {"ui": result_ui, "result": result}
@@ -1244,7 +1228,6 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack")):
             MaskDetailerPipe = nodes_NODE_CLASS_MAPPINGS["MaskDetailerPipe"]
             DetailerForEachDebug = nodes_NODE_CLASS_MAPPINGS["DetailerForEachDebug"]
         else:
-            #utils.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack', "To use 'FaceDetailer ED, 'Impact Pack' extension is required.")
             raise Exception("'Impact Pack' is not installed.")
         
         if "UltralyticsDetectorProvider" in nodes_NODE_CLASS_MAPPINGS and "SAMLoader" in nodes_NODE_CLASS_MAPPINGS:
