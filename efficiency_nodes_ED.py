@@ -433,7 +433,7 @@ class EfficientLoader_ED():
                         use_apply_lora = True
        
         if ckpt_name == "🔌 model_opt input" and model_opt is None:
-            raise Exception("Efficient Loader ED: ckpt_name or model_opt is required.\n\n\n\n\n\n")        
+            raise Exception("Efficient Loader ED: ckpt_name or model_opt is required.\n\n\n\n\n\n")
         
         if ckpt_name == "🔌 model_opt input":
             if model_opt is None:
@@ -844,34 +844,71 @@ class Control_Net_Script_ED:
 
 # Refiner Script ED
 class Refiner_Script_ED:
+    set_seed_cfg_sampler = {
+        "from context": 1,
+        "from node only": 2,
+    }
+    
     @classmethod
     def INPUT_TYPES(cls):
-        return {"required": {"refiner_model": ("MODEL",),
-                            "refiner_clip": ("CLIP",),
-                            "refiner_vae": ("VAE",),
-                            "refiner_add_noise": (["enable", "disable"], ),
-                            #"seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
-                            "refiner_steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
-                            "refiner_cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
-                            "refiner_sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
-                            "refiner_scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "karras"}),
-                            "refiner_start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
-                            "refiner_end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
-                              },
-                "optional": {"script": ("SCRIPT",)}
-                }
+        return {"required": {
+                            "set_seed_cfg_sampler": (list(Refiner_Script_ED.set_seed_cfg_sampler.keys()), {"default": "from context"}),
+                            "add_noise": (["enable", "disable"], ),
+                            "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                            "steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
+                            "cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
+                            "sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
+                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "karras"}),
+                            "start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
+                            "end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
+                            "ignore_batch_size": ("BOOLEAN", {"default": True}),
+                        },
+                "optional": {"context_opt": ("RGTHREE_CONTEXT",),
+                            "refiner_model_opt": ("MODEL",),
+                            "refiner_clip_opt": ("CLIP",),
+                            "refiner_vae_opt": ("VAE",),
+                            "script": ("SCRIPT",),},
+                "hidden": {"my_unique_id": "UNIQUE_ID",},}
     RETURN_TYPES = ("SCRIPT",)
     RETURN_NAMES = ("SCRIPT",)
     FUNCTION = "refiner_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def refiner_script_ed(self, refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, script=None):
+    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
         script = script or {}
         # if clip_skip != 0:
             # (refiner_clip,) = CLIPSetLastLayer().set_last_layer(refiner_clip, clip_skip)
-        refiner_script = (refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step)
+            
+        if refiner_model_opt is not None:
+            if refiner_clip_opt is not None and refiner_vae_opt is not None:
+                refiner_model = refiner_model_opt
+                refiner_clip = refiner_clip_opt
+                refiner_vae = refiner_vae_opt
+            else:
+                raise Exception("Refiner Script ED: refiner_clip and refiner_vae are required.\n\n\n\n\n\n")
+        elif context_opt is not None:
+            # Unpack from CONTEXT 
+            _, refiner_model, refiner_clip, refiner_vae, c_seed, c_cfg, c_sampler, c_scheduler, = context_2_tuple_ed(context_opt,["model", "clip", "vae", "seed", "cfg", "sampler", "scheduler"])
+            if set_seed_cfg_sampler == "from context":
+                if c_seed is None:
+                    raise Exception("KSampler (Efficient) ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                else:
+                    seed = c_seed
+                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
+                    cfg = c_cfg
+                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "cfg", "type": "text", "data": cfg})
+                    sampler_name = c_sampler
+                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "sampler_name", "type": "text", "data": sampler_name})
+                    scheduler = c_scheduler
+                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "scheduler", "type": "text", "data": scheduler})
+        else:
+            refiner_model = None
         
-        script["refiner_script"] = refiner_script
+        if refiner_model is not None:
+            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size)
+            #print(f"\033[38;5;173mRefiner Script ED: Refiner script loading. steps:{steps}, start step:{start_at_step}, end step:{end_at_step}\033[0m")
+            script["refiner_script"] = refiner_script
+        
         return (script,)
 
 ###############################################################################################################
@@ -1042,7 +1079,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 # refiner script
                 if keys_exist_in_script("refiner_script"):
                     
-                    refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler,  refiner_start_at_step, refiner_end_at_step = script["refiner_script"]
+                    refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size = script["refiner_script"]
                     
                     # use KSamplerAdvanced
                     if denoise == 1.0:
@@ -1087,15 +1124,20 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                     (refiner_positive,) = CLIPTextEncode().encode(refiner_clip, positive_prompt)
                     (refiner_negative,) = CLIPTextEncode().encode(refiner_clip, "")
                     
+                    if refiner_ignore_batch_size:
+                        refiner_images = output_images = output_images[0:1].clone()                        
+                    else:
+                        refiner_images = output_images
+                    
                     #VAE Encode
                     if "tiled" in vae_decode:
-                        k = refiner_vae.encode_tiled(output_images[:,:,:,:3], tile_x=320, tile_y=320, )
+                        k = refiner_vae.encode_tiled(refiner_images[:,:,:,:3], tile_x=320, tile_y=320, )
                     else:
-                        k = refiner_vae.encode(output_images[:,:,:,:3])
+                        k = refiner_vae.encode(refiner_images[:,:,:,:3])
                     latent_image = {"samples":k}
                     
-                    print(f"\033[38;5;173mKSampler ED: Apply refiner script\033[0m")
-                    return_dict = TSC_KSampler().sample(refiner_model, seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, preview_method, vae_decode, denoise=1.0, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, optional_vae=refiner_vae, script=None, add_noise=refiner_add_noise, start_at_step=refiner_start_at_step, end_at_step=refiner_end_at_step, return_with_leftover_noise="disable", sampler_type="advanced")
+                    print(f"\033[38;5;173mKSampler ED: Running refiner script. steps:{refiner_steps}, start step:{refiner_start_at_step}, end step:{refiner_end_at_step}\033[0m")
+                    return_dict = TSC_KSampler().sample(refiner_model, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, preview_method, vae_decode, denoise=1.0, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, optional_vae=refiner_vae, script=None, add_noise=refiner_add_noise, start_at_step=refiner_start_at_step, end_at_step=refiner_end_at_step, return_with_leftover_noise=return_with_leftover_noise, sampler_type="advanced")
                     
                     _, _, _, latent_list, _, refiner_images = return_dict["result"]                    
                     result_ui = return_dict["ui"]

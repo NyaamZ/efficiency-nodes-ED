@@ -229,6 +229,9 @@ const nodeWidgetHandlers = {
 	"SUPIR Sampler 💬ED": {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
+	"Refiner Script 💬ED": {
+        'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
+    },
 };
 
 // In the main function where widgetLogic is called
