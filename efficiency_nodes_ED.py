@@ -179,7 +179,7 @@ def populate_items(names, type):
 
         file_path_no_ext = os.path.splitext(file_path)[0]
 
-        for ext in ["png", "jpg", "jpeg", "preview.png"]:
+        for ext in ["png", "jpg", "jpeg", "preview.png", "preview.jpeg"]:
             has_image = os.path.isfile(file_path_no_ext + "." + ext)
             if has_image:
                 item_image = f"{file_name}.{ext}"
@@ -190,6 +190,8 @@ def populate_items(names, type):
             "image": f"{type}/{item_image}" if has_image else None,
         }
 
+#####################################################################################
+
 # LoRA Stacker ED
 class LoRA_Stacker_ED:
     modes = ["simple", "advanced"]
@@ -197,19 +199,17 @@ class LoRA_Stacker_ED:
 
     @classmethod
     def INPUT_TYPES(cls):
-        loras = ["None"] + folder_paths.get_filename_list("loras")
         inputs = {
             "required": {
                 "input_mode": (cls.modes,),
                 "lora_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_LORA_COUNT, "step": 1}),
             }
-        }
-        
-        inputs["required"][f"lora_name_{1}"] = (loras,)
+        }        
+        inputs["required"][f"lora_name_{1}"] = (["None"] + folder_paths.get_filename_list("loras"),)
         populate_items(inputs["required"][f"lora_name_{1}"][0], "loras")
-        lora_name_array = inputs["required"][f"lora_name_{1}"]
+        loras = inputs["required"][f"lora_name_{1}"]
         for i in range(1, cls.MAX_LORA_COUNT):
-            inputs["required"][f"lora_name_{i}"] = lora_name_array
+            inputs["required"][f"lora_name_{i}"] = loras
             inputs["required"][f"lora_wt_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"model_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"clip_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})        
@@ -247,6 +247,114 @@ class LoRA_Stacker_ED:
             loras.extend([l for l in lora_stack if l[0] != "None"])
         #print(f"\033[36mloras:{(loras,)}\033[0m") 
         return (loras,)
+
+##########################################################################################################
+
+# Embedding Stacker ED
+class Embedding_Stacker_ED:
+
+    MAX_EMBEDDING_COUNT = 9
+
+    @classmethod
+    def INPUT_TYPES(cls):
+        inputs = {
+            "required": {
+                "positive_embeddings_count": ("INT", {"default": 0, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
+                "negative_embeddings_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
+            }
+        }        
+        inputs["required"][f"positive_embedding_{1}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
+        populate_items(inputs["required"][f"positive_embedding_{1}"][0], "embeddings")
+        embeddings = inputs["required"][f"positive_embedding_{1}"]
+        for i in range(1, cls.MAX_EMBEDDING_COUNT):
+            inputs["required"][f"positive_embedding_{i}"] = embeddings
+            inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
+        for i in range(1, cls.MAX_EMBEDDING_COUNT):
+            inputs["required"][f"negative_embedding_{i}"] = embeddings
+            inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
+
+        inputs["optional"] = {
+            "lora_stack": ("LORA_STACK",)
+        }
+        return inputs
+
+    RETURN_TYPES = ("LORA_STACK",)
+    RETURN_NAMES = ("LORA_STACK",)
+    FUNCTION = "embedding_stacker"
+    CATEGORY = "Efficiency Nodes/Stackers"
+
+    def embedding_stacker(self, positive_embeddings_count, negative_embeddings_count, lora_stack=None, **kwargs):
+        # POSITIVE EMBEDDING
+        if positive_embeddings_count > 0:
+            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
+                kwargs[f"positive_embedding_{i}"] = kwargs[f"positive_embedding_{i}"]["content"]
+
+            # Extract values from kwargs
+            pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
+            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
+            pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
+            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None"]
+        else:
+            pos_embs = []
+        
+        # NEGTIVE EMBEDDING
+        if negative_embeddings_count > 0:
+            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
+                kwargs[f"negative_embedding_{i}"] = kwargs[f"negative_embedding_{i}"]["content"]
+            # Extract values from kwargs
+            neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
+            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
+            neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
+            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None"]
+        else:
+            neg_embs = []
+        
+        loras = pos_embs + neg_embs        
+        # If lora_stack is not None, extend the loras list with lora_stack
+        if lora_stack is not None:
+            loras.extend([l for l in lora_stack if l[0] != "None"])
+        #print(f"\033[36mlorasEmbedding:{(loras,)}\033[0m") 
+        return (loras,)
+
+    def embedding_process(lora_stack, positive, negative, positive_refiner, negative_refiner):
+        if lora_stack is None:
+            return (lora_stack, positive, negative, positive_refiner, negative_refiner)
+    
+        new_lora_stack = []
+        pos = positive
+        neg = negative
+        pos_refiner = positive_refiner
+        neg_refiner = negative_refiner
+    
+        for entry in lora_stack:
+            if entry[0] == "POS_EMBEDDING":
+                emb = "embedding:" + Path(entry[1]).stem        
+                if entry[2] != 1:
+                    emb = f"({emb}:{entry[2]})"
+                pos = f"{positive.rstrip(' ,')}, {emb},"
+                positive = pos
+                if positive_refiner is not None:
+                    pos_refiner = f"{positive_refiner.rstrip(' ,')}, {emb},"
+                    positive_refiner = pos_refiner
+            elif entry[0] == "NEG_EMBEDDING":
+                emb = "embedding:" + Path(entry[1]).stem        
+                if entry[2] != 1:
+                    emb = f"({emb}:{entry[2]})"
+                neg = f"{negative.rstrip(' ,')}, {emb},"
+                negative = neg
+                if negative_refiner is not None:
+                    neg_refiner = f"{negative_refiner.rstrip(' ,')}, {emb},"
+                    negative_refiner = neg_refiner
+            else:
+                new_lora_stack.append(entry)
+                
+        if len(new_lora_stack) == 0:
+            new_lora_stack = None
+        #print(f"\033[36mpos:{pos}\033[0m")
+        #print(f"\033[36mneg:{neg}\033[0m")
+        return (new_lora_stack, pos, neg, pos_refiner, neg_refiner)
+
+####################################################################################
 
 # Apply LoRA Stack ED
 class Apply_LoRA_Stack_ED:
@@ -700,114 +808,6 @@ class SaveImage_ED(SaveImage):
         else:
             return { "ui": { "images": list() } }
 
-##########################################################################################################
-
-# Embedding Stacker ED
-class Embedding_Stacker_ED:
-
-    MAX_EMBEDDING_COUNT = 9
-
-    @classmethod
-    def INPUT_TYPES(cls):
-        embeddings = ["None"] + folder_paths.get_filename_list("embeddings")
-        inputs = {
-            "required": {
-                "positive_embeddings_count": ("INT", {"default": 0, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
-                "negative_embeddings_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
-            }
-        }
-        
-        inputs["required"][f"positive_embedding_{1}"] = (embeddings,)
-        populate_items(inputs["required"][f"positive_embedding_{1}"][0], "embeddings")
-        embedding_name_array = inputs["required"][f"positive_embedding_{1}"]
-        for i in range(1, cls.MAX_EMBEDDING_COUNT):
-            inputs["required"][f"positive_embedding_{i}"] = embedding_name_array
-            inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
-        for i in range(1, cls.MAX_EMBEDDING_COUNT):
-            inputs["required"][f"negative_embedding_{i}"] = embedding_name_array
-            inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
-
-        inputs["optional"] = {
-            "lora_stack": ("LORA_STACK",)
-        }
-        return inputs
-
-    RETURN_TYPES = ("LORA_STACK",)
-    RETURN_NAMES = ("LORA_STACK",)
-    FUNCTION = "embedding_stacker"
-    CATEGORY = "Efficiency Nodes/Stackers"
-
-    def embedding_stacker(self, positive_embeddings_count, negative_embeddings_count, lora_stack=None, **kwargs):
-        # POSITIVE EMBEDDING
-        if positive_embeddings_count > 0:
-            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
-                kwargs[f"positive_embedding_{i}"] = kwargs[f"positive_embedding_{i}"]["content"]
-
-            # Extract values from kwargs
-            pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
-            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-            pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
-            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None"]
-        else:
-            pos_embs = []
-        
-        # NEGTIVE EMBEDDING
-        if negative_embeddings_count > 0:
-            for i in range(1, Embedding_Stacker_ED.MAX_EMBEDDING_COUNT):
-                kwargs[f"negative_embedding_{i}"] = kwargs[f"negative_embedding_{i}"]["content"]
-            # Extract values from kwargs
-            neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
-            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-            neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
-            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None"]
-        else:
-            neg_embs = []
-        
-        loras = pos_embs + neg_embs        
-        # If lora_stack is not None, extend the loras list with lora_stack
-        if lora_stack is not None:
-            loras.extend([l for l in lora_stack if l[0] != "None"])
-        #print(f"\033[36mlorasEmbedding:{(loras,)}\033[0m") 
-        return (loras,)
-
-    def embedding_process(lora_stack, positive, negative, positive_refiner, negative_refiner):
-        if lora_stack is None:
-            return (lora_stack, positive, negative, positive_refiner, negative_refiner)
-    
-        new_lora_stack = []
-        pos = positive
-        neg = negative
-        pos_refiner = positive_refiner
-        neg_refiner = negative_refiner
-    
-        for entry in lora_stack:
-            if entry[0] == "POS_EMBEDDING":
-                emb = "embedding:" + Path(entry[1]).stem        
-                if entry[2] != 1:
-                    emb = f"({emb}:{entry[2]})"
-                pos = f"{positive.rstrip(' ,')}, {emb},"
-                positive = pos
-                if positive_refiner is not None:
-                    pos_refiner = f"{positive_refiner.rstrip(' ,')}, {emb},"
-                    positive_refiner = pos_refiner
-            elif entry[0] == "NEG_EMBEDDING":
-                emb = "embedding:" + Path(entry[1]).stem        
-                if entry[2] != 1:
-                    emb = f"({emb}:{entry[2]})"
-                neg = f"{negative.rstrip(' ,')}, {emb},"
-                negative = neg
-                if negative_refiner is not None:
-                    neg_refiner = f"{negative_refiner.rstrip(' ,')}, {emb},"
-                    negative_refiner = neg_refiner
-            else:
-                new_lora_stack.append(entry)
-                
-        if len(new_lora_stack) == 0:
-            new_lora_stack = None
-        #print(f"\033[36mpos:{pos}\033[0m")
-        #print(f"\033[36mneg:{neg}\033[0m")
-        return (new_lora_stack, pos, neg, pos_refiner, neg_refiner)
-
 ###############################################################################################################
 
 MAX_CASHE_ED_CONTROLNET = 1
@@ -862,6 +862,7 @@ class Refiner_Script_ED:
                             "start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
                             "end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
                             "ignore_batch_size": ("BOOLEAN", {"default": True}),
+                            "do_refine_only": ("BOOLEAN", {"default": True}),
                         },
                 "optional": {"context_opt": ("RGTHREE_CONTEXT",),
                             "refiner_model_opt": ("MODEL",),
@@ -874,7 +875,7 @@ class Refiner_Script_ED:
     FUNCTION = "refiner_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
+    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, do_refine_only, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
         script = script or {}
         # if clip_skip != 0:
             # (refiner_clip,) = CLIPSetLastLayer().set_last_layer(refiner_clip, clip_skip)
@@ -905,7 +906,7 @@ class Refiner_Script_ED:
             refiner_model = None
         
         if refiner_model is not None:
-            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size)
+            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
             #print(f"\033[38;5;173mRefiner Script ED: Refiner script loading. steps:{steps}, start step:{start_at_step}, end step:{end_at_step}\033[0m")
             script["refiner_script"] = refiner_script
         
@@ -1077,10 +1078,11 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 
                 refiner_model = None
                 # refiner script
-                if keys_exist_in_script("refiner_script"):
+                if keys_exist_in_script("refiner_script"):                    
+                    refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, do_refine_only = script["refiner_script"]
                     
-                    refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size = script["refiner_script"]
-                    
+                    if do_refine_only:
+                        denoise = 0                    
                     # use KSamplerAdvanced
                     if denoise == 1.0:
                         sampler_type = "advanced"

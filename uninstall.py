@@ -1,7 +1,8 @@
 import os
 import shutil
 
-annotating_file_list = ["../efficiency-nodes-comfyui/js/node_options/addLinks.js",
+annotating_file_list = [
+            "../efficiency-nodes-comfyui/js/node_options/addLinks.js",
             "../efficiency-nodes-comfyui/js/node_options/addScripts.js",
             "../efficiency-nodes-comfyui/js/node_options/addXYinputs.js",
             "../efficiency-nodes-comfyui/js/node_options/modelInfo.js",
@@ -9,7 +10,9 @@ annotating_file_list = ["../efficiency-nodes-comfyui/js/node_options/addLinks.js
             "../efficiency-nodes-comfyui/js/node_options/swapLoaders.js",
             "../efficiency-nodes-comfyui/js/node_options/swapSamplers.js",
             "../efficiency-nodes-comfyui/js/node_options/swapScripts.js",
-            "../efficiency-nodes-comfyui/js/node_options/swapXYinputs.js"]
+            "../efficiency-nodes-comfyui/js/node_options/swapXYinputs.js",
+            "../efficiency-nodes-comfyui/js/node_options/common/modelInfoDialog.js",
+            ]
 
 read_css_folder = "./user_css/"
 write_css_folder = "../../web/"

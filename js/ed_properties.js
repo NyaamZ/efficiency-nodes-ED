@@ -49,7 +49,7 @@ app.registerExtension({
             const onNodeCreated = nodeType.prototype.onNodeCreated;
             nodeType.prototype.onNodeCreated = function () {
                 const result = onNodeCreated?.apply(this, arguments);
-				this.setProperty("Turn on Apply Lora", true);
+				this.setProperty("Turn on Apply Lora", false);
                 return result;
             };
         }
