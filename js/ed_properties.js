@@ -14,11 +14,18 @@ app.registerExtension({
             nodeType.prototype.onNodeCreated = function () {
                 const result = onNodeCreated?.apply(this, arguments);
 				
-				//console.log("##Efficient Loader loaded##");
-				//this.setProperty("Model output only (Not included ctx)", false);
-				//this.setProperty("Image size sync MultiAreaConditioning", false);
 				this.setProperty("Use tiled VAE encode", false);
 				this.setProperty("Synchronize widget with image size", true);
+				this.setProperty("Token normalization", "none")
+				this.constructor["@Token normalization"] = {
+					type: "combo",
+					values: ["none", "mean", "length", "length+mean"],
+				};
+				this.setProperty("Weight interpretation", "comfy")
+				this.constructor["@Weight interpretation"] = {
+					type: "combo",
+					values: ["comfy", "A1111", "compel", "comfy++", "down_weight"],
+				};
 				//this.setProperty("Tiled VAE encode tile size", 512);
 				/* this.setProperty("Kohya-block number", 3)
 				this.setProperty("Kohya-downscale factor", 2.000)

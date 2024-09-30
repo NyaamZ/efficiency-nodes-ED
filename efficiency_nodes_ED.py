@@ -44,6 +44,10 @@ sys.path.remove(comfy_dir)
 
 sys.path.append(efficiency_nodes_dir)
 from tsc_utils import *
+efficiency_nodes_py_dir = os.path.abspath(os.path.join(efficiency_nodes_dir, 'py'))
+sys.path.append(efficiency_nodes_py_dir)
+from bnk_adv_encode import AdvancedCLIPTextEncode
+sys.path.remove(efficiency_nodes_py_dir)
 sys.path.remove(efficiency_nodes_dir)
 
 # Append custom_nodes_dir to sys.path
@@ -527,6 +531,8 @@ class EfficientLoader_ED():
         tiled_vae_encode = False
         vae_encode_tile_size = 512
         use_apply_lora = False
+        token_normalization = "none"
+        weight_interpretation = "comfy"
         
         if extra_pnginfo and "workflow" in extra_pnginfo:
             workflow = extra_pnginfo["workflow"]
@@ -535,6 +541,8 @@ class EfficientLoader_ED():
                 if node["id"] == int(my_unique_id):
                     tiled_vae_encode = node["properties"]["Use tiled VAE encode"]
                     this_sync = node["properties"]["Synchronize widget with image size"]
+                    token_normalization = node["properties"]["Token normalization"]
+                    weight_interpretation = node["properties"]["Weight interpretation"]
                 if node["type"] == "Apply LoRA Stack 💬ED" and not use_apply_lora:
                     if node["properties"]["Turn on Apply Lora"] == True:
                         print(f"\033[36mEfficient Loader ED:Apply LoRA Stack ED is exist, loading Lora is pending.\033[0m")
@@ -618,7 +626,7 @@ class EfficientLoader_ED():
                 # refiner_negative_encoded = bnk_adv_encode.AdvancedCLIPTextEncode().encode(refiner_clip, negative_refiner, token_normalization, weight_interpretation)[0]
                 # refiner_negative_encoded = bnk_adv_encode.AddCLIPSDXLRParams().encode(refiner_negative_encoded, image_width, image_height, ascore[1])[0]
         
-        #Encode prompt
+        ############################### PROMPT ENCODING ############################
         refiner_model = refiner_clip = refiner_clip_skip = None
         
         modle_type = None
@@ -628,14 +636,21 @@ class EfficientLoader_ED():
         if ckpt_name == "🔌 model_opt input":
             print(f"\033[38;5;173mEfficient Loader ED : model from model_opt input, Ignore clip skip\033[0m")
         elif modle_type == "Flux":
-            print(f"\033[38;5;173mEfficient Loader ED : Model type is {modle_type}, Ignore clip skip\033[0m")
+            print(f"\033[38;5;173mEfficient Loader ED : model type is {modle_type}, Ignore clip skip\033[0m")
         elif clip_skip == 0:
             print(f"\033[38;5;173mEfficient Loader ED : clip skip is 0, Ignore clip skip\033[0m")
         else:
             (clip,) = CLIPSetLastLayer().set_last_layer(clip, clip_skip)            
         
-        (positive_encoded,) = CLIPTextEncode().encode(clip, positive)
-        (negative_encoded,) = CLIPTextEncode().encode(clip, negative)
+        #Encode prompt
+        if token_normalization != "none" or weight_interpretation != "comfy":
+            # Encode prompt based on loader_type
+            print(f"\033[38;5;173mEfficientLoader ED: Using AdvancedCLIPTextEncode (token normalization - {token_normalization}, weight interpretation - {weight_interpretation})\033[0m")
+            positive_encoded = AdvancedCLIPTextEncode().encode(clip, positive, token_normalization, weight_interpretation)[0]
+            negative_encoded = AdvancedCLIPTextEncode().encode(clip, negative, token_normalization, weight_interpretation)[0]
+        else:
+            (positive_encoded,) = CLIPTextEncode().encode(clip, positive)
+            (negative_encoded,) = CLIPTextEncode().encode(clip, negative)
 
         # Apply ControlNet Stack if given
         if cnet_stack:
@@ -691,8 +706,6 @@ class EfficientLoader_ED():
                 model, clip = Apply_LoRA_Stack_ED.apply_load_lora(lora_params, model, clip, False)                
             
         # Data for XY Plot
-        token_normalization = "none"
-        weight_interpretation = "comfy"
         dependencies = (vae_name, ckpt_name, clip, clip_skip, refiner_name, refiner_clip, refiner_clip_skip,
                         positive, negative, token_normalization, weight_interpretation, ascore,
                         image_width, image_height, lora_params, cnet_stack)
