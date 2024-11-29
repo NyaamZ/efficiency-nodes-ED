@@ -396,6 +396,7 @@ function handleLoadImage_ED(node, widget) {
     
     toggleWidget(node, findWidgetByName(node, 'width'), opened);
 	toggleWidget(node, findWidgetByName(node, 'height'), opened);
+	toggleWidget(node, findWidgetByName(node, 'keep_proportions'), opened);
 	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
 }
 

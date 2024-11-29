@@ -715,6 +715,7 @@ prompt_blacklist_ed = set([
 
 class LoadImage_ED(LoadImage):
     upscale_methods = ["do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"]
+    proportion_methods = ["disabled", "based on width", "based on height", "disabled & crop center"]
     @classmethod
     def INPUT_TYPES(s):
         input_dir = folder_paths.get_input_directory()
@@ -722,16 +723,17 @@ class LoadImage_ED(LoadImage):
         return {"required": {
                               "image": (sorted(files), {"image_upload": True}),
                               "upscale_method": (s.upscale_methods,),
-                              "width": ("INT", {"default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
-                              "height": ("INT", {"default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              "width": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              "height": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              "keep_proportions": (s.proportion_methods,),
                               }}
     CATEGORY = "Efficiency Nodes/Image"
     RETURN_TYPES = ("IMAGE", "MASK", "STRING",)
     RETURN_NAMES = ("IMAGE", "MASK", "PROMPT_TEXT",)
     FUNCTION = "load_image"
 
-    def load_image(self, image, upscale_method, width, height ):        
-        output_image , output_mask = super().load_image(image)
+    def load_image(self, image, upscale_method, width, height, keep_proportions):        
+        output_image, output_mask = super().load_image(image)
         
         #################################################
         image_path = folder_paths.get_annotated_filepath(image)
@@ -786,9 +788,25 @@ class LoadImage_ED(LoadImage):
         _, image_height, image_width, _ = output_image.shape
         text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
         
-        ## Upscale imge
-        if upscale_method != "do not upscale":
-            output_image = ImageScale().upscale(output_image, upscale_method, width, height, "disabled")[0]
+        ## Upscale image & Mask
+        if upscale_method != "do not upscale":            
+            crop = "center" if keep_proportions == "disabled & crop center" else "disabled"
+            
+            if keep_proportions == "based on width" or keep_proportions == "based on height":
+                oh, ow = (image_height, image_width)
+                width = ow if width == 0 else width
+                height = oh if height == 0 else height
+                ratio = (width / ow) if keep_proportions == "based on width" else (height / oh)
+                width = round(ow*ratio)
+                height = round(oh*ratio)
+            
+            output_image = ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
+            
+            if output_mask is not None:
+                t = output_mask.unsqueeze(1)
+                t = comfy.utils.common_upscale(t, width, height, upscale_method, crop)
+                output_mask = t.squeeze(1)
+        
         return (output_image, output_mask, text,)
 
     @classmethod
