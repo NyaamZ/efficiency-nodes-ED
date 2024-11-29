@@ -205,6 +205,9 @@ const nodeWidgetHandlers = {
     "KSampler Text 💬ED": {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
+    "Load Image 💬ED": {
+        'upscale_method': handleLoadImage_ED
+    },
 	"FaceDetailer 💬ED": {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
@@ -385,6 +388,18 @@ function handleEfficientSamplerSetSeed_ED(node, widget) {
 	toggleWidget(node, findWidgetByName(node, 'batch_size'), opened);
 	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
 }
+
+// LoadImage ED Handlers
+function handleLoadImage_ED(node, widget) {
+	const adjustment  = node.size[1];
+	const opened = !(widget.value === "do not upscale");
+    
+    toggleWidget(node, findWidgetByName(node, 'width'), opened);
+	toggleWidget(node, findWidgetByName(node, 'height'), opened);
+	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
+}
+
+
 
 function handleUltimateSDUpscalerTileSize_ED(node, widget) {
     if (widget.value == 'Image size' || widget.value == 'Canvas size') {       

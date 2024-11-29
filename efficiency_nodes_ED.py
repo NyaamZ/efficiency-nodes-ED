@@ -26,7 +26,7 @@ comfy_dir = os.path.abspath(os.path.join(my_dir, '..', '..'))
 
 # Append comfy_dir to sys.path & import files
 sys.path.append(comfy_dir)
-from nodes import CLIPSetLastLayer, CLIPTextEncode, PreviewImage, LoadImage, SaveImage, MAX_RESOLUTION, InpaintModelConditioning, RepeatLatentBatch, ImageBatch
+from nodes import CLIPSetLastLayer, CLIPTextEncode, PreviewImage, LoadImage, SaveImage, MAX_RESOLUTION, InpaintModelConditioning, RepeatLatentBatch, ImageBatch, ImageScale
 from nodes import NODE_CLASS_MAPPINGS as nodes_NODE_CLASS_MAPPINGS
 #import nodes
 from comfy_extras.nodes_upscale_model import UpscaleModelLoader, ImageUpscaleWithModel
@@ -430,7 +430,7 @@ class Apply_LoRA_Stack_ED:
         
         return (ctx, model, clip, vae, positive, negative, latent, images, seed,)
 
-########################################################################################################################
+###############################################################################################################
 
 # Efficient Loader ED    
 class EfficientLoader_ED():
@@ -515,16 +515,7 @@ class EfficientLoader_ED():
                         # if node["properties"]["Turn on Applry Lora"] == True:
                             # print(f"\033[36mEfficient Loader ED:Apply LoRA ED is linked, Lora loading is pending.\033[0m")
                             # use_apply_lora = True
-                        # break
-        ############################ changeXY MultiAreaConditioning
-        # if workflow and multi_sync:
-            # for node in workflow["nodes"]:
-                # if node["type"] == "MultiAreaConditioning":
-                    # node_id = node["id"]
-                    # PromptServer.instance.send_sync("ed-node-feedback", {"node_id": node_id, "widget_name": "resolutionX", "type": "text", "data": image_width})
-                    # PromptServer.instance.send_sync("ed-node-feedback", {"node_id": node_id, "widget_name": "resolutionY", "type": "text", "data": image_height})
-                    # break       
-        
+                        # break        
         
         # GET PROPERTIES #
         this_sync = True
@@ -640,7 +631,7 @@ class EfficientLoader_ED():
         elif clip_skip == 0:
             print(f"\033[38;5;173mEfficient Loader ED : clip skip is 0, Ignore clip skip\033[0m")
         else:
-            (clip,) = CLIPSetLastLayer().set_last_layer(clip, clip_skip)            
+            clip = CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
         
         #Encode prompt
         if token_normalization != "none" or weight_interpretation != "comfy":
@@ -649,8 +640,8 @@ class EfficientLoader_ED():
             positive_encoded = AdvancedCLIPTextEncode().encode(clip, positive, token_normalization, weight_interpretation)[0]
             negative_encoded = AdvancedCLIPTextEncode().encode(clip, negative, token_normalization, weight_interpretation)[0]
         else:
-            (positive_encoded,) = CLIPTextEncode().encode(clip, positive)
-            (negative_encoded,) = CLIPTextEncode().encode(clip, negative)
+            positive_encoded = CLIPTextEncode().encode(clip, positive)[0]
+            negative_encoded = CLIPTextEncode().encode(clip, negative)[0]
 
         # Apply ControlNet Stack if given
         if cnet_stack:
@@ -687,7 +678,7 @@ class EfficientLoader_ED():
                     raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
 
             #RepeatLatentBatch
-            (samples_latent,) = RepeatLatentBatch().repeat(k, batch_size)
+            samples_latent = RepeatLatentBatch().repeat(k, batch_size)[0]
             
             # change image_width and image_height widget from image size
             if this_sync:
@@ -711,7 +702,7 @@ class EfficientLoader_ED():
                         image_width, image_height, lora_params, cnet_stack)
                 
         context = new_context_ed(None, model=model, clip=clip, vae=vae, positive=positive_encoded, negative=negative_encoded, 
-                latent=samples_latent, images=pixels, seed=seed, step_refiner=batch_size, cfg=cfg, sampler=sampler_name, scheduler=scheduler, clip_width=image_width, clip_height=image_height, text_pos_g=positive, text_neg_g=negative, mask=mask, lora_stack=lora_stack)
+                latent=samples_latent, images=pixels, seed=seed, step_refiner=batch_size, cfg=cfg, ckpt_name=ckpt_name, sampler=sampler_name, scheduler=scheduler, clip_width=image_width, clip_height=image_height, text_pos_g=positive, text_neg_g=negative, mask=mask, lora_stack=lora_stack)
 
         return (context, model, positive_encoded, negative_encoded, samples_latent, vae, dependencies,)
 
@@ -723,14 +714,23 @@ prompt_blacklist_ed = set([
 ])
 
 class LoadImage_ED(LoadImage):
-
+    upscale_methods = ["do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"]
+    @classmethod
+    def INPUT_TYPES(s):
+        input_dir = folder_paths.get_input_directory()
+        files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+        return {"required": {
+                              "image": (sorted(files), {"image_upload": True}),
+                              "upscale_method": (s.upscale_methods,),
+                              "width": ("INT", {"default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              "height": ("INT", {"default": 512, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              }}
     CATEGORY = "Efficiency Nodes/Image"
     RETURN_TYPES = ("IMAGE", "MASK", "STRING",)
     RETURN_NAMES = ("IMAGE", "MASK", "PROMPT_TEXT",)
     FUNCTION = "load_image"
 
-    def load_image(self, image):
-        
+    def load_image(self, image, upscale_method, width, height ):        
         output_image , output_mask = super().load_image(image)
         
         #################################################
@@ -785,8 +785,27 @@ class LoadImage_ED(LoadImage):
 
         _, image_height, image_width, _ = output_image.shape
         text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
-        return (output_image, output_mask, text,)
         
+        ## Upscale imge
+        if upscale_method != "do not upscale":
+            output_image = ImageScale().upscale(output_image, upscale_method, width, height, "disabled")[0]
+        return (output_image, output_mask, text,)
+
+    @classmethod
+    def IS_CHANGED(s, image, upscale_method, width, height):
+        image_path = folder_paths.get_annotated_filepath(image)
+        m = hashlib.sha256()
+        with open(image_path, 'rb') as f:
+            m.update(f.read())
+        return m.digest().hex()
+
+    @classmethod
+    def VALIDATE_INPUTS(s, image, upscale_method, width, height):
+        if not folder_paths.exists_annotated_filepath(image):
+            return "Invalid image file: {}".format(image)
+
+        return True
+
 # Save Image ED
 class SaveImage_ED(SaveImage):
 
@@ -890,9 +909,7 @@ class Refiner_Script_ED:
 
     def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, do_refine_only, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
         script = script or {}
-        # if clip_skip != 0:
-            # (refiner_clip,) = CLIPSetLastLayer().set_last_layer(refiner_clip, clip_skip)
-            
+        
         if refiner_model_opt is not None:
             if refiner_clip_opt is not None and refiner_vae_opt is not None:
                 refiner_model = refiner_model_opt
@@ -1136,8 +1153,8 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 
                 # apply refiner script 
                 if refiner_model is not None:          
-                    (refiner_positive,) = CLIPTextEncode().encode(refiner_clip, positive_prompt)
-                    (refiner_negative,) = CLIPTextEncode().encode(refiner_clip, "")
+                    refiner_positive = CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
+                    refiner_negative = CLIPTextEncode().encode(refiner_clip, "")[0]
                     
                     if refiner_ignore_batch_size:
                         refiner_images = output_images = output_images[0:1].clone()                        
@@ -1166,8 +1183,8 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
         NODE_CLASS_MAPPINGS.update({"KSampler (Efficient) 💬ED": KSampler_ED})
 
 ####################################  KSamplerTEXT ED #for BackGround Make  ###############################
-        class KSamplerTEXT_ED():
 
+        class KSamplerTEXT_ED():
             @classmethod
             def INPUT_TYPES(cls):
                 return {"required":
@@ -1248,8 +1265,8 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                 latent_t = torch.zeros([batch_size, 4, image_height // 8, image_width // 8]).cpu()
                 latent_image = {"samples":latent_t}
                 
-                (positive_encoded,) = CLIPTextEncode().encode(clip, positive)
-                (negative_encoded,) = CLIPTextEncode().encode(clip, negative)       
+                positive_encoded = CLIPTextEncode().encode(clip, positive)[0]
+                negative_encoded = CLIPTextEncode().encode(clip, negative)[0]
                 
                 return_dict = TSC_KSampler().sample(model, seed, steps, cfg, sampler_name, scheduler, 
                         positive_encoded, negative_encoded, latent_image, preview_method, vae_decode, denoise=denoise, prompt=prompt, 
@@ -1740,11 +1757,11 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI_UltimateSDUpscale")):
                 
                 upscaler = load_upscale_model(upscale_model)        
                         
-                (tensor,) = UltimateSDUpscale().upscale(image, model, positive, negative, vae, upscale_by, seed,
+                tensor = UltimateSDUpscale().upscale(image, model, positive, negative, vae, upscale_by, seed,
                         steps, cfg, sampler_name, scheduler, denoise, upscaler,
                         mode_type, tile_width, tile_height, mask_blur, tile_padding,
                         seam_fix_mode, seam_fix_denoise, seam_fix_mask_blur,
-                        seam_fix_width, seam_fix_padding, force_uniform_tiles, tiled_decode)
+                        seam_fix_width, seam_fix_padding, force_uniform_tiles, tiled_decode)[0]
                 
                 context = new_context_ed(context, images=tensor) #RE        
                 return (context, tensor, image,)
@@ -1941,15 +1958,15 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
                 (positive_encoded, negative_encoded,) = SUPIR_conditioner().condition(SUPIR_model, denoised_latent, positive_prompt, negative_prompt, captions="")
             
                 # SUPIR_encode
-                (SUPIR_latent,) = SUPIR_encode().encode(SUPIR_vae2, denoised_image, encoder_dtype, use_tiled_vae, vae_tile_size)
+                SUPIR_latent = SUPIR_encode().encode(SUPIR_vae2, denoised_image, encoder_dtype, use_tiled_vae, vae_tile_size)[0]
             
                 # SUPIR_sample
-                (SUPIR_latent,) = SUPIR_sample().sample(SUPIR_model, SUPIR_latent, steps, seed, cfg, EDM_s_churn, s_noise, positive_encoded,
+                SUPIR_latent = SUPIR_sample().sample(SUPIR_model, SUPIR_latent, steps, seed, cfg, EDM_s_churn, s_noise, positive_encoded,
                 negative_encoded, cfg, control_scale_start, control_scale_end, restore_cfg, keep_model_loaded, DPMPP_eta,
-                sampler, sampler_tile_size=1024, sampler_tile_stride=512)
+                sampler, sampler_tile_size=1024, sampler_tile_stride=512)[0]
                 
                 # SUPIR_decode
-                (output_image,) = SUPIR_decode().decode(SUPIR_vae, SUPIR_latent, use_tiled_vae, vae_tile_size)
+                output_image = SUPIR_decode().decode(SUPIR_vae, SUPIR_latent, use_tiled_vae, vae_tile_size)[0]
                 context = new_context_ed(context, images=output_image)
                 
                 return (context, output_image, source_image)
