@@ -725,14 +725,15 @@ class LoadImage_ED(LoadImage):
                               "upscale_method": (s.upscale_methods,),
                               "width": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
                               "height": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
-                              "keep_proportions": (s.proportion_methods,),
-                              }}
+                              "keep_proportions": (s.proportion_methods,),},
+                    "hidden": { "my_unique_id": "UNIQUE_ID",}
+                    }
     CATEGORY = "Efficiency Nodes/Image"
     RETURN_TYPES = ("IMAGE", "MASK", "STRING",)
     RETURN_NAMES = ("IMAGE", "MASK", "PROMPT_TEXT",)
     FUNCTION = "load_image"
 
-    def load_image(self, image, upscale_method, width, height, keep_proportions):        
+    def load_image(self, image, upscale_method, width, height, keep_proportions, my_unique_id):        
         output_image, output_mask = super().load_image(image)
         
         #################################################
@@ -799,6 +800,8 @@ class LoadImage_ED(LoadImage):
                 ratio = (width / ow) if keep_proportions == "based on width" else (height / oh)
                 width = round(ow*ratio)
                 height = round(oh*ratio)
+                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "width", "type": "text", "data": width})
+                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "height", "type": "text", "data": height})
             
             output_image = ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
             
@@ -1054,7 +1057,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                         "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "my_unique_id": "UNIQUE_ID",},}
 
             RETURN_TYPES = ("RGTHREE_CONTEXT", "IMAGE", "INT",)
-            RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "STEPS",)
+            RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "STEPS_INT",)
             OUTPUT_NODE = True
             FUNCTION = "sample_ed"
             CATEGORY = "Efficiency Nodes/Sampling"
