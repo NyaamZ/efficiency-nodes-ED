@@ -60,6 +60,8 @@ sys.path.append(custom_nodes_dir)
 #################################################################
 #################################################################
 
+SCHEDULERS = comfy.samplers.KSampler.SCHEDULERS + ["AYS SD1", "AYS SDXL", "AYS SVD"]
+
 ############## ED rgthree Context
 _all_ed_context_input_output_data = {
   "base_ctx": ("base_ctx", "RGTHREE_CONTEXT", "CONTEXT"),
@@ -80,7 +82,7 @@ _all_ed_context_input_output_data = {
   "cfg": ("cfg", "FLOAT", "CFG"),
   "ckpt_name": ("ckpt_name", folder_paths.get_filename_list("checkpoints"), "CKPT_NAME"),
   "sampler": ("sampler", comfy.samplers.KSampler.SAMPLERS, "SAMPLER"),
-  "scheduler": ("scheduler", comfy.samplers.KSampler.SCHEDULERS, "SCHEDULER"),
+  "scheduler": ("scheduler", SCHEDULERS, "SCHEDULER"),
   "clip_width": ("clip_width", "INT", "CLIP_WIDTH"),
   "clip_height": ("clip_height", "INT", "CLIP_HEIGHT"),
   "text_pos_g": ("text_pos_g", "STRING", "TEXT_POS_G"),
@@ -452,7 +454,7 @@ class EfficientLoader_ED():
                               "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                               "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
                               "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                              "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                              "scheduler": (SCHEDULERS,),
                               "positive": ("STRING", {"default": "","multiline": True, "dynamicPrompts": True}),
                               "negative": ("STRING", {"default": "", "multiline": True, "dynamicPrompts": True}),
                               "image_width": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
@@ -911,7 +913,7 @@ class Refiner_Script_ED:
                             "steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "karras"}),
+                            "scheduler": (SCHEDULERS, {"default": "karras"}),
                             "start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
                             "end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
                             "ignore_batch_size": ("BOOLEAN", {"default": True}),
@@ -1039,7 +1041,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                             "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                            "scheduler": (SCHEDULERS,),
                             "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                             "preview_method": (["auto", "latent2rgb", "taesd", "vae_decoded_only", "none"],),
                             },
@@ -1215,7 +1217,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "efficiency-nodes-comfyui")):
                             "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                            "scheduler": (SCHEDULERS,),
                             "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                             "preview_method": (["auto", "latent2rgb", "taesd", "vae_decoded_only", "none"],),
                             "vae_decode": (["true", "true (tiled)", "false"],),
@@ -1378,7 +1380,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack")):
                             "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                            "scheduler": (SCHEDULERS,),
                             "denoise": ("FLOAT", {"default": 0.5, "min": 0.0001, "max": 1.0, "step": 0.01}),
                             "feather": ("INT", {"default": 5, "min": 0, "max": 100, "step": 1}),
                             "noise_mask": ("BOOLEAN", {"default": True, "label_on": "enabled", "label_off": "disabled"}),
@@ -1482,7 +1484,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack")):
                             "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                            "scheduler": (SCHEDULERS,),
                             "denoise": ("FLOAT", {"default": 0.5, "min": 0.0001, "max": 1.0, "step": 0.01}),
 
                             "feather": ("INT", {"default": 5, "min": 0, "max": 100, "step": 1}),
@@ -1587,7 +1589,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack")):
                             "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                            "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),
+                            "scheduler": (SCHEDULERS,),
                             "denoise": ("FLOAT", {"default": 0.5, "min": 0.0001, "max": 1.0, "step": 0.01}),
                             "feather": ("INT", {"default": 5, "min": 0, "max": 100, "step": 1}),
                             
@@ -1707,7 +1709,7 @@ if os.path.exists(os.path.join(custom_nodes_dir, "ComfyUI_UltimateSDUpscale")):
                         "steps": ("INT", {"default": 20, "min": 1, "max": 10000, "step": 1}),
                         "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
                         "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
-                        "scheduler": (comfy.samplers.KSampler.SCHEDULERS,),                        
+                        "scheduler": (SCHEDULERS,),                        
                         "denoise": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.01}),
                         # Upscale Params
                         #"mode_type": (list(UltimateSDUpscaleED.MODES.keys()),),
