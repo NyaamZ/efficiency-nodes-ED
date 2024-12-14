@@ -809,7 +809,7 @@ class LoadImage_ED(LoadImage):
             
             if output_mask is not None:
                 if upscale_method == "lanczos":
-                    upscale_method = "nearest-exact"
+                    upscale_method = "bicubic"
                 t = output_mask.unsqueeze(1)
                 t = comfy.utils.common_upscale(t, width, height, upscale_method, crop)
                 output_mask = t.squeeze(1)
