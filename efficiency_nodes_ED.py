@@ -808,6 +808,8 @@ class LoadImage_ED(LoadImage):
             output_image = ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
             
             if output_mask is not None:
+                if upscale_method == "lanczos":
+                    upscale_method = "nearest-exact"
                 t = output_mask.unsqueeze(1)
                 t = comfy.utils.common_upscale(t, width, height, upscale_method, crop)
                 output_mask = t.squeeze(1)
