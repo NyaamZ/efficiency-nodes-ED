@@ -15,6 +15,7 @@ app.registerExtension({
                 const result = onNodeCreated?.apply(this, arguments);
 				
 				this.setProperty("Use tiled VAE encode", false);
+				this.setProperty("Use Latent Rebatch", true);				
 				this.setProperty("Synchronize widget with image size", true);
 				this.setProperty("Token normalization", "none")
 				this.constructor["@Token normalization"] = {
@@ -50,9 +51,9 @@ app.registerExtension({
 });
 
 app.registerExtension({
-    name: "ed.applyLoraED",
+    name: "ed.WildcardEncodeED",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "Apply LoRA Stack 💬ED") {
+        if (nodeData.name === "Wildcard Encode 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
             nodeType.prototype.onNodeCreated = function () {
                 const result = onNodeCreated?.apply(this, arguments);
@@ -108,6 +109,8 @@ app.registerExtension({
 });
 
 // Use widget values and dates in output filenames For SaveImage ED
+let is_play_sound = false;
+
 app.registerExtension({
 	name: "Comfy.SaveImageED_Output",
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -126,13 +129,15 @@ app.registerExtension({
 				this.setProperty("Sound Volume", 0.9);
 
 				this.playSound = () => {
-					if (this.properties["Play sound"]) {
+					if (this.properties["Play sound"] && !is_play_sound) {
+						is_play_sound = true;
 						let file = "assets/notify.mp3";
 						file = new URL(file, import.meta.url);
 						const url = new URL(file);
 						const audio = new Audio(url);
 						audio.volume = (this.properties["Sound Volume"] > 1) ? 1 : this.properties["Sound Volume"];
-						audio.play();					
+						audio.play();
+						setTimeout(() => {is_play_sound = false;}, 3000);
 					}
 				};
 				

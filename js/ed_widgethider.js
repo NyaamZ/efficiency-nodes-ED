@@ -1,7 +1,17 @@
 import { app } from "../../scripts/app.js";
+import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
 
 let origProps = {};
 let initialized = false;
+
+function show_message(short_msg, detail_msg) {
+	useToastStore().add({
+        severity: short_msg.toLowerCase(),
+        summary: short_msg,
+        detail: detail_msg,
+        life: 3e3
+      });
+}
 
 export const findWidgetByName = (node, name) => {
     return node.widgets ? node.widgets.find((w) => w.name === name) : null;
@@ -59,7 +69,7 @@ function toggleWidget_2(node, widget, show = false, suffix = "") {
 /////////////////////////////////////////////////////////////////////////// ED
 let previous_value = { ed_sampler_noise : 0, ed_loader_vae : "", ed_loader_cfg : 0};
 
-function find_neighbor_node(node, nodetype){
+/* function find_neighbor_node(node, nodetype){
 	const linkk = node.outputs[0].links;
 	if (linkk) {
 		for (const l of linkk) {
@@ -69,7 +79,7 @@ function find_neighbor_node(node, nodetype){
 			if ((n)&&n.type.indexOf(nodetype) != -1) {
 				return n;
 			}
-			else if(n.type.indexOf('Context') != -1 || n.type == "Apply LoRA Stack 💬ED") {
+			else if(n.type.indexOf('Context') != -1 || n.type == "Wildcard Encode 💬ED") {
 				const linkctx = n.outputs[0].links;
 				if (linkctx) {
 					for (const l of linkctx) {
@@ -86,7 +96,52 @@ function find_neighbor_node(node, nodetype){
 	}
 	return null;
 }
+ */
+ 
+ function findNeighborNode(node, nodeType) {
+	if (!node) return null;
+    const links = node.outputs[0]?.links;
+    if (!links) return null;
 
+    for (const linkId of links) {
+        const targetNode = getNodeFromLink(node, linkId);
+
+        if (isMatchingNode(targetNode, nodeType)) {
+            return targetNode;
+        }
+
+        if (isContextNode(targetNode)) {
+            const contextLinks = targetNode.outputs[0]?.links;
+
+            if (!contextLinks) continue;
+
+            for (const contextLinkId of contextLinks) {
+                const contextNode = getNodeFromLink(targetNode, contextLinkId);
+
+                if (isMatchingNode(contextNode, nodeType)) {
+                    return contextNode;
+                }
+            }
+        }
+    }
+
+    return null;
+}
+
+function getNodeFromLink(node, linkId) {
+    const linkInfo = app.graph.links[linkId];
+    return node.graph.getNodeById(linkInfo.target_id);
+}
+
+function isMatchingNode(node, nodeType) {
+    return node.type && node.type.includes(nodeType);
+}
+
+function isContextNode(node) {
+    return node.type && (node.type.includes('Context') || node.type === 'Wildcard Encode 💬ED');
+}
+
+ 
 // New function to handle widget visibility based on input_mode
 function handleInputModeWidgetsVisibility(node, inputModeValue) {
     // Utility function to generate widget names up to a certain count
@@ -235,6 +290,13 @@ const nodeWidgetHandlers = {
 	"Refiner Script 💬ED": {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
+	"Regional Script 💬ED": {
+		'url': handleGetBooruTag,
+        'use_blur_mask': handleReginalScript_ED
+    },
+	"Get Booru Tag 💬ED": {
+        'url': handleGetBooruTag
+    },
 };
 
 // In the main function where widgetLogic is called
@@ -267,7 +329,7 @@ function restore_prev_value(widget, compare_value, prev_value, change = false) {
 // Efficient Loader ED Paint Mode Handlers
 function handleEfficientLoaderPaintMode_ED(node, widget) {
 	
-	const n_node = find_neighbor_node(node, 'KSampler')	
+	const n_node = findNeighborNode(node, 'KSampler')	
 	if (n_node == null)
 		return;
 	const is_ed_sampler = (n_node.type == "KSampler (Efficient) 💬ED")
@@ -389,18 +451,119 @@ function handleEfficientSamplerSetSeed_ED(node, widget) {
 	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
 }
 
+// Reginal ScriptED Handlers
+function handleReginalScript_ED(node, widget) {
+	const adjustment  = node.size[1];
+    toggleWidget(node, findWidgetByName(node, 'blur_mask_kernel_size'), widget.value);
+	toggleWidget(node, findWidgetByName(node, 'blur_mask_sigma'), widget.value);
+	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
+}
+
+// Get Booru Tag ED Handlers
+async function handleGetBooruTag(node, widget) {
+	function htmlUnescape (string) {
+		let str = string;
+		str = str.replaceAll("&amp;", "&");
+		str = str.replaceAll('&quot;', '"');
+		str = str.replaceAll("&#035;", "#");
+		str = str.replaceAll("&#039;", "'");
+		str = str.replaceAll("&lt;", "<");
+		str = str.replaceAll("&gt;", ">");
+		return str;
+	}
+	
+	if (!(widget.value.includes('danbooru') || widget.value.includes('gelbooru'))) return;
+
+	let tagsWidget
+	if (node.comfyClass == "Get Booru Tag 💬ED") 
+		tagsWidget = findWidgetByName(node, "text_b");
+	if (node.comfyClass == "Regional Script 💬ED")
+		tagsWidget = findWidgetByName(node, "prompt");
+	
+	const proxy = 'https://corsproxy.io/?';
+
+    // 태그 설정 함수
+    function setTags(tags) {
+		let tag_data = htmlUnescape(tags.replaceAll(' ', ', ') + ",");
+        tagsWidget.value = tag_data;
+    }
+    // 에러 표시
+    function showError(error) {
+        tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
+		show_message("Error", error.replaceAll("ERROR: ", ""));
+    }
+
+    // 에러 처리 및 데이터 요청 함수
+    async function fetchData(url) {
+        try {
+            const req = await fetch(url);
+            if (!req.ok) throw new Error(`HTTP Error! Status Code: ${req.status}`);
+            return await req.json();
+        } catch (error) {
+            showError(error);
+            return null;
+        }
+    }
+
+    if (widget.value.includes('danbooru')) {
+        const baseDanbooruUrl = "https://danbooru.donmai.us/";
+        const match = /posts\/(\d+)/.exec(widget.value);
+
+        if (match) {
+            const url = baseDanbooruUrl + match[0] + '.json';
+            const data = await fetchData(url);
+            if (data) {
+				let tags = ""
+                if (data.tag_string_artist) tags += "/*artist*/" + data.tag_string_artist + " \n";
+				if (data.tag_string_character) tags += "/*character*/" + data.tag_string_character + " \n";
+				if (data.tag_string_copyright) tags += "/*copyright*/" + data.tag_string_copyright + " \n";
+				if (data.tag_string_general) { 
+					tags += "\n" + data.tag_string_general;
+				} else {
+					showError('ERROR: Tags was not found in JSON file.');
+				}
+				setTags(tags);
+				widget.value = widget.value.replaceAll("danbooru", "Danbooru");
+				console.log('Tags loading success :\n' + url );
+				show_message("Success", 'Danbooru tags loading is successful');
+            } else {
+				showError('ERROR: Tags was not found in JSON file.');
+			}
+        } else {
+            showError('ERROR: ID was not found in Danbooru URL.');
+        }
+    }
+    else if (widget.value.includes('gelbooru')) {
+        const baseGelbooruUrl = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&pid=38&";
+        const match = /id=(\d+)/.exec(widget.value);
+
+        if (match) {
+			const url = proxy + baseGelbooruUrl + match[0];
+            const data = await fetchData(url);
+            if (data && data.post && data.post[0]) {
+                setTags(data.post[0].tags);
+				widget.value = widget.value.replaceAll("gelbooru", "Gelbooru");
+				console.log('Tags loading success :\n' + url );
+				show_message("Success", 'Gelbooru tags loading is successful');
+            } else {
+				showError('ERROR: Tags was not found in JSON file.');
+			}
+        } else {
+            showError('ERROR: ID was not found in Gelbooru URL.');
+        }
+    }	
+}
+
 // LoadImage ED Handlers
 function handleLoadImage_ED(node, widget) {
 	const adjustment  = node.size[1];
-	const opened = !(widget.value === "do not upscale");
+	const opened = !(widget.value.includes("not upscale"));
     
     toggleWidget(node, findWidgetByName(node, 'width'), opened);
 	toggleWidget(node, findWidgetByName(node, 'height'), opened);
 	toggleWidget(node, findWidgetByName(node, 'keep_proportions'), opened);
 	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
 }
-
-
 
 function handleUltimateSDUpscalerTileSize_ED(node, widget) {
     if (widget.value == 'Image size' || widget.value == 'Canvas size') {       

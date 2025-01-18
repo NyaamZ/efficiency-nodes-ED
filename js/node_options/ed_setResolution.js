@@ -35,10 +35,10 @@ const RESOLUTIONS = {
 // Function to set the resolution of a node
 function setNodeResolution(node, width, height) {
 	for (const w of node.widgets) {
-		if (w.name.indexOf('width') != -1){
+		if (w.name.includes('width')){
 			w.value = width;		
 		}
-		if (w.name.indexOf('height') != -1){
+		if (w.name.includes('height')){
 			w.value = height;		
 		}
 	}
@@ -89,13 +89,11 @@ app.registerExtension({
     },
 }); */
 
-
-
 app.registerExtension({
 	name: "efficiency_ED.ed_setResolution",
 	beforeRegisterNodeDef(nodeType) {
 
-		if ((nodeType.comfyClass.indexOf('Efficient Loader') != -1) ||  (nodeType.comfyClass.indexOf('Eff. Loader') != -1)) {
+		if (nodeType.comfyClass.includes('Efficient Loader') || nodeType.comfyClass.includes('Eff. Loader') || nodeType.comfyClass.includes('Regional Stacker 💬ED') || nodeType.comfyClass.includes('Regional Processor 💬ED')) {
 			let menu = [];			
 			const getExtraMenuOptions = nodeType.prototype.getExtraMenuOptions;
 			nodeType.prototype.getExtraMenuOptions = function (_, options) {

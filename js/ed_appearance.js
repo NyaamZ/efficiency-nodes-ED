@@ -9,6 +9,7 @@ const COLOR_THEMES = {
     purple: { nodeColor: "#332233", nodeBgColor: "#553355" },
     yellow: { nodeColor: "#443322", nodeBgColor: "#665533" },
 	yellow_ocher: { nodeColor: "#8c6446", nodeBgColor: "#785032" },
+	dark_yellow: { nodeColor: "#332811", nodeBgColor: "#70561f" },
 	sky_blue: { nodeColor: "#466d6e", nodeBgColor: "#325a5a" },
 	sea_blue: { nodeColor: "#3c6446", nodeBgColor: "#285032" },
     none: { nodeColor: null, nodeBgColor: null } // no color
@@ -16,26 +17,33 @@ const COLOR_THEMES = {
 
 const NODE_COLORS = {
 	"Efficient Loader 💬ED": "blue",
-	// "Eff. Loader SDXL 💬ED": "random",
 	"KSampler (Efficient) 💬ED": "green",
-	// "KSampler SDXL (Eff.) 💬ED": "random",
 	"KSampler Text 💬ED": "green",
 	"Load Image 💬ED": "blue",
 	"Save Image 🔔ED": "red",
-	"Control Net Script 💬ED": "green",
-	"Refiner Script 💬ED": "green",
+	"Control Net Script 💬ED": "yellow",
+	"Refiner Script 💬ED": "yellow",
 	"Embedding Stacker 💬ED": "blue",
 	"LoRA Stacker 💬ED": "blue",
-	"Apply LoRA Stack 💬ED": "blue",
+	"Wildcard Encode 💬ED": "blue",
 	"Int Holder 💬ED": "blue",
 	
-	"FaceDetailer 💬ED": "sky_blue",
-	"MaskDetailer 💬ED": "sky_blue",
-	"Detailer (SEGS) 💬ED": "sky_blue",
+	"FaceDetailer 💬ED": "yellow_ocher",
+	"MaskDetailer 💬ED": "yellow_ocher",
+	"Detailer (SEGS) 💬ED": "yellow_ocher",
 	"Ultimate SD Upscale 💬ED": "sea_blue",
 	
 	"SUPIR model loader 💬ED": "sea_blue",
 	"SUPIR Sampler 💬ED": "sea_blue",
+
+	"Regional Stacker 💬ED": "dark_yellow",
+	"Regional Processor 💬ED": "dark_yellow",
+	"Regional Script 💬ED": "dark_yellow",
+
+	"Context To BasicPipe": "blue",
+	"Context To DetailerPipe": "blue",
+
+	"Get Booru Tag 💬ED": "cyan",
  };
 
 function shuffleArray(array) {
