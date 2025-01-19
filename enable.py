@@ -20,31 +20,31 @@ user_css = "user.css"
     
 def annotate_file(js_file):
     contents = []
-    with open(js_file, 'r', encoding='UTF8') as f:
-        contents = f.readlines()
-    with open(js_file, 'w', encoding='UTF8') as f:
-        for c in contents:
-            if c[:5] == "//** ":
-                f.write(c)
-            else:
-                f.write("//** "+c)
-    #os.chmod( js_file, stat.FILE_ATTRIBUTE_READONLY )
+    if os.path.isfile(js_file):
+        with open(js_file, 'r', encoding='UTF8') as f:
+            contents = f.readlines()
+        with open(js_file, 'w', encoding='UTF8') as f:
+            for c in contents:
+                if c[:5] == "//** ":
+                    f.write(c)
+                else:
+                    f.write("//** "+c)
 
 def restore_annotate_file(js_file):
     contents = []
-    #os.chmod( js_file, stat.S_IWRITE )
-    with open(js_file, 'r', encoding='UTF8') as f:
-        contents = f.readlines()
-    with open(js_file, 'w', encoding='UTF8') as f:
-        for c in contents:
-            if c[:5] == "//** ":
-                f.write(c[5:])
-            else:
-                f.write(c)
+    if os.path.isfile(js_file):
+        with open(js_file, 'r', encoding='UTF8') as f:
+            contents = f.readlines()
+        with open(js_file, 'w', encoding='UTF8') as f:
+            for c in contents:
+                if c[:5] == "//** ":
+                    f.write(c[5:])
+                else:
+                    f.write(c)
 
 def copy_user_css():
     if os.path.isfile(write_css_folder + user_css):
-        os.rename(write_css_folder +  user_css, write_css_folder + user_css + ".old")    
+        os.remove(write_css_folder + user_css)
     shutil.copy(read_css_folder + user_css, write_css_folder + user_css)
     
 def restore_user_css():
