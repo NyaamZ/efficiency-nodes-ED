@@ -57,12 +57,12 @@ def restore_user_css():
             f.write("/* Put custom styles here */")
             
 try:
-    printout = "Enable Efficiency ED"
+    printout = "Copy user.css and Disable unnecessary js files"
     
     for file in annotating_file_list:
         annotate_file(file)
     copy_user_css()
-    print(f"Efficiency Nodes ED: Attempting to {printout} success!")
+    print(f"\n\nEfficiency Nodes ED: {printout} - success!\n")
     
 except Exception as e:
     print("[ERROR] efficiency nodes ED: An error occurred while annotating the file.")
