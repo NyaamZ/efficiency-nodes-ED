@@ -8,7 +8,7 @@
     
 ### 워크플로 예제:
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/27dc660c-35d5-4c08-9cde-e30063e72f60" width="800" style="display: inline-block;">
+  <img src="https://github.com/user-attachments/assets/248ce92a-cc0a-464e-87f2-232269847329" width="800" style="display: inline-block;">
 </p>
 원본과 다르게 💬ED노드는 Context 링크를 주고 받는다.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-( 오른쪽 아래에 BiRefNet이 포함되어 있다. 필요없으면 워크플로에서 삭제하자.<br>
@@ -318,7 +318,7 @@ Efficiency Nodes 💬ED의 context는 rgthree의 노드가 없어도 독립적�
 
 ### Example workflow:
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/27dc660c-35d5-4c08-9cde-e30063e72f60" width="800" style="display: inline-block;">
+  <img src="https://github.com/user-attachments/assets/248ce92a-cc0a-464e-87f2-232269847329" width="800" style="display: inline-block;">
 </p>
 Unlike the original, 💬ED nodes send and receive Context links.<br>
 

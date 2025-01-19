@@ -1,6 +1,6 @@
 {
-  "last_node_id": 1236,
-  "last_link_id": 2309,
+  "last_node_id": 1239,
+  "last_link_id": 2311,
   "nodes": [
     {
       "id": 1044,
@@ -785,9 +785,10 @@
           "name": "PROMPT_TEXT",
           "type": "STRING",
           "links": [
-            2208
+            2310
           ],
-          "shape": 3
+          "shape": 3,
+          "slot_index": 2
         }
       ],
       "properties": {
@@ -801,182 +802,6 @@
         "disabled",
         "image"
       ],
-      "color": "#222233",
-      "bgcolor": "#333355",
-      "shape": 1
-    },
-    {
-      "id": 1198,
-      "type": "ShowText|pysssss",
-      "pos": [
-        1910,
-        -190
-      ],
-      "size": [
-        315,
-        176
-      ],
-      "flags": {},
-      "order": 20,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 2238,
-          "widget": {
-            "name": "text"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": null,
-          "shape": 6
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ShowText|pysssss"
-      },
-      "widgets_values": [
-        [
-          "masterpiece, best quality, highres, general, anime screencap, cyclone_\\(reizei\\),\n\napple tree,\n\nuncensored, masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),"
-        ],
-        "masterpiece, best quality, highres, general, anime screencap, cyclone_\\(reizei\\),\n\napple tree,\n\nuncensored, masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),"
-      ]
-    },
-    {
-      "id": 1196,
-      "type": "Wildcard Encode 💬ED",
-      "pos": [
-        1770,
-        160
-      ],
-      "size": [
-        252,
-        186
-      ],
-      "flags": {
-        "collapsed": true
-      },
-      "order": 18,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "context",
-          "type": "RGTHREE_CONTEXT",
-          "link": 2273
-        },
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 2223,
-          "shape": 7
-        },
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "latent",
-          "type": "LATENT",
-          "link": 2276,
-          "shape": 7
-        },
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "signal",
-          "type": "*",
-          "link": null,
-          "shape": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONTEXT",
-          "type": "RGTHREE_CONTEXT",
-          "links": [
-            2226
-          ],
-          "slot_index": 0
-        },
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": null
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": null
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": null
-        },
-        {
-          "name": "POSITIVE",
-          "type": "CONDITIONING",
-          "links": null
-        },
-        {
-          "name": "NEGATIVE",
-          "type": "CONDITIONING",
-          "links": null
-        },
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": null
-        },
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": null
-        },
-        {
-          "name": "TEXT_POS",
-          "type": "STRING",
-          "links": [
-            2238
-          ],
-          "slot_index": 8
-        }
-      ],
-      "title": "Wildcard Encode",
-      "properties": {
-        "Node name for S&R": "Wildcard Encode 💬ED",
-        "Turn on Apply Lora": false
-      },
-      "widgets_values": [],
       "color": "#222233",
       "bgcolor": "#333355",
       "shape": 1
@@ -1596,45 +1421,6 @@
       "shape": 1
     },
     {
-      "id": 1139,
-      "type": "PrimitiveNode",
-      "pos": [
-        620,
-        840
-      ],
-      "size": [
-        580,
-        370
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 5,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            2272
-          ],
-          "widget": {
-            "name": "negative"
-          }
-        }
-      ],
-      "title": "Primitive (Negative)",
-      "properties": {
-        "Run widget replace on values": false
-      },
-      "widgets_values": [
-        "lowres, (worst quality, low quality:1.2), bad anatomy, ai-generated,(bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract], multiple views, censored, (head out of frame, breast focus), see-through, thong, (glasses), "
-      ],
-      "color": "#323",
-      "bgcolor": "#535"
-    },
-    {
       "id": 1202,
       "type": "LoadImage",
       "pos": [
@@ -1646,7 +1432,7 @@
         314
       ],
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1686,7 +1472,7 @@
         314
       ],
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -1928,214 +1714,6 @@
       "shape": 1
     },
     {
-      "id": 1181,
-      "type": "Get Booru Tag 💬ED",
-      "pos": [
-        620,
-        250
-      ],
-      "size": [
-        580,
-        490
-      ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "text_a",
-          "type": "STRING",
-          "link": 2213,
-          "widget": {
-            "name": "text_a"
-          },
-          "shape": 7
-        },
-        {
-          "name": "text_c",
-          "type": "STRING",
-          "link": 2214,
-          "widget": {
-            "name": "text_c"
-          },
-          "shape": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "STRING",
-          "type": "STRING",
-          "links": [
-            2271
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "Get Booru Tag 💬ED"
-      },
-      "widgets_values": [
-        "https://Gelbooru.com/index.php?page=post&s=view&id=11164388&tags=4girls+loli",
-        "masterpiece, best quality, highres, general, anime screencap, cyclone_\\(reizei\\),",
-        "apple tree,",
-        "masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),",
-        "Select the Wildcard to add to the text"
-      ],
-      "color": "#233",
-      "bgcolor": "#355",
-      "shape": 1
-    },
-    {
-      "id": 1217,
-      "type": "Efficient Loader 💬ED",
-      "pos": [
-        1280,
-        130
-      ],
-      "size": [
-        460,
-        560
-      ],
-      "flags": {},
-      "order": 16,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "lora_stack",
-          "type": "LORA_STACK",
-          "link": 2265,
-          "shape": 7
-        },
-        {
-          "name": "cnet_stack",
-          "type": "CONTROL_NET_STACK",
-          "link": 2266,
-          "shape": 7
-        },
-        {
-          "name": "pixels",
-          "type": "IMAGE",
-          "link": 2267,
-          "shape": 7
-        },
-        {
-          "name": "mask",
-          "type": "MASK",
-          "link": 2268,
-          "shape": 7
-        },
-        {
-          "name": "model_opt",
-          "type": "MODEL",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "clip_opt",
-          "type": "CLIP",
-          "link": null,
-          "shape": 7
-        },
-        {
-          "name": "positive",
-          "type": "STRING",
-          "link": 2271,
-          "widget": {
-            "name": "positive"
-          }
-        },
-        {
-          "name": "negative",
-          "type": "STRING",
-          "link": 2272,
-          "widget": {
-            "name": "negative"
-          }
-        }
-      ],
-      "outputs": [
-        {
-          "name": "CONTEXT",
-          "type": "RGTHREE_CONTEXT",
-          "links": [
-            2273
-          ]
-        },
-        {
-          "name": "MODEL",
-          "type": "MODEL",
-          "links": [
-            2274
-          ]
-        },
-        {
-          "name": "CONDITIONING+",
-          "type": "CONDITIONING",
-          "links": []
-        },
-        {
-          "name": "CONDITIONING-",
-          "type": "CONDITIONING",
-          "links": null
-        },
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            2276
-          ],
-          "shape": 6
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": null
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": null
-        },
-        {
-          "name": "DEPENDENCIES",
-          "type": "DEPENDENCIES",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "Efficient Loader 💬ED",
-        "Use tiled VAE encode": false,
-        "Use Latent Rebatch": true,
-        "Synchronize widget with image size": true,
-        "Token normalization": "none",
-        "Weight interpretation": "comfy"
-      },
-      "widgets_values": [
-        {
-          "content": "ILXL\\n40naillousXl_n40naillousv2Xl.safetensors",
-          "image": "checkpoints/ILXL\\n40naillousXl_n40naillousv2Xl.jpeg"
-        },
-        "sdxl_vae.safetensors",
-        -2,
-        "🦱 Img2Img",
-        1,
-        121999122210661,
-        null,
-        2,
-        "dpmpp_2s_ancestral",
-        "AYS SDXL",
-        "",
-        "lowres, (worst quality, low quality:1.2), bad anatomy, ai-generated,(bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract], multiple views, censored, (head out of frame, breast focus), see-through, thong, (glasses), ",
-        1024,
-        1024
-      ],
-      "color": "#222233",
-      "bgcolor": "#333355",
-      "shape": 1
-    },
-    {
       "id": 1223,
       "type": "Regional Script 💬ED",
       "pos": [
@@ -2285,26 +1863,213 @@
       "shape": 1
     },
     {
-      "id": 1140,
-      "type": "ShowText|pysssss",
+      "id": 1217,
+      "type": "Efficient Loader 💬ED",
       "pos": [
         1280,
-        1370
+        130
       ],
       "size": [
         460,
-        280
+        560
       ],
       "flags": {
         "pinned": true
       },
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "lora_stack",
+          "type": "LORA_STACK",
+          "link": 2265,
+          "shape": 7
+        },
+        {
+          "name": "cnet_stack",
+          "type": "CONTROL_NET_STACK",
+          "link": 2266,
+          "shape": 7
+        },
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 2267,
+          "shape": 7
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": 2268,
+          "shape": 7
+        },
+        {
+          "name": "model_opt",
+          "type": "MODEL",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "clip_opt",
+          "type": "CLIP",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "positive",
+          "type": "STRING",
+          "link": 2271,
+          "widget": {
+            "name": "positive"
+          }
+        },
+        {
+          "name": "negative",
+          "type": "STRING",
+          "link": 2272,
+          "widget": {
+            "name": "negative"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONTEXT",
+          "type": "RGTHREE_CONTEXT",
+          "links": [
+            2273
+          ]
+        },
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            2274
+          ]
+        },
+        {
+          "name": "CONDITIONING+",
+          "type": "CONDITIONING",
+          "links": []
+        },
+        {
+          "name": "CONDITIONING-",
+          "type": "CONDITIONING",
+          "links": null
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            2276
+          ],
+          "shape": 6
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": null
+        },
+        {
+          "name": "DEPENDENCIES",
+          "type": "DEPENDENCIES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Efficient Loader 💬ED",
+        "Use tiled VAE encode": false,
+        "Use Latent Rebatch": true,
+        "Synchronize widget with image size": true,
+        "Token normalization": "none",
+        "Weight interpretation": "comfy"
+      },
+      "widgets_values": [
+        {
+          "content": "SDXL\\animagine-xl-3.1.safetensors",
+          "image": "checkpoints/SDXL\\animagine-xl-3.1.jpeg"
+        },
+        "sdxl_vae.safetensors",
+        -2,
+        "🦱 Img2Img",
+        1,
+        -1,
+        null,
+        2,
+        "euler",
+        "normal",
+        "",
+        "lowres, (worst quality, low quality:1.2),",
+        1024,
+        1024
+      ],
+      "color": "#222233",
+      "bgcolor": "#333355",
+      "shape": 1
+    },
+    {
+      "id": 1139,
+      "type": "PrimitiveNode",
+      "pos": [
+        620,
+        840
+      ],
+      "size": [
+        580,
+        370
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2272
+          ],
+          "widget": {
+            "name": "negative"
+          }
+        }
+      ],
+      "title": "Primitive (Negative)",
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        "lowres, (worst quality, low quality:1.2),"
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 1238,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1290,
+        1390
+      ],
+      "size": [
+        440,
+        270
+      ],
+      "flags": {},
       "order": 11,
       "mode": 0,
       "inputs": [
         {
           "name": "text",
           "type": "STRING",
-          "link": 2208,
+          "link": 2310,
           "widget": {
             "name": "text"
           }
@@ -2322,49 +2087,181 @@
         "Node name for S&R": "ShowText|pysssss"
       },
       "widgets_values": [
-        [
-          "1115.seed [KSampler (Efficient) 💬ED] ==> 715353200966644\n1181.url [Get Booru Tag 💬ED] ==> https://Gelbooru.com/index.php?page=post&s=view&id=11164388&tags=4girls+loli\n1181.text_a [Get Booru Tag 💬ED] ==> masterpiece, best quality, highres, general, anime screencap, ke-ta,\n1181.text_b [Get Booru Tag 💬ED] ==> 4girls, cloud, beach, day, loli, looking_at_viewer, multiple_girls, outdoors, sisters, sitting, sky, smile,\n1181.text_c [Get Booru Tag 💬ED] ==> uncensored, masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),\n\n\n \n1217.seed [Efficient Loader 💬ED] ==> 184240423379642\n1217.negative [Efficient Loader 💬ED] ==> lowres, (worst quality, low quality:1.2), bad anatomy, ai-generated,(bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract], multiple views, censored, (head out of frame, breast focus), see-through, thong, (glasses), \n1223.url [Regional Script 💬ED] ==> https://Gelbooru.com/index.php?page=post&s=view&id=11287083&tags=momoi_%28blue_archive%29\n1223.prompt [Regional Script 💬ED] ==> momoi_(blue_archive), blue_archive,\n\n1girl, animal_ear_headphones, animal_ears, arm_behind_head, arms_up, bikini, blonde_hair, blush, bow, cat_ear_headphones, fake_animal_ears, flat_chest, hair_bow, pink halo, headphones, loli, micro_bikini, one_eye_closed, open_mouth, pink_eyes, red_bow, short_hair, swimsuit, teeth, upper_teeth_only, white_bikini, sitting,\n1229.url [Regional Script 💬ED] ==> https://Danbooru.donmai.us/posts/8724739?q=yuzu_%28blue_archive%29\n1229.prompt [Regional Script 💬ED] ==> yuzu_(blue_archive), blue_archive,\n\n1girl, animal_ears, blue_eyes, blush, braid, fake_animal_ears, yellow halo, highleg, highleg_leotard, leotard, open_mouth, orange_leotard, playboy_bunny, ponytail, rabbit_ears, red_hair, small_breasts, strapless, strapless_leotard, \nsitting,\n1231.url [Regional Script 💬ED] ==> https://Danbooru.donmai.us/posts/8096783?q=midori_%28blue_archive%29+bikini+\n1231.prompt [Regional Script 💬ED] ==> midori_(blue_archive), blue_archive,\n\n1girl, animal_ears, aqua_bow, bikini, bikini_bottom_pull, blonde_hair, blush, bow, breasts, cat_ears, closed_mouth, collarbone, fake_animal_ears,  flying_sweatdrops, green_bikini, green_eyes, green_halo, hair_bow, halo,  looking_at_viewer, navel, panties, short_hair, small_breasts, stomach, striped_clothes, striped_panties, swimsuit, thighs, underwear,\nsitting,\n1233.url [Regional Script 💬ED] ==> https://Danbooru.donmai.us/posts/8107691?q=aris_%28blue_archive%29+bikini+\n1233.prompt [Regional Script 💬ED] ==> aris_(blue_archive), blue_archive, \n\n1girl, absurdly_long_hair, aqua_halo,  bare_arms, bare_legs, bare_shoulders,  bikini, black_hair, black_hairband, blue_eyes, blush, breasts, bright_pupils, covered_nipples, hair_between_eyes, hairband, halo,  long_hair, long_sidelocks, micro_bikini, one_side_up, parted_lips, perky_breasts, side-tie_bikini_bottom, sidelocks, small_breasts, straight_hair, string_bikini, swimsuit, very_long_hair, white_bikini, white_pupils,\n\nImage Size: 1216 x 832"
-        ],
-        "1115.seed [KSampler (Efficient) 💬ED] ==> 596040879155202\n1181.url [Get Booru Tag 💬ED] ==> https://Gelbooru.com/index.php?page=post&s=view&id=11164388&tags=4girls+loli\n1181.text_a [Get Booru Tag 💬ED] ==> masterpiece, best quality, highres, general, anime screencap, cyclone_\\(reizei\\),\n1181.text_b [Get Booru Tag 💬ED] ==> apple tree,\n1181.text_c [Get Booru Tag 💬ED] ==> uncensored, masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),\n1217.seed [Efficient Loader 💬ED] ==> 748551869003182\n1217.negative [Efficient Loader 💬ED] ==> lowres, (worst quality, low quality:1.2), bad anatomy, ai-generated,(bad), text, error, fewer, extra, missing, worst quality, jpeg artifacts, low quality, watermark, unfinished, displeasing, oldest, early, chromatic aberration, signature, extra digits, artistic error, username, scan, [abstract], multiple views, censored, (head out of frame, breast focus), see-through, thong, (glasses), \n1223.url [Regional Script 💬ED] ==> https://Gelbooru.com/index.php?page=post&s=view&id=11287083&tags=momoi_%28blue_archive%29\n1223.prompt [Regional Script 💬ED] ==> momoi_(blue_archive), blue_archive,\n\n1girl, animal_ear_headphones, animal_ears, arm_behind_head, arms_up, bikini, blonde_hair, blush, bow, cat_ear_headphones, fake_animal_ears, flat_chest, hair_bow, pink halo, headphones, loli, micro_bikini, one_eye_closed, open_mouth, pink_eyes, red_bow, short_hair, swimsuit, teeth, upper_teeth_only, white_bikini, sitting,\n1229.url [Regional Script 💬ED] ==> https://Danbooru.donmai.us/posts/8724739?q=yuzu_%28blue_archive%29\n1229.prompt [Regional Script 💬ED] ==> yuzu_(blue_archive), blue_archive,\n\n1girl, animal_ears, blue_eyes, blush, braid, fake_animal_ears, yellow halo, highleg, highleg_leotard, leotard, open_mouth, orange_leotard, playboy_bunny, ponytail, rabbit_ears, red_hair, small_breasts, strapless, strapless_leotard, \nsitting,\n\nImage Size: 1024 x 1024"
+        ""
       ]
     },
     {
-      "id": 1183,
-      "type": "PrimitiveNode",
+      "id": 1239,
+      "type": "ShowText|pysssss",
       "pos": [
-        200,
-        580
+        1920,
+        -180
       ],
       "size": [
         300,
-        190
+        160
       ],
-      "flags": {
-        "pinned": true
-      },
-      "order": 8,
+      "flags": {},
+      "order": 20,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2311,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "STRING",
           "type": "STRING",
-          "links": [
-            2214
-          ],
-          "widget": {
-            "name": "text_c"
-          }
+          "links": null,
+          "shape": 6
         }
       ],
       "properties": {
-        "Run widget replace on values": false
+        "Node name for S&R": "ShowText|pysssss"
       },
       "widgets_values": [
-        "masterpiece, best quality, highres, absurdres, amazing quality, very aesthetic, newest, photoshop \\(medium\\),"
+        ""
+      ]
+    },
+    {
+      "id": 1196,
+      "type": "Wildcard Encode 💬ED",
+      "pos": [
+        1770,
+        160
       ],
-      "color": "#233",
-      "bgcolor": "#355"
+      "size": [
+        252,
+        186
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "context",
+          "type": "RGTHREE_CONTEXT",
+          "link": 2273
+        },
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 2223,
+          "shape": 7
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 2276,
+          "shape": 7
+        },
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "signal",
+          "type": "*",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONTEXT",
+          "type": "RGTHREE_CONTEXT",
+          "links": [
+            2226
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": null
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": null
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null
+        },
+        {
+          "name": "POSITIVE",
+          "type": "CONDITIONING",
+          "links": null
+        },
+        {
+          "name": "NEGATIVE",
+          "type": "CONDITIONING",
+          "links": null
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": null
+        },
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "TEXT_POS",
+          "type": "STRING",
+          "links": [
+            2311
+          ],
+          "slot_index": 8
+        }
+      ],
+      "title": "Wildcard Encode",
+      "properties": {
+        "Node name for S&R": "Wildcard Encode 💬ED",
+        "Turn on Apply Lora": false
+      },
+      "widgets_values": [],
+      "color": "#222233",
+      "bgcolor": "#333355",
+      "shape": 1
     },
     {
       "id": 1182,
@@ -2380,7 +2277,7 @@
       "flags": {
         "pinned": true
       },
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -2399,10 +2296,108 @@
         "Run widget replace on values": false
       },
       "widgets_values": [
-        "masterpiece, best quality, highres, general, anime screencap, cyclone_\\(reizei\\),"
+        "masterpiece, best quality, highres,\n\n//top quality prompt"
       ],
       "color": "#233",
       "bgcolor": "#355"
+    },
+    {
+      "id": 1183,
+      "type": "PrimitiveNode",
+      "pos": [
+        200,
+        580
+      ],
+      "size": [
+        300,
+        190
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2214
+          ],
+          "widget": {
+            "name": "text_c"
+          }
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [
+        "masterpiece,\n\n//bottom quality prompt"
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 1181,
+      "type": "Get Booru Tag 💬ED",
+      "pos": [
+        620,
+        250
+      ],
+      "size": [
+        580,
+        490
+      ],
+      "flags": {
+        "pinned": true
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text_a",
+          "type": "STRING",
+          "link": 2213,
+          "widget": {
+            "name": "text_a"
+          },
+          "shape": 7
+        },
+        {
+          "name": "text_c",
+          "type": "STRING",
+          "link": 2214,
+          "widget": {
+            "name": "text_c"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2271
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Get Booru Tag 💬ED"
+      },
+      "widgets_values": [
+        "",
+        "masterpiece, best quality, highres,\n\n//top quality prompt",
+        "apple tree,\n\n//main prompt",
+        "masterpiece,\n\n//bottom quality prompt",
+        "Select the Wildcard to add to the text"
+      ],
+      "color": "#233",
+      "bgcolor": "#355",
+      "shape": 1
     }
   ],
   "links": [
@@ -2527,14 +2522,6 @@
       "MASK"
     ],
     [
-      2208,
-      1176,
-      2,
-      1140,
-      0,
-      "STRING"
-    ],
-    [
       2213,
       1182,
       0,
@@ -2565,14 +2552,6 @@
       1115,
       0,
       "RGTHREE_CONTEXT"
-    ],
-    [
-      2238,
-      1196,
-      8,
-      1198,
-      0,
-      "STRING"
     ],
     [
       2265,
@@ -2701,6 +2680,22 @@
       1223,
       0,
       "REGION_SCRIPT"
+    ],
+    [
+      2310,
+      1176,
+      2,
+      1238,
+      0,
+      "STRING"
+    ],
+    [
+      2311,
+      1196,
+      8,
+      1239,
+      0,
+      "STRING"
     ]
   ],
   "groups": [
@@ -2783,16 +2778,16 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.6209213230591552,
+      "scale": 0.7513148009015777,
       "offset": [
-        -774.3475452976983,
-        -700.905484509354
+        -727.9161705650258,
+        -712.800083152964
       ]
     },
     "VHS_latentpreview": false,
     "VHS_latentpreviewrate": 0,
     "node_versions": {
-      "efficiency-nodes-ED": "41e415f88b3a6ece12a7c2283dfb159ba1a5e7aa",
+      "efficiency-nodes-ED": "6ce0712bcb70c6f744d276956df56103ab363621",
       "comfy-core": "0.3.12",
       "ComfyUI_BiRefNet_ll": "b9fd2e45dc5945d1cccfb5e5ca4e8b0e9db4c963",
       "ComfyUI-Custom-Scripts": "bc8922deff73f59311c05cef27b9d4caaf43e87b",
