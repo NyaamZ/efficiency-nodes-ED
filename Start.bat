@@ -1,2 +1,2 @@
-python enable.py
+python install.py
 pause

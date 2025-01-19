@@ -57,7 +57,7 @@ def restore_user_css():
             f.write("/* Put custom styles here */")
             
 try:
-    printout = "Install Efficiency ED"
+    printout = "Copy user.css and Disable unnecessary js files"
     
     for file in annotating_file_list:
         annotate_file(file)
