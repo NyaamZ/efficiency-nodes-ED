@@ -3,7 +3,7 @@ import { api } from "../../scripts/api.js";
 import { ComfyDialog, $el } from "../../scripts/ui.js";
 import { ComfyApp } from "../../scripts/app.js";
 import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
-import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
+// import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
 
 let wildcards_list = [];
 async function load_wildcards() {
@@ -15,12 +15,12 @@ async function load_wildcards() {
 load_wildcards();
 
 function show_message(short_msg, detail_msg) {
-	useToastStore().add({
-        severity: short_msg.toLowerCase(),
-        summary: short_msg,
-        detail: detail_msg,
-        life: 3e3
-      });
+	// useToastStore().add({
+        // severity: short_msg.toLowerCase(),
+        // summary: short_msg,
+        // detail: detail_msg,
+        // life: 3e3
+      // });
 }
 
 async function uploadImage(filepath, formData) {

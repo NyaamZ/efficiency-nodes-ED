@@ -1,16 +1,16 @@
 import { app } from "../../scripts/app.js";
-import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
+//import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
 
 let origProps = {};
 let initialized = false;
 
 function show_message(short_msg, detail_msg) {
-	useToastStore().add({
-        severity: short_msg.toLowerCase(),
-        summary: short_msg,
-        detail: detail_msg,
-        life: 3e3
-      });
+	// useToastStore().add({
+        // severity: short_msg.toLowerCase(),
+        // summary: short_msg,
+        // detail: detail_msg,
+        // life: 3e3
+      // });
 }
 
 export const findWidgetByName = (node, name) => {
