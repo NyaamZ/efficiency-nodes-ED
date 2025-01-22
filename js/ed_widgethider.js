@@ -382,7 +382,9 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 	function isSdxl(value)  { if(value.toLowerCase().indexOf('sdxl') != -1 )  return true; }
 	
 	if (isFlux(value)) { //ckpt_name is flux
-		toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
+		//toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
+		let w_clipskip = findWidgetByName(node, 'clip_skip')
+		w_clipskip.value = 0;
 		mute1_group.forEach(n => n.mode = 2);
 		mute2_group.forEach(n => n.mode = 0);
 		bypass_group.forEach(n => n.mode = 4);
@@ -399,7 +401,9 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		}
 		if (node.size[1] < adjustment) node.setSize([node.size[0], adjustment]);
     }else if (value == '🔌 model_opt input') {
-		toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
+		//toggleWidget_2(node, findWidgetByName(node, 'clip_skip'));
+		let w_clipskip = findWidgetByName(node, 'clip_skip')
+		w_clipskip.value = 0;
 		mute1_group.forEach(n => n.mode = 0);
 		mute2_group.forEach(n => n.mode = 0);
 		bypass_group.forEach(n => n.mode = 4);
@@ -417,7 +421,7 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		if (node.size[1] < adjustment) node.setSize([node.size[0], adjustment]);
     } else {		
         let w = findWidgetByName(node, 'clip_skip')
-		toggleWidget_2(node, w, true);
+		//toggleWidget_2(node, w, true);
 		if (w.value == 0) w.value = -2;
 		mute1_group.forEach(n => n.mode = 2);
 		mute2_group.forEach(n => n.mode = 2);
