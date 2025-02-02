@@ -14,7 +14,12 @@ async function load_wildcards() {
 
 load_wildcards();
 
-function show_message(short_msg, detail_msg) {
+function show_message(short_msg, detail_msg, node=null) {
+	if (node) {
+		console.log("## " + detail_msg + " ID:" + node.id);
+	} else {
+		console.log("## " + detail_msg);	
+	}
 	// useToastStore().add({
         // severity: short_msg.toLowerCase(),
         // summary: short_msg,

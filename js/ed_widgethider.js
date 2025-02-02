@@ -4,7 +4,12 @@ import { app } from "../../scripts/app.js";
 let origProps = {};
 let initialized = false;
 
-function show_message(short_msg, detail_msg) {
+function show_message(short_msg, detail_msg, node=null) {
+	if (node) {
+		console.log("## " + detail_msg + " ID:" + node.id);
+	} else {
+		console.log("## " + detail_msg);	
+	}
 	// useToastStore().add({
         // severity: short_msg.toLowerCase(),
         // summary: short_msg,
@@ -494,7 +499,7 @@ async function handleGetBooruTag(node, widget) {
     // 에러 표시
     function showError(error) {
         tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
-		show_message("Error", error.replaceAll("ERROR: ", ""));
+		show_message("Error", error.replaceAll("ERROR: ", "") , node);
     }
 
     // 에러 처리 및 데이터 요청 함수
@@ -529,7 +534,7 @@ async function handleGetBooruTag(node, widget) {
 				setTags(tags);
 				widget.value = widget.value.replaceAll("danbooru", "Danbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Danbooru tags loading is successful');
+				show_message("Success", 'Danbooru tags loading is successful', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}
@@ -548,7 +553,7 @@ async function handleGetBooruTag(node, widget) {
                 setTags(data.post[0].tags);
 				widget.value = widget.value.replaceAll("gelbooru", "Gelbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Gelbooru tags loading is successful');
+				show_message("Success", 'Gelbooru tags loading is successful', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}
