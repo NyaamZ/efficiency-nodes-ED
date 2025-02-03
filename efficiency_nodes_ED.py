@@ -1,16 +1,15 @@
 # Efficiency Nodes ExtendeD - Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.
 # by NyaamZ - 2023 - 2024
-# https://github.com/LucianoCirino/efficiency-nodes-ED
+# https://github.com/NyaamZ/efficiency-nodes-ED
 
 import torch
 
-from pathlib import Path #for embedding stacker
+from pathlib import Path #For embedding stacker ED
 import os
 import sys
 import re
 
-# For regional ED
-from functools import reduce
+from functools import reduce # For regional ED
 
 # Get the absolute path of various directories
 my_dir = os.path.dirname(os.path.abspath(__file__))
