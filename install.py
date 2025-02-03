@@ -1,7 +1,7 @@
 import os
 import shutil
 
-annotating_file_list = [
+annotating_js_files = [
             "../efficiency-nodes-comfyui/js/node_options/addLinks.js",
             "../efficiency-nodes-comfyui/js/node_options/addScripts.js",
             "../efficiency-nodes-comfyui/js/node_options/addXYinputs.js",
@@ -14,10 +14,12 @@ annotating_file_list = [
             "../efficiency-nodes-comfyui/js/node_options/common/modelInfoDialog.js",
             ]
 
+impact_wildcard_py = "../ComfyUI-Impact-Pack/modules/impact/wildcards.py"
+
 read_css_folder = "./user_css/"
 write_css_folder = "../../web/"
 user_css = "user.css"
-    
+
 def annotate_file(js_file):
     contents = []
     if os.path.isfile(js_file):
@@ -42,6 +44,18 @@ def restore_annotate_file(js_file):
                 else:
                     f.write(c)
 
+def annotate_wildcard(py_file):
+    contents = []
+    if os.path.isfile(py_file):
+        with open(py_file, 'r', encoding='UTF8') as f:
+            contents = f.readlines()
+        with open(py_file, 'w', encoding='UTF8') as f:
+            for c in contents:
+                if 'print(f"CLIP: {str.join('  in c and not "## from ED ##" in c:
+                    f.write("## from ED ##" + c)
+                else:
+                    f.write(c)
+
 def copy_user_css():
     if os.path.isfile(write_css_folder + user_css):
         os.remove(write_css_folder + user_css)
@@ -59,8 +73,9 @@ def restore_user_css():
 try:
     printout = "Copy user.css and Disable unnecessary js files"
     
-    for file in annotating_file_list:
+    for file in annotating_js_files:
         annotate_file(file)
+    annotate_wildcard(impact_wildcard_py)
     copy_user_css()
     print(f"Efficiency Nodes ED: Attempting to {printout} success!")
     
