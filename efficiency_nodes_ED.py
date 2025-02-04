@@ -1,5 +1,5 @@
 # Efficiency Nodes ExtendeD - Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.
-# by NyaamZ - 2023 - 2024
+# by NyaamZ - 2023 - 2025
 # https://github.com/NyaamZ/efficiency-nodes-ED
 
 import torch

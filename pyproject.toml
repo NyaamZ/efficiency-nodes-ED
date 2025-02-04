@@ -1,0 +1,15 @@
+[project]
+name = "efficiency-nodes-ED"
+description = "Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements."
+version = "0.7.0"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/NyaamZ/efficiency-nodes-ED"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "nyaamz"
+DisplayName = "Efficiency Nodes ExtendeD"
+Icon = ""
