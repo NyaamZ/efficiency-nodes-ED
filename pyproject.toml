@@ -1,7 +1,7 @@
 [project]
 name = "efficiency-nodes-ED"
 description = "Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements."
-version = "0.7.0"
+version = "0.7.2"
 license = { file = "LICENSE" }
 dependencies = []
 
