@@ -2,6 +2,8 @@
 # by NyaamZ - 2023 - 2025
 # https://github.com/NyaamZ/efficiency-nodes-ED
 
+# 00b4e6d4-922e-4a3b-943e-33a467587fe1
+
 import torch
 
 from pathlib import Path #For embedding stacker ED
