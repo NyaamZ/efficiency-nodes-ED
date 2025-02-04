@@ -1,7 +1,7 @@
 [project]
 name = "efficiency-nodes-ED"
 description = "Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements."
-version = "0.7.1"
+version = "0.7.0"
 license = { file = "LICENSE" }
 dependencies = []
 
@@ -12,4 +12,4 @@ Repository = "https://github.com/NyaamZ/efficiency-nodes-ED"
 [tool.comfy]
 PublisherId = "nyaamz"
 DisplayName = "Efficiency Nodes ExtendeD"
-Icon = ""
+Icon = "https://upload.wikimedia.org/wikipedia/commons/d/d5/Speech_balloon_green_icon.svg"
