@@ -5,12 +5,12 @@
 # 00b4e6d4-922e-4a3b-943e-33a467587fe1
 
 import torch
-
-from pathlib import Path #For embedding stacker ED
 import os
 import sys
 import re
+import nodes
 
+from pathlib import Path #For embedding stacker ED
 from functools import reduce # For regional ED
 
 # Get the absolute path of various directories
@@ -21,9 +21,6 @@ comfy_dir = os.path.abspath(os.path.join(my_dir, '..', '..'))
 
 # Append comfy_dir to sys.path & import files
 sys.path.append(comfy_dir)
-from nodes import CLIPSetLastLayer, CLIPTextEncode, PreviewImage, LoadImage, SaveImage, MAX_RESOLUTION, InpaintModelConditioning, RepeatLatentBatch, ImageBatch, ImageScale, ControlNetApplyAdvanced
-
-import nodes
 from comfy_extras.nodes_upscale_model import UpscaleModelLoader, ImageUpscaleWithModel
 from comfy_extras.nodes_rebatch import LatentRebatch
 from server import PromptServer
@@ -620,8 +617,8 @@ class EfficientLoader_ED():
                               "scheduler": (SCHEDULERS,),
                               "positive": ("STRING", {"default": "","multiline": True, "dynamicPrompts": True}),
                               "negative": ("STRING", {"default": "", "multiline": True, "dynamicPrompts": True}),
-                              "image_width": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
-                              "image_height": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
+                              "image_width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
+                              "image_height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               },
                 "optional": {
                              "lora_stack": ("LORA_STACK",),
@@ -681,7 +678,7 @@ class EfficientLoader_ED():
             negative_encoded = clip_encoder.encode(clip, negative_prompt)[0]            
         else:
             clip_encoder = None
-            negative_encoded = CLIPTextEncode().encode(clip, negative_prompt)[0]
+            negative_encoded = nodes.CLIPTextEncode().encode(clip, negative_prompt)[0]
         
         if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
             _, _, positive_encoded, positive_prompt = BNK_EncoderWrapper.imp_encode(positive_prompt, model, clip, seed, clip_encoder, None)
@@ -711,14 +708,14 @@ class EfficientLoader_ED():
                     raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
                 if not positive_encoded:
                     _, _, positive_encoded, positive_prompt = BNK_EncoderWrapper.imp_encode(positive_prompt, model, clip, seed, clip_encoder, None)
-                (positive_encoded, negative_encoded, latent_t) = InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
+                (positive_encoded, negative_encoded, latent_t) = nodes.InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
                 
             elif paint_mode == "🎨 Inpaint(MaskDetailer)":
                 if  mask is None:
                     raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
 
             #RepeatLatentBatch
-            samples_latent = RepeatLatentBatch().repeat(latent_t, batch_size)[0]            
+            samples_latent = nodes.RepeatLatentBatch().repeat(latent_t, batch_size)[0]            
             
             # change image_width and image_height widget from image size
             if properties['this_sync']:
@@ -859,7 +856,8 @@ class EfficientLoader_ED():
         elif clip_skip == 0:
             print(f"\033[38;5;173mEfficient Loader ED : clip skip is 0, Ignore clip skip\033[0m")
         else:
-            #clip = CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
+            clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
+            print(f"Clip skip: {clip_skip}")
             is_flux_model = False
            
         return model, clip, vae, lora_stack, lora_params, is_flux_model
@@ -870,7 +868,7 @@ prompt_blacklist_ed = set([
     'filename_prefix', 'file'
 ])
 
-class LoadImage_ED(LoadImage):
+class LoadImage_ED(nodes.LoadImage):
     upscale_methods = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"]
     proportion_methods = ["disabled", "based on width", "based on height", "disabled & crop center"]
     @classmethod
@@ -880,8 +878,8 @@ class LoadImage_ED(LoadImage):
         return {"required": {
                               "image": (sorted(files), {"image_upload": True}),
                               "upscale_method": (s.upscale_methods,),
-                              "width": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
-                              "height": ("INT", {"default": 1024, "min": 0, "max": MAX_RESOLUTION, "step": 1}),
+                              "width": ("INT", {"default": 1024, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 1}),
+                              "height": ("INT", {"default": 1024, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               "keep_proportions": (s.proportion_methods,),},
                     "hidden": { "my_unique_id": "UNIQUE_ID",}
                     }
@@ -960,7 +958,7 @@ class LoadImage_ED(LoadImage):
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "width", "type": "text", "data": width})
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "height", "type": "text", "data": height})
             
-            output_image = ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
+            output_image = nodes.ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
             
             if output_mask is not None:
                 if upscale_method == "lanczos":
@@ -987,7 +985,7 @@ class LoadImage_ED(LoadImage):
         return True
 
 # Save Image ED
-class SaveImage_ED(SaveImage):
+class SaveImage_ED(nodes.SaveImage):
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { },
@@ -1132,7 +1130,7 @@ class ED_Reg:
                 if str(control_net_tuple[-1]) != "Region_Stack":
                     print(f"\r{message('Efficiency Nodes ED:')} Applying control net stack.")
                     control_net, image, strength, start_percent, end_percent = control_net_tuple
-                    positive_encoded, negative_encoded = ControlNetApplyAdvanced().apply_controlnet(positive_encoded, negative_encoded, control_net, image, strength, start_percent, end_percent)
+                    positive_encoded, negative_encoded = nodes.ControlNetApplyAdvanced().apply_controlnet(positive_encoded, negative_encoded, control_net, image, strength, start_percent, end_percent)
         
         return (model, positive_encoded, negative_encoded)
 
@@ -1209,8 +1207,8 @@ class Regional_Stacker_ED:
         return {"required": {
                             "region_script": ("REGION_SCRIPT",),
                             "global_prompt_weight": ("FLOAT",{"default": 1.0, "min": 0.01, "max": 1.0, "step": 0.1, "tooltip": "Base prompt strength.", }, ),
-                            "width": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
-                            "height": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
+                            "width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
+                            "height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                             "empty image": (["Creates empty image"],),},
                     }
 
@@ -1236,8 +1234,8 @@ class Regional_Processor_ED:
                             "region_script": ("REGION_SCRIPT",),
                             "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                             "global_prompt_weight": ("FLOAT",{"default": 1.0, "min": 0.01, "max": 1.0, "step": 0.1, "tooltip": "Base prompt strength.", }, ),
-                            "width": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
-                            "height": ("INT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 1}),
+                            "width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
+                            "height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                             "empty image": (["Creates empty image"], ), },
                     }
 
@@ -1444,9 +1442,9 @@ class KSampler_ED():
                     },
                 "optional": {
                     #"vae_decode": (["true", "true (tiled)", "false"],),
-                    "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
-                    "max_size": ("FLOAT", {"default": 1216, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "max_size": ("FLOAT", {"default": 1216, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "feather": ("INT", {"default": 15, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
                     "cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
@@ -1551,7 +1549,7 @@ class KSampler_ED():
                     feather, crop_factor, drop_size, refiner_ratio, c_batch, cycle, 
                     detailer_hook, inpaint_model, noise_mask_feather)
                     
-            result_ui = PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
+            result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
             context = new_context_ed(context, images=output_images) #RE
             result = (context, output_images, steps,)
     
@@ -1575,8 +1573,8 @@ class KSampler_ED():
         
         # apply refiner script 
         if refiner_model is not None:          
-            refiner_positive = CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
-            refiner_negative = CLIPTextEncode().encode(refiner_clip, "")[0]
+            refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
+            refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, "")[0]
             
             if refiner_ignore_batch_size:
                 refiner_images = output_images = output_images[0:1].clone()                        
@@ -1595,7 +1593,7 @@ class KSampler_ED():
             
             _, _, _, latent_list, _, refiner_images = return_dict["result"]                    
             result_ui = return_dict["ui"]
-            output_images = ImageBatch().batch(output_images, refiner_images)[0]
+            output_images = nodes.ImageBatch().batch(output_images, refiner_images)[0]
             
             context = new_context_ed(context, latent=latent_list, images=output_images) #RE
             result = (context, output_images, steps)                    
@@ -1685,8 +1683,8 @@ class KSamplerTEXT_ED():
         latent_t = torch.zeros([batch_size, 4, image_height // 8, image_width // 8]).cpu()
         latent_image = {"samples":latent_t}
         
-        positive_encoded = CLIPTextEncode().encode(clip, positive)[0]
-        negative_encoded = CLIPTextEncode().encode(clip, negative)[0]
+        positive_encoded = nodes.CLIPTextEncode().encode(clip, positive)[0]
+        negative_encoded = nodes.CLIPTextEncode().encode(clip, negative)[0]
         
         return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, sampler_name, scheduler, 
                 positive_encoded, negative_encoded, latent_image, preview_method, vae_decode, denoise=denoise, prompt=prompt, 
@@ -1718,9 +1716,9 @@ class FaceDetailer_ED():
                     "sam_model_opt": (sams, ), 
                     "sam_mode": (["AUTO", "Prefer GPU", "CPU"],),
              
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "bbox", "label_off": "crop_region"}),
-                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
@@ -1741,7 +1739,7 @@ class FaceDetailer_ED():
                     "sam_bbox_expansion": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
                     "sam_mask_hint_threshold": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 1.0, "step": 0.01}),
                     "sam_mask_hint_use_negative": (["False", "Small", "Outter"],),
-                    "drop_size": ("INT", {"min": 1, "max": MAX_RESOLUTION, "step": 1, "default": 10}),                     
+                    "drop_size": ("INT", {"min": 1, "max": nodes.MAX_RESOLUTION, "step": 1, "default": 10}),                     
                     "cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
                     },
                 "optional": {
@@ -1822,9 +1820,9 @@ class MaskDetailer_ED():
                     "context": ("RGTHREE_CONTEXT",),
                     "set_seed_cfg_sampler_batch": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
 
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
-                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "mask_mode": ("BOOLEAN", {"default": True, "label_on": "masked only", "label_off": "whole"}),
 
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
@@ -1836,7 +1834,7 @@ class MaskDetailer_ED():
 
                     "feather": ("INT", {"default": 5, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
-                    "drop_size": ("INT", {"min": 1, "max": MAX_RESOLUTION, "step": 1, "default": 10}),
+                    "drop_size": ("INT", {"min": 1, "max": nodes.MAX_RESOLUTION, "step": 1, "default": 10}),
                     "refiner_ratio": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0}),
                     "batch_size": ("INT", {"default": 1, "min": 1, "max": 100}),
 
@@ -1932,9 +1930,9 @@ class DetailerForEach_ED():
                     "segs": ("SEGS", ),
                     "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
 
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
-                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                    "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
@@ -2053,17 +2051,17 @@ class UltimateSDUpscaleED():
                 "mode_type": (list(UltimateSDUpscaleED.MODES.keys()),),
                 #"mode_type": UltimateSDUpscale().INPUT_TYPES()["required"]["mode_type"],
                 "set_tile_size_from": (list(UltimateSDUpscaleED.set_tile_size_from_what.keys()), {"default": "Image size"}),
-                "tile_width": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
-                "tile_height": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                "tile_width": ("INT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
+                "tile_height": ("INT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 "mask_blur": ("INT", {"default": 8, "min": 0, "max": 64, "step": 1}),
-                "tile_padding": ("INT", {"default": 32, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
+                "tile_padding": ("INT", {"default": 32, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 # Seam fix params
                 "seam_fix_mode": (list(UltimateSDUpscaleED.SEAM_FIX_MODES.keys()),),
                 #"seam_fix_mode": UltimateSDUpscale().INPUT_TYPES()["required"]["seam_fix_mode"],
                 "seam_fix_denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                "seam_fix_width": ("INT", {"default": 64, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
+                "seam_fix_width": ("INT", {"default": 64, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 "seam_fix_mask_blur": ("INT", {"default": 8, "min": 0, "max": 64, "step": 1}),
-                "seam_fix_padding": ("INT", {"default": 16, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
+                "seam_fix_padding": ("INT", {"default": 16, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 # Misc
                 "force_uniform_tiles": ("BOOLEAN", {"default": True}),
                 "tiled_decode": ("BOOLEAN", {"default": False}),
