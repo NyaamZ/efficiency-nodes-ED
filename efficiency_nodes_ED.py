@@ -774,7 +774,8 @@ class EfficientLoader_ED():
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     properties['tiled_vae_encode'] = node["properties"]["Use tiled VAE encode"]
-                    properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]
+                    if properties['use_latent_rebatch']:
+                        properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]
                     properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
                     properties['token_normalization'] = node["properties"]["Token normalization"]
                     properties['weight_interpretation'] = node["properties"]["Weight interpretation"]
