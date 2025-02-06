@@ -774,7 +774,7 @@ class EfficientLoader_ED():
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     properties['tiled_vae_encode'] = node["properties"]["Use tiled VAE encode"]
-                    properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]                    
+                    properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]
                     properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
                     properties['token_normalization'] = node["properties"]["Token normalization"]
                     properties['weight_interpretation'] = node["properties"]["Weight interpretation"]
@@ -784,6 +784,9 @@ class EfficientLoader_ED():
                         if node["properties"]["Turn on Apply Lora"] == True:
                             print(f"\033[36mWildcard Encode ED: Turn on Apply Lora, loading Lora is pending.\033[0m")
                             properties['use_apply_lora'] = True
+                if node["type"] == "KSampler (Efficient) 💬ED":
+                    if node["mode"] != 0:
+                        properties['use_latent_rebatch'] = False
 
         return properties
 
