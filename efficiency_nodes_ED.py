@@ -319,6 +319,8 @@ class ED_Util:
                         # break
 
 class BNK_EncoderWrapper:
+    wildcards_dir = os.path.abspath(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack/wildcards"))
+    
     def __init__(self, token_normalization, weight_interpretation):
         self.token_normalization = token_normalization
         self.weight_interpretation = weight_interpretation
@@ -333,7 +335,66 @@ class BNK_EncoderWrapper:
         return nodes.NODE_CLASS_MAPPINGS['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
     
     @staticmethod
-    def imp_encode(text, model, clip, seed, clip_encoder, processed=None):        
+    def process_wildcard_sq(text, iterate_count):
+        def read_wildcard(match, card_name, operation, counter, iterate_count):
+            file_path = os.path.join(BNK_EncoderWrapper.wildcards_dir, f"{card_name}.txt")
+            
+            if not os.path.isfile(file_path):
+                raise Exception(f"Efficient nodes ED: Wildcard file ({card_name}.txt) is not found.")
+
+            with open(file_path, "r") as file:
+                lines = file.readlines()
+
+            counter = max(0, min(counter, len(lines) - 1))
+
+            if operation == "INC":
+                counter = min(counter + iterate_count, len(lines) - 1)
+            elif operation == "DEC":
+                counter = max(counter - iterate_count, 0)
+
+            result = lines[counter].strip()
+            match_after = f"__{card_name}__#{operation}{counter}"
+
+            print(f"     {match} >> {message('counter:')}: {warning('#' + operation + str(counter))}, {message('replaced text:')} {warning(result)}")
+            return result, match_after
+
+        global get_booru_tag_id, get_booru_tag_text_b
+        text_b = get_booru_tag_text_b
+
+        card_files, _ = folder_paths.recursive_search(BNK_EncoderWrapper.wildcards_dir)
+
+        pattern = r"(__[\w.\-+/*\\]+?__#[A-Z]{3}[0-9]*)"
+        matches = re.findall(pattern, text)
+
+        if matches:
+            print(f"\r{message('ED Sequential wildcards processing:')}")
+
+        for match in matches:
+            card_name, operation_counter = match.split('__#')
+            card_name = card_name[2:]
+            operation, counter = operation_counter[:3], int(operation_counter[3:])
+
+            if card_name.replace('/', '\\') + ".txt" in card_files:
+                wc_text, match_after = read_wildcard(match, card_name, operation, counter, iterate_count)
+                text_b = text_b.replace(match, match_after)
+            else:
+                raise Exception(f"Efficient nodes ED: Wildcard file ({match}) is not found.")
+
+            text = text.replace(match, wc_text)
+
+        PromptServer.instance.send_sync("ed-node-feedback", {
+            "node_id": get_booru_tag_id,
+            "widget_name": "text_b",
+            "type": "text",
+            "data": text_b
+        })
+
+        return text
+
+    @staticmethod
+    def imp_encode(text, model, clip, seed, clip_encoder, processed=None, iterate_count=0):
+        text = BNK_EncoderWrapper.process_wildcard_sq(text, iterate_count)
+        
         if processed is None:
             processed = []
 
@@ -586,7 +647,7 @@ class WildcardEncode_ED:
             
             if not positive:
                 processed = []                
-                _, _, positive, pos_prompt = BNK_EncoderWrapper.imp_encode(pos_prompt, model, clip, seed, clip_encoder, processed)
+                _, _, positive, pos_prompt = BNK_EncoderWrapper.imp_encode(pos_prompt, model, clip, seed, clip_encoder, processed, count)
         
         if lora_stack:
             model, clip = ED_Util.apply_load_lora(lora_stack, model, clip, "Wildcard Encode ED")
@@ -750,6 +811,7 @@ class EfficientLoader_ED():
         names = ["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints")
 
         name = kwargs["ckpt_name"]["content"]
+
         if not name in names:
             return_value = f"Checkpoint not found: {name}"
             raise Exception(f"\033[30m \033[101mEfficient Loader ED : Checkpoint '{name}' is not found\033[0m")
@@ -1381,6 +1443,9 @@ class ContextToDetailerPipe:
 
 ##############################################################################################################
 # Get Booru Tag
+
+get_booru_tag_id = 0
+get_booru_tag_text_b = ""
 class GetBooruTag():
     @classmethod
     def INPUT_TYPES(s):
@@ -1394,6 +1459,7 @@ class GetBooruTag():
                 "text_c": ("STRING", {"multiline": True, "dynamicPrompts": False}),
                 "Select to add Wildcard": (["Select the Wildcard to add to the text"], ),
             },
+            "hidden": {"my_unique_id": "UNIQUE_ID",},
         }
 
     RETURN_TYPES = ("STRING",)
@@ -1401,7 +1467,11 @@ class GetBooruTag():
     FUNCTION = 'get_prompt'
     CATEGORY = 'Efficiency Nodes/Prompt'
 
-    def get_prompt(self, url, text_a="", text_b="", text_c="", **kwargs):
+    def get_prompt(self, url, text_a="", text_b="", text_c="", my_unique_id=None, **kwargs):
+        global get_booru_tag_id, get_booru_tag_text_b
+        get_booru_tag_id = my_unique_id
+        get_booru_tag_text_b = text_b
+
         #strip commet
         text_a = ED_Util.strip_comments(text_a)
         text_b = ED_Util.strip_comments(text_b)
