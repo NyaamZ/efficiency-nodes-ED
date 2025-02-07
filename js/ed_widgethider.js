@@ -430,8 +430,8 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		if (w.value == 0) w.value = -2;
 		mute1_group.forEach(n => n.mode = 2);
 		mute2_group.forEach(n => n.mode = 2);
-		bypass_group.forEach(n => n.mode = 0);
-		opposite_group.forEach(n => n.mode = 0);
+		//bypass_group.forEach(n => n.mode = 0);
+		//opposite_group.forEach(n => n.mode = 0);
 		
 		w =  findWidgetByName(node, 'cfg');
 		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg);
