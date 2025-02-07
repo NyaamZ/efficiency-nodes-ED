@@ -44,6 +44,7 @@ const NODE_COLORS = {
 	"Context To DetailerPipe": "blue",
 
 	"Get Booru Tag 💬ED": "cyan",
+	"Simple Text 💬ED": "cyan",
  };
 
 function shuffleArray(array) {

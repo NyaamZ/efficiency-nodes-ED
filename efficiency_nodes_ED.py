@@ -347,10 +347,12 @@ class BNK_EncoderWrapper:
 
             counter = max(0, min(counter, len(lines) - 1))
 
-            if operation == "INC":
+            if operation == "ASC":
                 counter = min(counter + iterate_count, len(lines) - 1)
-            elif operation == "DEC":
+            elif operation == "DSC":
                 counter = max(counter - iterate_count, 0)
+            else:
+                operation = "FIX"
 
             result = lines[counter].strip()
             match_after = f"__{card_name}__#{operation}{counter}"
@@ -1443,10 +1445,10 @@ class ContextToDetailerPipe:
 
 ##############################################################################################################
 # Get Booru Tag
-
 get_booru_tag_id = 0
 get_booru_tag_text_b = ""
-class GetBooruTag():
+
+class GetBooruTag_ED():
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -1489,6 +1491,33 @@ class GetBooruTag():
         out_text = f"{out_text.rstrip(strip)},"
         
         return (out_text,)
+
+##############################################################################################################
+# Simple text
+
+class SimpleText_ED():
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {                              
+                "text": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                #"Select to add Wildcard": (["Select the Wildcard to add to the text"], ),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("STRING",)
+    FUNCTION = 'get_text'
+    CATEGORY = 'Efficiency Nodes/Prompt'
+
+    def get_text(self, text):
+        #strip commet
+        text = ED_Util.strip_comments(text)
+
+        strip = " ,\n"
+        text = f"{text.lstrip(strip).rstrip(strip)},"
+        
+        return (text,)
 
 ##############################################################################################################
 # SAMPLER
@@ -2418,7 +2447,8 @@ NODE_CLASS_MAPPINGS = {
     "Regional Script 💬ED": Regional_Script_ED,
     "Context To BasicPipe": ContextToBasicPipe,
     "Context To DetailerPipe": ContextToDetailerPipe,
-    "Get Booru Tag 💬ED": GetBooruTag,
+    "Get Booru Tag 💬ED": GetBooruTag_ED,
+    "Simple Text 💬ED": SimpleText_ED,
     
     "FaceDetailer 💬ED": FaceDetailer_ED,
     "MaskDetailer 💬ED": MaskDetailer_ED,
