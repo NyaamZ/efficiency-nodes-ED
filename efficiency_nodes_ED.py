@@ -369,25 +369,25 @@ class BNK_EncoderWrapper:
         if matches:
             print(f"\r{message('ED Sequential wildcards processing:')}")
 
-        for match in matches:
-            card_name, operation_counter = match.split('__#')
-            card_name = card_name[2:]
-            operation, counter = operation_counter[:3], int(operation_counter[3:])
+            for match in matches:
+                card_name, operation_counter = match.split('__#')
+                card_name = card_name[2:]
+                operation, counter = operation_counter[:3], int(operation_counter[3:])
 
-            if card_name.replace('/', '\\') + ".txt" in card_files:
-                wc_text, match_after = read_wildcard(match, card_name, operation, counter, iterate_count)
-                text_b = text_b.replace(match, match_after)
-            else:
-                raise Exception(f"Efficient nodes ED: Wildcard file ({match}) is not found.")
+                if card_name.replace('/', '\\') + ".txt" in card_files:
+                    wc_text, match_after = read_wildcard(match, card_name, operation, counter, iterate_count)
+                    text_b = text_b.replace(match, match_after)
+                else:
+                    raise Exception(f"Efficient nodes ED: Wildcard file ({match}) is not found.")
 
-            text = text.replace(match, wc_text)
+                text = text.replace(match, wc_text)
 
-        PromptServer.instance.send_sync("ed-node-feedback", {
-            "node_id": get_booru_tag_id,
-            "widget_name": "text_b",
-            "type": "text",
-            "data": text_b
-        })
+            PromptServer.instance.send_sync("ed-node-feedback", {
+                "node_id": get_booru_tag_id,
+                "widget_name": "text_b",
+                "type": "text",
+                "data": text_b
+            })
 
         return text
 
