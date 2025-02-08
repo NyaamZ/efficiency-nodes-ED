@@ -104,16 +104,18 @@ cashe_ed = {
     "ultra_bbox_detector": [],
     "ultra_segm_detector": [],
     "sam_model": [],
-    "ultimate_sd_upscaler": []
+    "upscaler": []
 }
-    
+MAX_CASHE_UPSCALER = 2
+MAX_CASHE_ULTRALYTICS = 2
+
 class ED_Cashe:
     @staticmethod
     def cashload(cashe_type, model_name):
         global cashe_ed
         for entry in cashe_ed[cashe_type]:
             if entry[0] == model_name:
-                print(f"\033[36mED node use {cashe_type} cashe: {entry[0]}\033[0m")
+                print(f"\r{message('Efficiency Nodes ED:')} using saved {cashe_type} cashe - {entry[0]}")
                 return entry[1]
         return None
         
@@ -123,7 +125,7 @@ class ED_Cashe:
         if len(cashe_ed[cashe_type])>= max_cashe:
             cashe_ed[cashe_type].pop(0)
         cashe_ed[cashe_type].append([model_name, model])
-        print(f"\033[36mED node save {cashe_type} cashe: {model_name}\033[0m")
+        print(f"\r{message('Efficiency Nodes ED:')} save {cashe_type} cashe - {model_name}")
         return
 
 ############################################################################################################
@@ -241,7 +243,7 @@ class ED_Util:
             model, _ = nodes.NODE_CLASS_MAPPINGS['UltralyticsDetectorProvider']().doit(model_name)
         else:
             _, model = nodes.NODE_CLASS_MAPPINGS['UltralyticsDetectorProvider']().doit(model_name)        
-        ED_Cashe.cashsave(detector_type, model_name, model, MAX_CASHE_ED_FACE)
+        ED_Cashe.cashsave(detector_type, model_name, model, MAX_CASHE_ULTRALYTICS)
         return model
 
     @staticmethod
@@ -258,20 +260,20 @@ class ED_Util:
             raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
 
         sam = nodes.NODE_CLASS_MAPPINGS['SAMLoader']().load_model(model_name, device_mode)[0]
-        ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ED_FACE)
+        ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ULTRALYTICS)
         return sam
 
     @staticmethod
     def load_upscale_model(model_name):
-        cash = ED_Cashe.cashload("ultimate_sd_upscaler", model_name)
+        cash = ED_Cashe.cashload("upscaler", model_name)
         if cash is not None:
             return cash
-        (model, ) = UpscaleModelLoader().load_model(model_name)
-        ED_Cashe.cashsave("ultimate_sd_upscaler", model_name, model, MAX_CASHE_ED_ULTIMATE_UPSCALE)
+        model = UpscaleModelLoader().load_model(model_name)[0]
+        ED_Cashe.cashsave("upscaler", model_name, model, MAX_CASHE_UPSCALER)
         return model
 
-    #@staticmethod
-    # def get_widget_value(self, extra_pnginfo, prompt, node_name, widget_name):
+    @staticmethod
+    def get_widget_value(prompt, node, widget_name):
         # workflow = extra_pnginfo["workflow"] if "workflow" in extra_pnginfo else { "nodes": [] }
         # node_id = None
         # for node in workflow["nodes"]:
@@ -287,16 +289,17 @@ class ED_Util:
             # if name == node_name:
                 # node_id = node["id"]
                 # break
-        # if node_id is not None:
-            # values = prompt[str(node_id)]
-            # if "inputs" in values:
-                # if widget_name in values["inputs"]:
-                    # value = values["inputs"][widget_name]
-                    # if isinstance(value, list):
-                        # raise ValueError("Converted widgets are not supported via named reference, use the inputs instead.")
-                    # return value
-            # raise NameError(f"Widget not found: {node_name}.{widget_name}")
-        # raise NameError(f"Node not found: {node_name}.{widget_name}")
+        
+        if node is not None and node["mode"] == 0:
+            values = prompt[str(node["id"])]
+            if "inputs" in values:
+                if widget_name in values["inputs"]:
+                    value = values["inputs"][widget_name]
+                    if isinstance(value, list):
+                        raise ValueError("Converted widgets are not supported via named reference, use the inputs instead.")
+                    return value
+            
+        return None
 
     #@staticmethod
     # def workflow_to_map(workflow):
@@ -726,7 +729,7 @@ class EfficientLoader_ED():
         lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner = Embedding_Stacker_ED.embedding_process(lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner)     
 
         # GET PROPERTIES #  
-        properties = self.get_properties(extra_pnginfo, my_unique_id)
+        properties = self.get_properties(extra_pnginfo, my_unique_id, prompt)
        
         # Model, clip, vae, lora_params 
         model, clip, vae, lora_stack, lora_params, is_flux_model = \
@@ -821,7 +824,7 @@ class EfficientLoader_ED():
         return return_value
 
     @staticmethod
-    def get_properties(extra_pnginfo, my_unique_id):
+    def get_properties(extra_pnginfo, my_unique_id, prompt):
         properties = {
             "this_sync": True,
             "tiled_vae_encode": False,
@@ -851,6 +854,9 @@ class EfficientLoader_ED():
                             properties['use_apply_lora'] = True
                 if node["type"] == "KSampler (Efficient) 💬ED":
                     if node["mode"] != 0:
+                        properties['use_latent_rebatch'] = False
+                if node["type"] == "Refiner Script 💬ED":
+                    if node["mode"] == 0:
                         properties['use_latent_rebatch'] = False
 
         return properties
@@ -937,18 +943,20 @@ prompt_blacklist_ed = set([
 ])
 
 class LoadImage_ED(nodes.LoadImage):
-    upscale_methods = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"]
-    proportion_methods = ["disabled", "based on width", "based on height", "disabled & crop center"]
+    UPSCALE_METHODS = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"] + ["upscale_models/"+x for x in folder_paths.get_filename_list("upscale_models")]
+    
+    PROPORTION_METHODS = ["disabled", "1.5x", "2x", "3x", "4x", "based on width", "based on height", "disabled & crop center"]
+    
     @classmethod
     def INPUT_TYPES(s):
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
         return {"required": {
                               "image": (sorted(files), {"image_upload": True}),
-                              "upscale_method": (s.upscale_methods,),
+                              "upscale_method": (s.UPSCALE_METHODS,),
                               "width": ("INT", {"default": 1024, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               "height": ("INT", {"default": 1024, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 1}),
-                              "keep_proportions": (s.proportion_methods,),},
+                              "keep_proportions": (s.PROPORTION_METHODS,),},
                     "hidden": { "my_unique_id": "UNIQUE_ID",}
                     }
     CATEGORY = "Efficiency Nodes/Image"
@@ -958,8 +966,70 @@ class LoadImage_ED(nodes.LoadImage):
 
     def load_image(self, image, upscale_method, width, height, keep_proportions, my_unique_id):        
         output_image, output_mask = super().load_image(image)
-        
-        #################################################
+        text, image_height, image_width = self.get_prompt(image, output_image)
+
+        if "not upscale" not in upscale_method:
+            if "upscale_models" in upscale_method:
+                upscaler = ED_Util.load_upscale_model(upscale_method.split("/", 1)[-1])
+                output_image = ImageUpscaleWithModel().upscale(upscaler, output_image)[0]
+                upscale_method = "lanczos"
+
+            width, height = self.calculate_dimensions(width, height, keep_proportions, image_width, image_height)
+            crop = "center" if keep_proportions == "disabled & crop center" else "disabled"
+
+            self.send_feedback(my_unique_id, width, height)
+
+            output_image = nodes.ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
+            if output_mask is not None:
+                output_mask = self.upscale_mask(output_mask, upscale_method, width, height, crop)
+
+        return output_image, output_mask, text
+
+    @staticmethod
+    def calculate_dimensions(width, height, keep_proportions, original_width, original_height):
+        if keep_proportions in {"based on width", "based on height"}:
+            width = original_width if width == 0 else width
+            height = original_height if height == 0 else height
+            ratio = (width / original_width) if keep_proportions == "based on width" else (height / original_height)
+            return round(original_width * ratio), round(original_height * ratio)
+
+        scale_factors = {"1.5x": 1.5, "2x": 2, "3x": 3, "4x": 4}
+        if keep_proportions in scale_factors:
+            factor = scale_factors[keep_proportions]
+            return int(original_width * factor), int(original_height * factor)
+
+        return width, height
+
+    @staticmethod
+    def send_feedback(unique_id, width, height):
+        feedback = PromptServer.instance.send_sync
+        feedback("ed-node-feedback", {"node_id": unique_id, "widget_name": "width", "type": "text", "data": width})
+        feedback("ed-node-feedback", {"node_id": unique_id, "widget_name": "height", "type": "text", "data": height})
+
+    @staticmethod
+    def upscale_mask(mask, method, width, height, crop):
+        method = "bicubic" if method == "lanczos" else method
+        mask = mask.unsqueeze(1)
+        mask = comfy.utils.common_upscale(mask, width, height, method, crop)
+        return mask.squeeze(1)
+
+    @classmethod
+    def IS_CHANGED(s, image,  **kwargs):
+        image_path = folder_paths.get_annotated_filepath(image)
+        m = hashlib.sha256()
+        with open(image_path, 'rb') as f:
+            m.update(f.read())
+        return m.digest().hex()
+
+    @classmethod
+    def VALIDATE_INPUTS(s, image,  **kwargs):
+        if not folder_paths.exists_annotated_filepath(image):
+            return "Invalid image file: {}".format(image)
+
+        return True
+
+    @staticmethod
+    def get_prompt(image, output_image):
         image_path = folder_paths.get_annotated_filepath(image)
         info = Image.open(image_path).info
 
@@ -1012,45 +1082,8 @@ class LoadImage_ED(nodes.LoadImage):
         _, image_height, image_width, _ = output_image.shape
         text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
         
-        ## Upscale image & Mask
-        if not "not upscale" in  upscale_method:
-            crop = "center" if keep_proportions == "disabled & crop center" else "disabled"
-            
-            if keep_proportions == "based on width" or keep_proportions == "based on height":
-                oh, ow = (image_height, image_width)
-                width = ow if width == 0 else width
-                height = oh if height == 0 else height
-                ratio = (width / ow) if keep_proportions == "based on width" else (height / oh)
-                width = round(ow*ratio)
-                height = round(oh*ratio)
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "width", "type": "text", "data": width})
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "height", "type": "text", "data": height})
-            
-            output_image = nodes.ImageScale().upscale(output_image, upscale_method, width, height, crop)[0] 
-            
-            if output_mask is not None:
-                if upscale_method == "lanczos":
-                    upscale_method = "bicubic"
-                t = output_mask.unsqueeze(1)
-                t = comfy.utils.common_upscale(t, width, height, upscale_method, crop)
-                output_mask = t.squeeze(1)
-        
-        return (output_image, output_mask, text,)
+        return text, image_height, image_width
 
-    @classmethod
-    def IS_CHANGED(s, image,  **kwargs):
-        image_path = folder_paths.get_annotated_filepath(image)
-        m = hashlib.sha256()
-        with open(image_path, 'rb') as f:
-            m.update(f.read())
-        return m.digest().hex()
-
-    @classmethod
-    def VALIDATE_INPUTS(s, image,  **kwargs):
-        if not folder_paths.exists_annotated_filepath(image):
-            return "Invalid image file: {}".format(image)
-
-        return True
 
 # Save Image ED
 class SaveImage_ED(nodes.SaveImage):
@@ -1127,14 +1160,15 @@ class Refiner_Script_ED:
     def INPUT_TYPES(cls):
         return {"required": {
                             "set_seed_cfg_sampler": (list(Refiner_Script_ED.set_seed_cfg_sampler.keys()), {"default": "from context"}),
-                            "add_noise": (["enable", "disable"], ),
+                            "add_noise": (["enable", "disable"], ),                           
                             "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                             "steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
                             "scheduler": (SCHEDULERS, {"default": "karras"}),
+                            "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                             "start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
-                            "end_at_step": ("INT", {"default": 6, "min": 0, "max": 10000}),
+                            "end_at_step": ("INT", {"default": 100, "min": 0, "max": 10000}),
                             "ignore_batch_size": ("BOOLEAN", {"default": True}),
                             "do_refine_only": ("BOOLEAN", {"default": True}),
                         },
@@ -1149,7 +1183,7 @@ class Refiner_Script_ED:
     FUNCTION = "refiner_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, do_refine_only, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
+    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
         script = script or {}
         
         if refiner_model_opt is not None:
@@ -1178,7 +1212,7 @@ class Refiner_Script_ED:
             refiner_model = None
         
         if refiner_model is not None:
-            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
+            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
             #print(f"\033[38;5;173mRefiner Script ED: Refiner script loading. steps:{steps}, start step:{start_at_step}, end step:{end_at_step}\033[0m")
             script["refiner_script"] = refiner_script
         
@@ -1563,87 +1597,42 @@ class KSampler_ED():
     CATEGORY = "Efficiency Nodes/Sampling"
 
     def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, preview_method, 
-                vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3, cycle=1,
-                t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
-                extra_pnginfo=None, my_unique_id=None, script=None, detailer_hook=None,
-                add_noise=None, start_at_step=None, end_at_step=None,
-                return_with_leftover_noise=None, sampler_type="regular"):
+                  vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3, cycle=1,
+                  t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
+                  extra_pnginfo=None, my_unique_id=None, script=None, detailer_hook=None,
+                  add_noise=None, start_at_step=None, end_at_step=None,
+                  return_with_leftover_noise=None, sampler_type="regular"):
 
-        # Unpack from CONTEXT 
-        _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, c_seed, c_cfg, c_sampler, c_scheduler, positive_prompt, mask = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "mask"])
+        # Unpack context
+        _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, positive_prompt, negative_prompt, mask = \
+            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "text_pos_g", "text_neg_g", "mask"])
 
-        mask_detailer_mode = False
-        drop_size = 5
-        inpaint_model = False
-        noise_mask_feather = 20
-        if sampler_type=="regular" and extra_pnginfo and "workflow" in extra_pnginfo:
-            workflow = extra_pnginfo["workflow"]
-            for node in workflow["nodes"]:
-                if node["id"] == int(my_unique_id):
-                    mask_detailer_mode = node["properties"]["MaskDetailer mode"]
-                    drop_size = int(node["properties"]["(MaskDetailer) drop size"])
-                    inpaint_model = node["properties"]["(MaskDetailer) inpaint model enable"]
-                    noise_mask_feather = int(node["properties"]["(MaskDetailer) noise mask feather"])
-                    if node["properties"]["Use tiled VAE decode"]:
-                        vae_decode = "true (tiled)"
-                    else:
-                        vae_decode = "true"
-                    break
-        
-        if t_positive:
-            positive = t_positive
-        if t_negative:
-            negative = t_negative
-        if model is None:
-            raise Exception("KSampler (Efficient) ED: Model is None. \n\n\n\n\n\n")                
-        if latent_image is None:
-            raise Exception("KSampler (Efficient) ED requires 'Latent' for sampling.\n\n\n\n\n\n")        
+        if model is None or latent_image is None:
+            raise Exception("KSampler (Efficient) ED: Model and Latent are required.")
 
-        if set_seed_cfg_sampler == "from context":
-            if c_seed is None:
-                raise Exception("KSampler (Efficient) ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
-            else:
-                seed = c_seed
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
-                cfg = c_cfg
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "cfg", "type": "text", "data": cfg})
-                sampler_name = c_sampler
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "sampler_name", "type": "text", "data": sampler_name})
-                scheduler = c_scheduler
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "scheduler", "type": "text", "data": scheduler})
-        elif set_seed_cfg_sampler =="from node to ctx":
-            context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)
-    
-        print(f"\r{message('KSampler (Efficient) ED:')} Current seed - {seed}")
-        #---------------------------------------------------------------------------------------------------------------
-        def keys_exist_in_script(*keys):
-            return any(key in script for key in keys) if script else False
-        
-        ####################################### ED Control net script
-        if keys_exist_in_script("control_net"):
-            cnet_stack = script["control_net"]
+        mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather = self.extract_mask_detailer_settings(extra_pnginfo, my_unique_id)
+
+        positive, negative = t_positive or positive, t_negative or negative
+
+        # Handle seed, cfg, sampler, scheduler from context or update context
+        context, seed, cfg, sampler_name, scheduler = self.handle_seed_cfg_sampler(context, set_seed_cfg_sampler, seed, cfg, sampler_name, scheduler, my_unique_id)
+
+        # Apply control net script if present
+        if script and "control_net" in script:
             print(f"\033[38;5;173mKSampler ED: Apply control net from script\033[0m")
-            _, positive, negative = ED_Reg.apply_controlnet_region(cnet_stack, positive, negative, model, clip, seed, None)
+            _, positive, negative = ED_Reg.apply_controlnet_region(script["control_net"], positive, negative, model, clip, seed, None)
             context = new_context_ed(context, positive=positive, negative=negative)
-        
-        refiner_model = None
-        # refiner script
-        if keys_exist_in_script("refiner_script"):                    
-            refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, do_refine_only = script["refiner_script"]
-            
-            if do_refine_only:
-                denoise = 0                    
-            # use KSamplerAdvanced
-            if denoise == 1.0:
-                sampler_type = "advanced"
-                add_noise = "enable"
-                start_at_step = 0
-                end_at_step = 10000
-                return_with_leftover_noise = "enable"                 
+            script = script.copy()
+            del script['control_net']
 
+        # Handle refiner script if present
+        latent_list = None
+        script, refiner_script, do_refine_only = self.handle_refiner_script(script)
+        
+        ###### Mask Detailer ######
         if mask_detailer_mode:
             print(f"\033[38;5;173mKSampler ED: use MaskDetailer(ImpactPack) for inpainting\033[0m")
-
+            set_preview_method(preview_method)
             mask_mode = True
             refiner_ratio = 0.2
             output_images, _, _ = MaskDetailer_ED.mask_sampling(optional_image, mask, model, clip, vae, positive, negative,
@@ -1651,17 +1640,19 @@ class KSampler_ED():
                     seed, steps, cfg, sampler_name, scheduler, denoise,
                     feather, crop_factor, drop_size, refiner_ratio, c_batch, cycle, 
                     detailer_hook, inpaint_model, noise_mask_feather)
-                    
+
+            latent_list = nodes.VAEEncode().encode(vae, output_images)[0] if refiner_script else None
+            store_ksampler_results("image", my_unique_id, output_images)
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
-            context = new_context_ed(context, images=output_images) #RE
-            result = (context, output_images, steps,)
-    
-        else:
+
+        ###### KSampler (Efficient) ######
+        elif not do_refine_only:
+            
             if 'KSampler (Efficient)' not in nodes.NODE_CLASS_MAPPINGS:
                 ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                             "To use 'This Efficiency Nodes ED' node, 'Efficiency Nodes for ComfyUI Version 2.0+' extension is required.")
                 raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Efficiency Nodes for ComfyUI Version 2.0+'")
-
+            
             return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
@@ -1670,39 +1661,100 @@ class KSampler_ED():
 
             _, _, _, latent_list, _, output_images = return_dict["result"]
             result_ui = return_dict["ui"]
-    
-            context = new_context_ed(context, latent=latent_list, images=output_images) #RE
-            result = (context, output_images, steps)
+
+        ###### Refiner Script ######
+        if refiner_script:
+            output_images = self.apply_refiner_script(refiner_script, latent_list or latent_image, 
+                                                  positive_prompt, negative_prompt, preview_method, vae_decode, return_with_leftover_noise)
+            
+            store_ksampler_results("image", my_unique_id, output_images)
+            result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]        
         
-        # apply refiner script 
-        if refiner_model is not None:          
+        # result
+        latent_list = latent_list or latent_image
+        context = new_context_ed(context, latent=latent_list, images=output_images)
+        return {"ui": result_ui, "result": (context, output_images, steps)}
+
+    @staticmethod
+    def extract_mask_detailer_settings(extra_pnginfo, my_unique_id):
+        mask_detailer_mode = False
+        drop_size = 5
+        inpaint_model = False
+        noise_mask_feather = 20
+
+        if extra_pnginfo and "workflow" in extra_pnginfo:
+            workflow = extra_pnginfo["workflow"]
+            for node in workflow["nodes"]:
+                if node["id"] == int(my_unique_id):
+                    props = node["properties"]
+                    mask_detailer_mode = props.get("MaskDetailer mode", False)
+                    drop_size = int(props.get("(MaskDetailer) drop size", 5))
+                    inpaint_model = props.get("(MaskDetailer) inpaint model enable", False)
+                    noise_mask_feather = int(props.get("(MaskDetailer) noise mask feather", 20))
+                    return mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather
+
+        return mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather
+        
+    @staticmethod
+    def handle_seed_cfg_sampler(context, mode, seed, cfg, sampler_name, scheduler, my_unique_id):
+        if mode == "from context":
+            _, c_seed, c_cfg, c_sampler, c_scheduler = context_2_tuple_ed(context, ["seed", "cfg", "sampler", "scheduler"])
+            if c_seed is None:
+                raise Exception("KSampler (Efficient) ED: No seed, cfg, sampler, scheduler in the context.")
+
+            seed, cfg, sampler_name, scheduler = c_seed, c_cfg, c_sampler, c_scheduler
+
+            for key, value in zip(["seed", "cfg", "sampler_name", "scheduler"], [seed, cfg, sampler_name, scheduler]):
+                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": key, "type": "text", "data": value})
+
+        elif mode == "from node to ctx":
+            context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)
+
+        return context, seed, cfg, sampler_name, scheduler
+
+    @staticmethod
+    def handle_refiner_script(script):
+        refiner_script = None
+        do_refine_only = False
+
+        if script and "refiner_script" in script:
+            refiner_script = script["refiner_script"]
+            do_refine_only = refiner_script[-1]
+            script = script.copy()
+            del script['refiner_script']
+
+        return script, refiner_script, do_refine_only
+        
+    @staticmethod
+    def apply_refiner_script(refiner_script, latent_image, positive_prompt, negative_prompt, preview_method, vae_decode, return_with_leftover_noise):
+
+        if refiner_script:
+            refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, _ = refiner_script
+            
+            if not refiner_model:
+                raise Exception("KSampler (Efficient) ED: Refiner model information is missing in the script.")
+            
             refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
-            refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, "")[0]
+            refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, negative_prompt)[0]
             
             if refiner_ignore_batch_size:
-                refiner_images = output_images = output_images[0:1].clone()                        
-            else:
-                refiner_images = output_images
-            
-            #VAE Encode
-            if "tiled" in vae_decode:
-                k = refiner_vae.encode_tiled(refiner_images[:,:,:,:3], tile_x=320, tile_y=320, )
-            else:
-                k = refiner_vae.encode(refiner_images[:,:,:,:3])
-            latent_image = {"samples":k}
+                latent_image = nodes.LatentFromBatch().frombatch(latent_image, 0, 1)[0]
             
             print(f"\033[38;5;173mKSampler ED: Running refiner script. steps:{refiner_steps}, start step:{refiner_start_at_step}, end step:{refiner_end_at_step}\033[0m")
-            return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(refiner_model, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, preview_method, vae_decode, denoise=1.0, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id, optional_vae=refiner_vae, script=None, add_noise=refiner_add_noise, start_at_step=refiner_start_at_step, end_at_step=refiner_end_at_step, return_with_leftover_noise=return_with_leftover_noise, sampler_type="advanced")
             
-            _, _, _, latent_list, _, refiner_images = return_dict["result"]                    
-            result_ui = return_dict["ui"]
-            output_images = nodes.ImageBatch().batch(output_images, refiner_images)[0]
+            set_preview_method(preview_method)
+            latent_image = nodes.KSamplerAdvanced().sample(refiner_model, refiner_add_noise, refiner_seed, refiner_steps, 
+                            refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, 
+                            refiner_start_at_step, refiner_end_at_step, return_with_leftover_noise, refiner_denoise)[0]
             
-            context = new_context_ed(context, latent=latent_list, images=output_images) #RE
-            result = (context, output_images, steps)                    
-        
-        return {"ui": result_ui, "result": result}
-        
+            #VAE Decode
+            if "tiled" in vae_decode:
+                refiner_images = nodes.VAEDecodeTiled().decode(refiner_vae, latent_image, 512)[0]
+            else:
+                refiner_images = nodes.VAEDecode().decode(refiner_vae, latent_image)[0]
+
+        return refiner_images
+
 ##############################################################################################################
 # KSamplerTEXT ED #for BackGround Make  
 class KSamplerTEXT_ED():
@@ -1804,7 +1856,6 @@ class KSamplerTEXT_ED():
 # EXTENSIONS
 ##############################################################################################################
 # Face Detailer ED
-MAX_CASHE_ED_FACE = 3
 class FaceDetailer_ED():
     @classmethod
     def INPUT_TYPES(s):
@@ -2116,7 +2167,6 @@ class DetailerForEach_ED():
 
 ##############################################################################################################
 # Ultimate SD Upscale ED
-MAX_CASHE_ED_ULTIMATE_UPSCALE = 1
 class UltimateSDUpscaleED():
     set_tile_size_from_what = {
         "Image size": 1,
@@ -2217,7 +2267,7 @@ class UltimateSDUpscaleED():
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "tile_width", "type": "text", "data": tile_width})
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "tile_height", "type": "text", "data": tile_height})
         
-        upscaler = ED_Util.load_upscale_model(upscale_model)        
+        upscaler = ED_Util.load_upscale_model(upscale_model)
 
         if 'UltimateSDUpscale' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ssitu/ComfyUI_UltimateSDUpscale',
