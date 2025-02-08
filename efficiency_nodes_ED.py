@@ -856,7 +856,7 @@ class EfficientLoader_ED():
                     if node["mode"] != 0:
                         properties['use_latent_rebatch'] = False
                 if node["type"] == "Refiner Script 💬ED":
-                    if node["mode"] == 0:
+                    if ED_Util.get_widget_value(prompt, node, "ignore_batch_size") == True:
                         properties['use_latent_rebatch'] = False
 
         return properties
@@ -987,14 +987,15 @@ class LoadImage_ED(nodes.LoadImage):
 
     @staticmethod
     def calculate_dimensions(width, height, keep_proportions, original_width, original_height):
+        scale_factors = {"1.5x": 1.5, "2x": 2, "3x": 3, "4x": 4}
+
         if keep_proportions in {"based on width", "based on height"}:
             width = original_width if width == 0 else width
             height = original_height if height == 0 else height
             ratio = (width / original_width) if keep_proportions == "based on width" else (height / original_height)
             return round(original_width * ratio), round(original_height * ratio)
 
-        scale_factors = {"1.5x": 1.5, "2x": 2, "3x": 3, "4x": 4}
-        if keep_proportions in scale_factors:
+        elif keep_proportions in scale_factors:
             factor = scale_factors[keep_proportions]
             return int(original_width * factor), int(original_height * factor)
 
@@ -1617,6 +1618,8 @@ class KSampler_ED():
         # Handle seed, cfg, sampler, scheduler from context or update context
         context, seed, cfg, sampler_name, scheduler = self.handle_seed_cfg_sampler(context, set_seed_cfg_sampler, seed, cfg, sampler_name, scheduler, my_unique_id)
 
+        print(f"\r{message('KSampler (Efficient) ED:')} Current seed - {seed}")
+
         # Apply control net script if present
         if script and "control_net" in script:
             print(f"\033[38;5;173mKSampler ED: Apply control net from script\033[0m")
@@ -1646,13 +1649,7 @@ class KSampler_ED():
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
 
         ###### KSampler (Efficient) ######
-        elif not do_refine_only:
-            
-            if 'KSampler (Efficient)' not in nodes.NODE_CLASS_MAPPINGS:
-                ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                            "To use 'This Efficiency Nodes ED' node, 'Efficiency Nodes for ComfyUI Version 2.0+' extension is required.")
-                raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Efficiency Nodes for ComfyUI Version 2.0+'")
-            
+        elif not do_refine_only:            
             return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
@@ -2065,7 +2062,7 @@ class MaskDetailer_ED():
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)      
         
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list = \
-            MaskDetailer_ED.mask_sampling(image, mask, model, clip, vae, positive, negative,
+            self.mask_sampling(image, mask, model, clip, vae, positive, negative,
             guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle,
@@ -2340,7 +2337,7 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
         
         if upscale_model != "🚫 Do not upscale":
             upscaler = ED_Util.load_upscale_model(upscale_model)
-            upscaled_image = SUPIR_Model_Loader_ED.upscale(upscaler, image, upscale_by, rescale_method)
+            upscaled_image = self.upscale(upscaler, image, upscale_by, rescale_method)
         else:
             upscaled_image = image
 
