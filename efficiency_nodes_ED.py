@@ -4,7 +4,6 @@
 
 # 00b4e6d4-922e-4a3b-943e-33a467587fe1
 
-import torch
 import os
 import sys
 import re
@@ -177,6 +176,20 @@ class ED_Util:
             print(f"Efficiency Nodes ED - ComfyUI-Manager is outdated. The custom node installation feature is not available.")
 
     @staticmethod
+    def get_image_size(image):
+        samples = image.movedim(-1, 1)
+        size = samples.shape[3], samples.shape[2]
+        return size
+
+    @staticmethod
+    def get_latent_size(latent, ORIGINAL_VALUES=False):
+        lc = latent.copy()
+        size = lc["samples"].shape[3], lc["samples"].shape[2]
+        if ORIGINAL_VALUES == False:
+            size = size[0] * 8, size[1] * 8
+        return size
+
+    @staticmethod
     def apply_load_lora(lora_stack, ckpt, clip, show_node=""):
         lora_params = []
         lora_params.extend(lora_stack)
@@ -226,7 +239,25 @@ class ED_Util:
         return re.sub(pattern, replacer, text)
 
     @staticmethod
-    def detector_model(model_name, type):    
+    def vae_encode(vae, pixels, is_tiled = False, tile_size = 512):
+        if is_tiled:
+            latent = nodes.VAEEncodeTiled().encode(vae, pixels, tile_size=tile_size, overlap=64, temporal_size=64, temporal_overlap=8)[0]
+            print(f"\r{message('Efficient Nodes ED:')} use tiled VAE encode (tile size:{tile_size})")
+        else:
+            latent = nodes.VAEEncode().encode(vae, pixels)[0]
+        return latent
+
+    @staticmethod
+    def vae_decode(vae, latent, is_tiled = False, tile_size = 512):
+        if is_tiled:
+            images = nodes.VAEDecodeTiled().decode(vae, latent, tile_size)[0]
+            print(f"\r{message('Efficient Nodes ED:')} use tiled VAE decode (tile size:{tile_size})")
+        else:
+            images = nodes.VAEDecode().decode(vae, latent)[0]
+        return images
+
+    @staticmethod
+    def ultra_detector_model(model_name, type):    
         detector_type = "ultra_" + type + "_detector"
         if model_name is None or model_name == "None":
             return None                
@@ -236,8 +267,8 @@ class ED_Util:
         
         if 'UltralyticsDetectorProvider' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
         
         if type == "bbox":
             model, _ = nodes.NODE_CLASS_MAPPINGS['UltralyticsDetectorProvider']().doit(model_name)
@@ -256,8 +287,8 @@ class ED_Util:
 
         if 'SAMLoader' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
 
         sam = nodes.NODE_CLASS_MAPPINGS['SAMLoader']().load_model(model_name, device_mode)[0]
         ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ULTRALYTICS)
@@ -332,8 +363,8 @@ class BNK_EncoderWrapper:
 
         if 'BNK_CLIPTextEncodeAdvanced' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
+                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
 
         return nodes.NODE_CLASS_MAPPINGS['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
     
@@ -343,7 +374,7 @@ class BNK_EncoderWrapper:
             file_path = os.path.join(BNK_EncoderWrapper.wildcards_dir, f"{card_name}.txt")
             
             if not os.path.isfile(file_path):
-                raise Exception(f"Efficient nodes ED: Wildcard file ({card_name}.txt) is not found.")
+                raise Exception(f"Efficient nodes ED: wildcard file ({card_name}.txt) is not found.")
 
             with open(file_path, "r") as file:
                 lines = file.readlines()
@@ -372,7 +403,7 @@ class BNK_EncoderWrapper:
         matches = re.findall(pattern, text)
 
         if matches:
-            print(f"\r{message('ED Sequential wildcards processing:')}")
+            print(f"\r{message('Efficient nodes ED:')} sequential wildcards processing -")
 
             for match in matches:
                 card_name, operation_counter = match.split('__#')
@@ -383,7 +414,7 @@ class BNK_EncoderWrapper:
                     wc_text, match_after = read_wildcard(match, card_name, operation, counter, iterate_count)
                     text_b = text_b.replace(match, match_after)
                 else:
-                    raise Exception(f"Efficient nodes ED: Wildcard file ({match}) is not found.")
+                    raise Exception(f"Efficient nodes ED: wildcard file ({match}) is not found.")
 
                 text = text.replace(match, wc_text)
 
@@ -405,8 +436,8 @@ class BNK_EncoderWrapper:
 
         if 'ImpactWildcardEncode' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         model, clip, conditioning = nodes.NODE_CLASS_MAPPINGS['ImpactWildcardEncode'].process_with_loras(wildcard_opt=text, model=model, clip=clip, seed=seed, clip_encoder=clip_encoder, processed=processed)
         return (model, clip, conditioning, processed[0])
@@ -477,7 +508,7 @@ class LoRA_Stacker_ED:
                 name = kwargs[f"lora_name_{i}"]["content"]
                 if not name in names:
                     return_value = f"Lora not found: {name}"
-                    raise Exception(f"\033[30m \033[101mLoRA Stacker ED: Lora '{name}' is not found\033[0m")
+                    raise Exception(f"\033[30m \033[101mLoRA Stacker ED: LoRA '{name}' is not found\033[0m")
                     break
         
         return return_value
@@ -557,7 +588,7 @@ class Embedding_Stacker_ED:
                 name = kwargs[f"positive_embedding_{i}"]["content"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
-                    raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: Embedding '{name}' is not found\033[0m")
+                    raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: embedding '{name}' is not found\033[0m")
                     break
                     
         if kwargs['negative_embeddings_count'] > 0:
@@ -565,7 +596,7 @@ class Embedding_Stacker_ED:
                 name = kwargs[f"negative_embedding_{i}"]["content"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
-                    raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: Embedding '{name}' is not found\033[0m")
+                    raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: embedding '{name}' is not found\033[0m")
                     break
         
         return return_value
@@ -758,27 +789,23 @@ class EfficientLoader_ED():
             samples_latent = nodes.EmptyLatentImage().generate(image_width, image_height, batch_size)[0]
         else:
             if pixels is None:
-                raise Exception("Efficient Loader ED: Img2Img or Inpaint mode requires an image.\n\n\n\n\n\n")
+                raise Exception("Efficient Loader ED: Img2Img or inpaint mode requires an image.\n\n\n\n\n\n")
             
             #VAE Encode
-            if properties['tiled_vae_encode']:
-                latent_t = nodes.VAEEncodeTiled().encode(vae, pixels, tile_size=512, overlap=64, temporal_size=64, temporal_overlap=8)[0]
-                print(f"\033[36mEfficient Loader ED: Use Tiled VAE encode (tile size:512)\033[0m")
-            else:
-                latent_t = nodes.VAEEncode().encode(vae, pixels)[0]
-            _, image_height, image_width, _ = pixels.shape
+            latent_t = ED_Util.vae_encode(vae, pixels, properties['tiled_vae_encode'])
+            image_width, image_height = ED_Util.get_image_size(pixels)
             
             # 🎨 Inpaint
             if paint_mode == "🎨 Inpaint(Ksampler)":
                 if  mask is None:
-                    raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
+                    raise Exception("Efficient Loader ED: inpaint mode requires an mask.\n\n\n\n\n\n")
                 if not positive_encoded:
                     _, _, positive_encoded, positive_prompt = BNK_EncoderWrapper.imp_encode(positive_prompt, model, clip, seed, clip_encoder, None)
                 (positive_encoded, negative_encoded, latent_t) = nodes.InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
                 
             elif paint_mode == "🎨 Inpaint(MaskDetailer)":
                 if  mask is None:
-                    raise Exception("Efficient Loader ED: Inpaint mode requires an Mask.\n\n\n\n\n\n")
+                    raise Exception("Efficient Loader ED: inpaint mode requires an mask.\n\n\n\n\n\n")
 
             #RepeatLatentBatch
             samples_latent = nodes.RepeatLatentBatch().repeat(latent_t, batch_size)[0]            
@@ -819,7 +846,7 @@ class EfficientLoader_ED():
 
         if not name in names:
             return_value = f"Checkpoint not found: {name}"
-            raise Exception(f"\033[30m \033[101mEfficient Loader ED : Checkpoint '{name}' is not found\033[0m")
+            raise Exception(f"\033[30m \033[101mEfficient Loader ED : checkpoint '{name}' is not found\033[0m")
 
         return return_value
 
@@ -924,11 +951,11 @@ class EfficientLoader_ED():
 
         is_flux_model = True
         if ckpt_name == "🔌 model_opt input":
-            print(f"\033[38;5;173mEfficient Loader ED : model from model_opt input, Ignore clip skip\033[0m")
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model from model_opt input, Ignore clip skip\033[0m")
         elif modle_type == "Flux":
-            print(f"\033[38;5;173mEfficient Loader ED : model type is {modle_type}, Ignore clip skip\033[0m")
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, Ignore clip skip\033[0m")
         elif clip_skip == 0:
-            print(f"\033[38;5;173mEfficient Loader ED : clip skip is 0, Ignore clip skip\033[0m")
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, Ignore clip skip\033[0m")
         else:
             clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
             print(f"Clip skip: {clip_skip}")
@@ -966,7 +993,7 @@ class LoadImage_ED(nodes.LoadImage):
 
     def load_image(self, image, upscale_method, width, height, keep_proportions, my_unique_id):        
         output_image, output_mask = super().load_image(image)
-        text, image_height, image_width = self.get_prompt(image, output_image)
+        text, image_width, image_height = self.get_prompt(image, output_image)
 
         if "not upscale" not in upscale_method:
             if "upscale_models" in upscale_method:
@@ -1080,10 +1107,10 @@ class LoadImage_ED(nodes.LoadImage):
         else:
             text = "There is no prompt information within the image."
 
-        _, image_height, image_width, _ = output_image.shape
+        image_width, image_height = ED_Util.get_image_size(output_image)
         text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
         
-        return text, image_height, image_width
+        return text, image_width, image_height
 
 
 # Save Image ED
@@ -1121,33 +1148,32 @@ class SaveImage_ED(nodes.SaveImage):
 
 ###############################################################################################################
 # Control Net Script ED
-MAX_CASHE_ED_CONTROLNET = 2
-class Control_Net_Script_ED:
-    @classmethod
-    def INPUT_TYPES(cls):
-        return {"required": {"control_net": ("CONTROL_NET",),
-                             "image": ("IMAGE",),
-                             "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
-                             "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001}),
-                             "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001})},
-                "optional": {"cnet_stack": ("CONTROL_NET_STACK",),
-                                   "script": ("SCRIPT",)},
-                }
+# class Control_Net_Script_ED:
+    # @classmethod
+    # def INPUT_TYPES(cls):
+        # return {"required": {"control_net": ("CONTROL_NET",),
+                             # "image": ("IMAGE",),
+                             # "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
+                             # "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001}),
+                             # "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001})},
+                # "optional": {"cnet_stack": ("CONTROL_NET_STACK",),
+                                   # "script": ("SCRIPT",)},
+                # }
 
-    RETURN_TYPES = ("SCRIPT",)
-    RETURN_NAMES = ("SCRIPT",)
-    FUNCTION = "control_net_script_ed"
-    CATEGORY = "Efficiency Nodes/Scripts"
+    # RETURN_TYPES = ("SCRIPT",)
+    # RETURN_NAMES = ("SCRIPT",)
+    # FUNCTION = "control_net_script_ed"
+    # CATEGORY = "Efficiency Nodes/Scripts"
 
-    def control_net_script_ed(self, control_net, image, strength, start_percent, end_percent, cnet_stack=None, script=None):
-        script = script or {}        
-        # If control_net_stack is None, initialize as an empty list        
-        cnet_stack = [] if cnet_stack is None else cnet_stack
+    # def control_net_script_ed(self, control_net, image, strength, start_percent, end_percent, cnet_stack=None, script=None):
+        # script = script or {}        
+        # # If control_net_stack is None, initialize as an empty list        
+        # cnet_stack = [] if cnet_stack is None else cnet_stack
 
-        # Extend the control_net_stack with the new tuple
-        cnet_stack.extend([(control_net, image, strength, start_percent, end_percent)])
-        script["control_net"] = (cnet_stack)
-        return (script,)
+        # # Extend the control_net_stack with the new tuple
+        # cnet_stack.extend([(control_net, image, strength, start_percent, end_percent)])
+        # script["control_net"] = (cnet_stack)
+        # return (script,)
 
 ##############################################################################################################
 # Refiner Script ED
@@ -1163,12 +1189,12 @@ class Refiner_Script_ED:
                             "set_seed_cfg_sampler": (list(Refiner_Script_ED.set_seed_cfg_sampler.keys()), {"default": "from context"}),
                             "add_noise": (["enable", "disable"], ),                           
                             "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
-                            "steps": ("INT", {"default": 6, "min": 1, "max": 10000}),
+                            "steps": ("INT", {"default": 30, "min": 1, "max": 10000}),
                             "cfg": ("FLOAT", {"default": 2.0, "min": 0.0, "max": 100.0}),
                             "sampler_name": (comfy.samplers.KSampler.SAMPLERS, {"default": "dpmpp_sde"}),
                             "scheduler": (SCHEDULERS, {"default": "karras"}),
-                            "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                            "start_at_step": ("INT", {"default": 3, "min": 0, "max": 10000}),
+                            "denoise": ("FLOAT", {"default": 0.6, "min": 0.0, "max": 1.0, "step": 0.01}),
+                            "start_at_step": ("INT", {"default": 17, "min": 0, "max": 10000}),
                             "end_at_step": ("INT", {"default": 100, "min": 0, "max": 10000}),
                             "ignore_batch_size": ("BOOLEAN", {"default": True}),
                             "do_refine_only": ("BOOLEAN", {"default": True}),
@@ -1177,7 +1203,8 @@ class Refiner_Script_ED:
                             "refiner_model_opt": ("MODEL",),
                             "refiner_clip_opt": ("CLIP",),
                             "refiner_vae_opt": ("VAE",),
-                            "script": ("SCRIPT",),},
+                            #"script": ("SCRIPT",),
+                            },
                 "hidden": {"my_unique_id": "UNIQUE_ID",},}
     RETURN_TYPES = ("SCRIPT",)
     RETURN_NAMES = ("SCRIPT",)
@@ -1199,7 +1226,7 @@ class Refiner_Script_ED:
             _, refiner_model, refiner_clip, refiner_vae, c_seed, c_cfg, c_sampler, c_scheduler, = context_2_tuple_ed(context_opt,["model", "clip", "vae", "seed", "cfg", "sampler", "scheduler"])
             if set_seed_cfg_sampler == "from context":
                 if c_seed is None:
-                    raise Exception("Refiner Script ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                    raise Exception("Refiner Script ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
                 else:
                     seed = c_seed
                     PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -1223,7 +1250,7 @@ class Refiner_Script_ED:
 #Reginal scripts process
 class ED_Reg:
     @staticmethod
-    def apply_controlnet_region(cnet_stack, positive_encoded, negative_encoded, model, clip, seed, clip_encoder):
+    def apply_controlnet_region(cnet_stack, positive_encoded, negative_encoded, model=None, clip=None, seed=0, clip_encoder=None):
         if cnet_stack:        
             for control_net_tuple in cnet_stack:
                 if str(control_net_tuple[-1]) == "Region_Stack":
@@ -1231,7 +1258,8 @@ class ED_Reg:
 
             for control_net_tuple in cnet_stack:
                 if str(control_net_tuple[-1]) != "Region_Stack":
-                    print(f"\r{message('Efficiency Nodes ED:')} Applying control net stack.")
+                    print(f"\r{message('Efficiency Nodes ED:')}\033[38;5;173m apply control net stack.\033[0m")
+                    
                     control_net, image, strength, start_percent, end_percent = control_net_tuple
                     positive_encoded, negative_encoded = nodes.ControlNetApplyAdvanced().apply_controlnet(positive_encoded, negative_encoded, control_net, image, strength, start_percent, end_percent)
         
@@ -1240,7 +1268,7 @@ class ED_Reg:
     @staticmethod
     def process_region_stack(control_net_tuple, base_positive, model, clip, seed, clip_encoder):
         region_script, global_prompt_weight, width, height, _ = control_net_tuple
-        print(f"\r{message('Efficiency Nodes ED:')} Applying regional stack - script count : {len(region_script)}")
+        print(f"\r{message('Efficiency Nodes ED:')}\033[38;5;173m apply regional stack - script count : {len(region_script)}\033[0m")
         
         processd_positive, regions = ED_Reg.process_region_script(region_script, base_positive, model, clip, seed, clip_encoder)
         
@@ -1248,8 +1276,8 @@ class ED_Reg:
         
         if 'AttentionCouple' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ramyma/A8R8_ComfyUI_nodes',
-                                                  "To use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
+                                                  "to use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
 
         model = nodes.NODE_CLASS_MAPPINGS['AttentionCouple']().attention_couple(model, global_prompt_weight, 
             base_positive, height, width, flattened_regions)[0]
@@ -1276,7 +1304,7 @@ class ED_Reg:
             lora_params = []
             lora_count = 0
             lora_params.extend(lora_stack)
-            print(f"\r{message('Create Lora Hook from Regional Script ED:')}")
+            print(f"\r{message('Regional Script ED:')} create LoRA hook -")
 
             for lora in lora_params:
                 lora_name, strength_model, strength_clip = lora
@@ -1391,8 +1419,8 @@ class Regional_Script_ED():
 
                 if 'ImpactGaussianBlurMask' not in nodes.NODE_CLASS_MAPPINGS:
                     ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                                  "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-                    raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                                  "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+                    raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
                 mask = nodes.NODE_CLASS_MAPPINGS['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
             
@@ -1605,51 +1633,42 @@ class KSampler_ED():
                   return_with_leftover_noise=None, sampler_type="regular"):
 
         # Unpack context
-        _, model, clip, vae, positive, negative, latent_image, optional_image, c_batch, positive_prompt, negative_prompt, mask = \
+        _, model, clip, vae, positive, negative, latent_image, optional_image, batch_size, positive_prompt, negative_prompt, mask = \
             context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "text_pos_g", "text_neg_g", "mask"])
 
         if model is None or latent_image is None:
-            raise Exception("KSampler (Efficient) ED: Model and Latent are required.")
+            raise Exception("KSampler (Efficient) ED: model and latent are required.")
 
-        mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather = self.extract_mask_detailer_settings(extra_pnginfo, my_unique_id)
-
+        previous_preview_method = global_preview_method()
+        properties, vae_decode = self.extract_mask_detailer_settings(extra_pnginfo, my_unique_id, vae_decode)
         positive, negative = t_positive or positive, t_negative or negative
 
         # Handle seed, cfg, sampler, scheduler from context or update context
         context, seed, cfg, sampler_name, scheduler = self.handle_seed_cfg_sampler(context, set_seed_cfg_sampler, seed, cfg, sampler_name, scheduler, my_unique_id)
 
-        print(f"\r{message('KSampler (Efficient) ED:')} Current seed - {seed}")
+        print(f"\r{message('KSampler (Efficient) ED:')} current seed - {warning(str(seed))}")
 
-        # Apply control net script if present
-        if script and "control_net" in script:
-            print(f"\033[38;5;173mKSampler ED: Apply control net from script\033[0m")
-            _, positive, negative = ED_Reg.apply_controlnet_region(script["control_net"], positive, negative, model, clip, seed, None)
-            context = new_context_ed(context, positive=positive, negative=negative)
-            script = script.copy()
-            del script['control_net']
-
-        # Handle refiner script if present
+        # Handle script if present
         latent_list = None
-        script, refiner_script, do_refine_only = self.handle_refiner_script(script)
+        script, refiner_script, do_refine_only = self.check_refiner_script(script)
         
         ###### Mask Detailer ######
-        if mask_detailer_mode:
-            print(f"\033[38;5;173mKSampler ED: use MaskDetailer(ImpactPack) for inpainting\033[0m")
+        if properties['mask_detailer_mode']:
+            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m use Mask Detailer(ImpactPack) for inpainting\033[0m")
             set_preview_method(preview_method)
-            mask_mode = True
-            refiner_ratio = 0.2
+            
             output_images, _, _ = MaskDetailer_ED.mask_sampling(optional_image, mask, model, clip, vae, positive, negative,
-                    guide_size, guide_size_for, max_size, mask_mode,
+                    guide_size, guide_size_for, max_size, properties['mask_mode'],
                     seed, steps, cfg, sampler_name, scheduler, denoise,
-                    feather, crop_factor, drop_size, refiner_ratio, c_batch, cycle, 
-                    detailer_hook, inpaint_model, noise_mask_feather)
+                    feather, crop_factor, properties['drop_size'], properties['refiner_ratio'], batch_size, cycle, 
+                    detailer_hook, properties['inpaint_model'], properties['noise_mask_feather'])
 
-            latent_list = nodes.VAEEncode().encode(vae, output_images)[0] if refiner_script else None
+            latent_list = ED_Util.vae_encode(vae, output_images, properties['tiled_vae']) if refiner_script else None
             store_ksampler_results("image", my_unique_id, output_images)
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
 
         ###### KSampler (Efficient) ######
-        elif not do_refine_only:            
+        elif not do_refine_only:
             return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
@@ -1661,43 +1680,55 @@ class KSampler_ED():
 
         ###### Refiner Script ######
         if refiner_script:
-            output_images = self.apply_refiner_script(refiner_script, latent_list or latent_image, 
-                                                  positive_prompt, negative_prompt, preview_method, vae_decode, return_with_leftover_noise)
+            output_images = self.apply_refiner_script(refiner_script, latent_list or latent_image, positive_prompt, negative_prompt,
+                preview_method, properties['tiled_vae'], return_with_leftover_noise)
             
             store_ksampler_results("image", my_unique_id, output_images)
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]        
         
-        # result
-        latent_list = latent_list or latent_image
-        context = new_context_ed(context, latent=latent_list, images=output_images)
+        # RESULT
+        set_preview_method(previous_preview_method)
+        context = new_context_ed(context, latent=latent_list or latent_image, images=output_images)
         return {"ui": result_ui, "result": (context, output_images, steps)}
 
     @staticmethod
-    def extract_mask_detailer_settings(extra_pnginfo, my_unique_id):
-        mask_detailer_mode = False
-        drop_size = 5
-        inpaint_model = False
-        noise_mask_feather = 20
+    def extract_mask_detailer_settings(extra_pnginfo, my_unique_id, vae_decode):
+        properties = {
+            "mask_detailer_mode": False,
+            "drop_size": 5,
+            "inpaint_model": False,
+            "noise_mask_feather": 20,
+            "mask_mode": True,
+            "refiner_ratio": 0.2,
+            "tiled_vae": False,
+        }
+        if vae_decode != "true (tiled)":
+            vae_decode = "true"
 
         if extra_pnginfo and "workflow" in extra_pnginfo:
             workflow = extra_pnginfo["workflow"]
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     props = node["properties"]
-                    mask_detailer_mode = props.get("MaskDetailer mode", False)
-                    drop_size = int(props.get("(MaskDetailer) drop size", 5))
-                    inpaint_model = props.get("(MaskDetailer) inpaint model enable", False)
-                    noise_mask_feather = int(props.get("(MaskDetailer) noise mask feather", 20))
-                    return mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather
+                    properties['mask_detailer_mode'] = props.get("MaskDetailer mode", False)
+                    properties['drop_size'] = int(props.get("(MaskDetailer) drop size", 5))
+                    properties['inpaint_model'] = props.get("(MaskDetailer) inpaint model enable", False)
+                    properties['noise_mask_feather'] = int(props.get("(MaskDetailer) noise mask feather", 20))
+                    if vae_decode != "true (tiled)":
+                        properties['tiled_vae'] = props.get("Use tiled VAE decode", False)
+                        vae_decode = "true (tiled)" if properties['tiled_vae'] else "true"
+                    else:
+                        properties['tiled_vae'] = True
+                    return properties , vae_decode
 
-        return mask_detailer_mode, drop_size, inpaint_model, noise_mask_feather
+        return properties, vae_decode
         
     @staticmethod
     def handle_seed_cfg_sampler(context, mode, seed, cfg, sampler_name, scheduler, my_unique_id):
         if mode == "from context":
             _, c_seed, c_cfg, c_sampler, c_scheduler = context_2_tuple_ed(context, ["seed", "cfg", "sampler", "scheduler"])
             if c_seed is None:
-                raise Exception("KSampler (Efficient) ED: No seed, cfg, sampler, scheduler in the context.")
+                raise Exception("KSampler (Efficient) ED: no seed, cfg, sampler, scheduler in the context.")
 
             seed, cfg, sampler_name, scheduler = c_seed, c_cfg, c_sampler, c_scheduler
 
@@ -1710,9 +1741,15 @@ class KSampler_ED():
         return context, seed, cfg, sampler_name, scheduler
 
     @staticmethod
-    def handle_refiner_script(script):
+    def check_refiner_script(script):
         refiner_script = None
         do_refine_only = False
+        
+        # if script and "control_net" in script:
+            # print(f"\033[38;5;173mKSampler (Efficient) ED: Apply control net from script\033[0m")
+            # _, positive, negative = ED_Reg.apply_controlnet_region(script["control_net"], positive, negative)            
+            # script = script.copy()
+            # del script['control_net']        
 
         if script and "refiner_script" in script:
             refiner_script = script["refiner_script"]
@@ -1723,13 +1760,13 @@ class KSampler_ED():
         return script, refiner_script, do_refine_only
         
     @staticmethod
-    def apply_refiner_script(refiner_script, latent_image, positive_prompt, negative_prompt, preview_method, vae_decode, return_with_leftover_noise):
+    def apply_refiner_script(refiner_script, latent_image, positive_prompt, negative_prompt, preview_method, is_tiled, return_with_leftover_noise):
 
         if refiner_script:
             refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, _ = refiner_script
             
             if not refiner_model:
-                raise Exception("KSampler (Efficient) ED: Refiner model information is missing in the script.")
+                raise Exception("KSampler (Efficient) ED: refiner model information is missing in the script.")
             
             refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
             refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, negative_prompt)[0]
@@ -1737,18 +1774,14 @@ class KSampler_ED():
             if refiner_ignore_batch_size:
                 latent_image = nodes.LatentFromBatch().frombatch(latent_image, 0, 1)[0]
             
-            print(f"\033[38;5;173mKSampler ED: Running refiner script. steps:{refiner_steps}, start step:{refiner_start_at_step}, end step:{refiner_end_at_step}\033[0m")
+            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m running refiner script. steps:{refiner_steps}, start step:{refiner_start_at_step}, end step:{refiner_end_at_step}\033[0m")
             
             set_preview_method(preview_method)
             latent_image = nodes.KSamplerAdvanced().sample(refiner_model, refiner_add_noise, refiner_seed, refiner_steps, 
                             refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_positive, refiner_negative, latent_image, 
                             refiner_start_at_step, refiner_end_at_step, return_with_leftover_noise, refiner_denoise)[0]
-            
-            #VAE Decode
-            if "tiled" in vae_decode:
-                refiner_images = nodes.VAEDecodeTiled().decode(refiner_vae, latent_image, 512)[0]
-            else:
-                refiner_images = nodes.VAEDecode().decode(refiner_vae, latent_image)[0]
+
+            refiner_images = ED_Util.vae_decode(refiner_vae, latent_image, is_tiled)
 
         return refiner_images
 
@@ -1788,28 +1821,16 @@ class KSamplerTEXT_ED():
             script=None, add_noise=None, start_at_step=None, end_at_step=None,
             return_with_leftover_noise=None, sampler_type="regular"):
 
-        def get_latent_size(samples):
-            size_dict = {}
-            i = 0
-            for tensor in samples['samples'][0]:
-                if not isinstance(tensor, torch.Tensor):
-                    cstr(f'Input should be a torch.Tensor').error.print()
-                shape = tensor.shape
-                tensor_height = shape[-2]
-                tensor_width = shape[-1]
-                size_dict.update({i:[tensor_width, tensor_height]})
-            return ( size_dict[0][0] * 8, size_dict[0][1] * 8 )
-
         _, model, clip, vae, optional_latent, optional_image, c_seed, c_cfg, c_sampler, c_scheduler = context_2_tuple_ed(context,["model", "clip", "vae", "latent", "images", "seed", "cfg", "sampler", "scheduler"])
         
         if model is None:
-            raise Exception("KSampler TEXT ED: Model is None. \n\n\n\n\n\n")                
+            raise Exception("KSampler TEXT ED: model is None. \n\n\n\n\n\n")                
         if optional_latent is None:
             raise Exception("KSampler TEXT ED requires 'Latent' for sampling.\n\n\n\n\n\n")        
 
         if set_seed_cfg_sampler == "from context":
             if c_seed is None:
-                raise Exception("KSampler TEXT (Eff.) 💬ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("KSampler TEXT (Eff.) 💬ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -1823,17 +1844,15 @@ class KSamplerTEXT_ED():
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)                
         
         if optional_latent is not None:
-            image_width, image_height  = get_latent_size(optional_latent)
+            image_width, image_height  = ED_Util.get_latent_size(optional_latent)
             print(f"KSampler TEXT ED: size get from latent (width {image_width} x height {image_height})")
         elif optional_image is not None:
-            _, image_height, image_width, _ = optional_image.shape
+            image_width, image_height  = ED_Util.get_image_size(optional_image)
             print(f"KSampler TEXT ED: size get from image (width {image_width} x height {image_height})")
         else:
-            raise Exception("KSamplerTEXT ED: Reference image or latent is required.\n\n\n\n\n\n")
+            raise Exception("KSamplerTEXT ED: reference image or latent is required.\n\n\n\n\n\n")
 
-        batch_size = 1
-        latent_t = torch.zeros([batch_size, 4, image_height // 8, image_width // 8]).cpu()
-        latent_image = {"samples":latent_t}
+        nodes.EmptyLatentImage().generate(image_width, image_height, batch_size=1)[0]
         
         positive_encoded = nodes.CLIPTextEncode().encode(clip, positive)[0]
         negative_encoded = nodes.CLIPTextEncode().encode(clip, negative)[0]
@@ -1925,7 +1944,7 @@ class FaceDetailer_ED():
 
         if set_seed_cfg_sampler == "from context":
             if c_seed is None:
-                raise Exception("FaceDetailer ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("FaceDetailer ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -1941,14 +1960,14 @@ class FaceDetailer_ED():
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)      
 
-        bbox_detector = ED_Util.detector_model(bbox_detector, "bbox")
-        segm_detector_opt = ED_Util.detector_model(segm_detector_opt, "segm")
+        bbox_detector = ED_Util.ultra_detector_model(bbox_detector, "bbox")
+        segm_detector_opt = ED_Util.ultra_detector_model(segm_detector_opt, "segm")
         sam_model_opt = ED_Util.load_sam_model(sam_model_opt, sam_mode)                
         
         if 'FaceDetailer' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         result_img, result_cropped_enhanced, result_cropped_enhanced_alpha, result_mask, _, result_cnet_images = \
             nodes.NODE_CLASS_MAPPINGS['FaceDetailer']().doit(image, model, clip, vae, guide_size, guide_size_for, max_size, 
@@ -2017,8 +2036,8 @@ class MaskDetailer_ED():
         
         if 'MaskDetailerPipe' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list, _, _ = \
             nodes.NODE_CLASS_MAPPINGS['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
@@ -2043,7 +2062,7 @@ class MaskDetailer_ED():
 
         if set_seed_cfg_sampler_batch == "from context":
             if c_seed is None:
-                raise Exception("MaskDetailer ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("MaskDetailer ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -2132,7 +2151,7 @@ class DetailerForEach_ED():
 
         if set_seed_cfg_sampler == "from context":
             if c_seed is None:
-                raise Exception("Detailer (SEGS) ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("Detailer (SEGS) ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -2150,8 +2169,8 @@ class DetailerForEach_ED():
 
         if 'DetailerForEachDebug' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img, _, cropped_enhanced, cropped_enhanced_alpha, cnet_pil_list = \
             nodes.NODE_CLASS_MAPPINGS['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
@@ -2237,7 +2256,7 @@ class UltimateSDUpscaleED():
             print(f"UltimateSDUpscale ED: Using image_opt instead of context image.")
         if set_seed_cfg_sampler == "from context":
             if c_seed is None:
-                raise Exception("UltimateSDUpscale ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("UltimateSDUpscale ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -2254,11 +2273,11 @@ class UltimateSDUpscaleED():
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)
     
         if set_tile_size_from == "Image size":
-            _, tile_height, tile_width, _ = image.shape
+            tile_width, tile_height = ED_Util.get_image_size(image)
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "tile_width", "type": "text", "data": tile_width})
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "tile_height", "type": "text", "data": tile_height})
         elif set_tile_size_from == "Canvas size":
-            _, tile_height, tile_width, _ = image.shape
+            tile_width, tile_height = ED_Util.get_image_size(image)
             tile_height = tile_height * upscale_by
             tile_width = tile_width * upscale_by
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "tile_width", "type": "text", "data": tile_width})
@@ -2268,8 +2287,8 @@ class UltimateSDUpscaleED():
 
         if 'UltimateSDUpscale' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ssitu/ComfyUI_UltimateSDUpscale',
-                                          "To use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
+                                          "to use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
 
         tensor = nodes.NODE_CLASS_MAPPINGS['UltimateSDUpscale']().upscale(image, model, 
                 positive, negative, vae, upscale_by, seed,
@@ -2343,8 +2362,8 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
 
         if 'SUPIR_model_loader_v2' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
         sup_model, sup_vae = nodes.NODE_CLASS_MAPPINGS['SUPIR_model_loader_v2']().process(supir_model, diffusion_dtype,
             fp8_unet, model, clip, vae, high_vram=False)
@@ -2434,7 +2453,7 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
         
         if set_seed_cfg_sampler == "from context":
             if c_seed is None:
-                raise Exception("UltimateSDUpscale ED: No seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
+                raise Exception("UltimateSDUpscale ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
@@ -2448,8 +2467,8 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
     
         if 'SUPIR_first_stage' not in nodes.NODE_CLASS_MAPPINGS:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
         # SUPIR_first_stage
         SUPIR_vae2, denoised_image, denoised_latent = nodes.NODE_CLASS_MAPPINGS['SUPIR_first_stage']().process(SUPIR_vae, image_opt, encoder_dtype, use_tiled_vae, vae_tile_size, vae_tile_size)
@@ -2483,7 +2502,7 @@ NODE_CLASS_MAPPINGS = {
     "KSampler Text 💬ED": KSamplerTEXT_ED,    
     "Load Image 💬ED": LoadImage_ED,
     "Save Image 🔔ED": SaveImage_ED,
-    "Control Net Script 💬ED": Control_Net_Script_ED,
+    #"Control Net Script 💬ED": Control_Net_Script_ED,
     "Refiner Script 💬ED": Refiner_Script_ED,
     "Embedding Stacker 💬ED": Embedding_Stacker_ED,
     "Wildcard Encode 💬ED": WildcardEncode_ED,
@@ -2502,7 +2521,7 @@ NODE_CLASS_MAPPINGS = {
     "Detailer (SEGS) 💬ED": DetailerForEach_ED,
     "Ultimate SD Upscale 💬ED": UltimateSDUpscaleED,
     
-    "SUPIR model loader 💬ED": SUPIR_Model_Loader_ED,
+    "SUPIR Model Loader 💬ED": SUPIR_Model_Loader_ED,
     "SUPIR Sampler 💬ED": SUPIR_Sampler_ED,
 }
 

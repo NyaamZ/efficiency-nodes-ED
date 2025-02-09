@@ -12,9 +12,8 @@ app.registerExtension({
             const onNodeCreated = nodeType.prototype.onNodeCreated;
 
             nodeType.prototype.onNodeCreated = function () {
-                const result = onNodeCreated?.apply(this, arguments);
+                const result = onNodeCreated?.apply(this, arguments);				
 				
-				this.setProperty("Use tiled VAE encode", false);
 				this.setProperty("Use Latent Rebatch", true);				
 				this.setProperty("Synchronize widget with image size", true);
 				this.setProperty("Token normalization", "none")
@@ -27,23 +26,9 @@ app.registerExtension({
 					type: "combo",
 					values: ["comfy", "A1111", "compel", "comfy++", "down_weight"],
 				};
+				this.setProperty("Use tiled VAE encode", false);
 				//this.setProperty("Tiled VAE encode tile size", 512);
-				/* this.setProperty("Kohya-block number", 3)
-				this.setProperty("Kohya-downscale factor", 2.000)
-				this.setProperty("Kohya-start percent", 0.000)
-				this.setProperty("Kohya-end percent", 0.350 )
-				this.setProperty("Kohya-downscale after skip", true)
-				this.constructor["@Kohya-downscale after skip"] = { type: "boolean" };
-				this.setProperty("Kohya-downscale method", "bilinear")
-				this.constructor["@Kohya-downscale method"] = {
-					type: "combo",
-					values: ["bicubic", "nearest-exact", "bilinear", "area", "bislerp"],
-				};
-				this.setProperty("Kohya-upscale method", "bilinear")
-				this.constructor["@Kohya-upscale method"] = {
-					type: "combo",
-					values: ["bicubic", "nearest-exact", "bilinear", "area", "bislerp"],
-				}; */
+
                 return result;
             };
         }
@@ -108,9 +93,7 @@ app.registerExtension({
     },
 });
 
-// Use widget values and dates in output filenames For SaveImage ED
-let is_play_sound = false;
-
+let is_playing_sound = false;
 app.registerExtension({
 	name: "Comfy.SaveImageED_Output",
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
@@ -129,15 +112,15 @@ app.registerExtension({
 				this.setProperty("Sound Volume", 0.9);
 
 				this.playSound = () => {
-					if (this.properties["Play sound"] && !is_play_sound) {
-						is_play_sound = true;
+					if (this.properties["Play sound"] && !is_playing_sound) {
+						is_playing_sound = true;
 						let file = "assets/notify.mp3";
 						file = new URL(file, import.meta.url);
 						const url = new URL(file);
 						const audio = new Audio(url);
 						audio.volume = (this.properties["Sound Volume"] > 1) ? 1 : this.properties["Sound Volume"];
 						audio.play();
-						setTimeout(() => {is_play_sound = false;}, 3000);
+						setTimeout(() => {is_playing_sound = false;}, 3000);
 					}
 				};
 				

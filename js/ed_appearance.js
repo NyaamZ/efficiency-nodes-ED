@@ -21,7 +21,7 @@ const NODE_COLORS = {
 	"KSampler Text 💬ED": "green",
 	"Load Image 💬ED": "blue",
 	"Save Image 🔔ED": "red",
-	"Control Net Script 💬ED": "yellow",
+	// "Control Net Script 💬ED": "yellow",
 	"Refiner Script 💬ED": "yellow",
 	"Embedding Stacker 💬ED": "blue",
 	"LoRA Stacker 💬ED": "blue",
@@ -33,7 +33,7 @@ const NODE_COLORS = {
 	"Detailer (SEGS) 💬ED": "yellow_ocher",
 	"Ultimate SD Upscale 💬ED": "sea_blue",
 	
-	"SUPIR model loader 💬ED": "sea_blue",
+	"SUPIR Model Loader 💬ED": "sea_blue",
 	"SUPIR Sampler 💬ED": "sea_blue",
 
 	"Regional Stacker 💬ED": "dark_yellow",
