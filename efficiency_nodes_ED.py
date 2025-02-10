@@ -36,6 +36,7 @@ sys.path.remove(efficiency_nodes_dir)
 # Append custom_nodes_dir to sys.path
 sys.path.append(custom_nodes_dir)
 
+NODES = nodes.NODE_CLASS_MAPPINGS
 SCHEDULERS = comfy.samplers.KSampler.SCHEDULERS + ["AYS SD1", "AYS SDXL", "AYS SVD"]
 
 ##############################################################################################################
@@ -265,15 +266,15 @@ class ED_Util:
         if cash is not None:
             return cash
         
-        if 'UltralyticsDetectorProvider' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'UltralyticsDetectorProvider' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
         
         if type == "bbox":
-            model, _ = nodes.NODE_CLASS_MAPPINGS['UltralyticsDetectorProvider']().doit(model_name)
+            model, _ = NODES['UltralyticsDetectorProvider']().doit(model_name)
         else:
-            _, model = nodes.NODE_CLASS_MAPPINGS['UltralyticsDetectorProvider']().doit(model_name)        
+            _, model = NODES['UltralyticsDetectorProvider']().doit(model_name)        
         ED_Cashe.cashsave(detector_type, model_name, model, MAX_CASHE_ULTRALYTICS)
         return model
 
@@ -285,12 +286,12 @@ class ED_Util:
         if cash is not None:
             return cash
 
-        if 'SAMLoader' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'SAMLoader' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
 
-        sam = nodes.NODE_CLASS_MAPPINGS['SAMLoader']().load_model(model_name, device_mode)[0]
+        sam = NODES['SAMLoader']().load_model(model_name, device_mode)[0]
         ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ULTRALYTICS)
         return sam
 
@@ -361,12 +362,12 @@ class BNK_EncoderWrapper:
 
     def encode(self, clip, text):
 
-        if 'BNK_CLIPTextEncodeAdvanced' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'BNK_CLIPTextEncodeAdvanced' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb',
                                           "to use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
 
-        return nodes.NODE_CLASS_MAPPINGS['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
+        return NODES['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
     
     @staticmethod
     def process_wildcard_sq(text, iterate_count):
@@ -434,24 +435,24 @@ class BNK_EncoderWrapper:
         if processed is None:
             processed = []
 
-        if 'ImpactWildcardEncode' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'ImpactWildcardEncode' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
-        model, clip, conditioning = nodes.NODE_CLASS_MAPPINGS['ImpactWildcardEncode'].process_with_loras(wildcard_opt=text, model=model, clip=clip, seed=seed, clip_encoder=clip_encoder, processed=processed)
+        model, clip, conditioning = NODES['ImpactWildcardEncode'].process_with_loras(wildcard_opt=text, model=model, clip=clip, seed=seed, clip_encoder=clip_encoder, processed=processed)
         return (model, clip, conditioning, processed[0])
 
 ##############################################################################################################
 # LoRA Stacker ED
 class LoRA_Stacker_ED:
-    modes = ["simple", "advanced"]
+    MODES = ["simple", "advanced"]
     MAX_LORA_COUNT = 9
     @classmethod
     def INPUT_TYPES(cls):
         inputs = {
             "required": {
-                "input_mode": (cls.modes,),
+                "input_mode": (cls.MODES,),
                 "lora_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_LORA_COUNT, "step": 1}),
             }
         }        
@@ -1073,7 +1074,7 @@ class LoadImage_ED(nodes.LoadImage):
             else:
                 node_inputs[x] = None
 
-                obj = nodes.NODE_CLASS_MAPPINGS.get(x, None)
+                obj = NODES.get(x, None)
                 if obj is not None:
                     input_types = obj.INPUT_TYPES()
                     node_inputs[x] = input_types
@@ -1178,7 +1179,7 @@ class SaveImage_ED(nodes.SaveImage):
 ##############################################################################################################
 # Refiner Script ED
 class Refiner_Script_ED:
-    set_seed_cfg_sampler = {
+    SET_SEED_CFG_SAMPLER = {
         "from context": 1,
         "from node only": 2,
     }
@@ -1186,7 +1187,7 @@ class Refiner_Script_ED:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {
-                            "set_seed_cfg_sampler": (list(Refiner_Script_ED.set_seed_cfg_sampler.keys()), {"default": "from context"}),
+                            "set_seed_cfg_sampler": (list(cls.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                             "add_noise": (["enable", "disable"], ),                           
                             "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                             "steps": ("INT", {"default": 30, "min": 1, "max": 10000}),
@@ -1274,12 +1275,12 @@ class ED_Reg:
         
         flattened_regions = ED_Reg.attention_couple_regions(regions)
         
-        if 'AttentionCouple' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'AttentionCouple' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ramyma/A8R8_ComfyUI_nodes',
                                                   "to use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
 
-        model = nodes.NODE_CLASS_MAPPINGS['AttentionCouple']().attention_couple(model, global_prompt_weight, 
+        model = NODES['AttentionCouple']().attention_couple(model, global_prompt_weight, 
             base_positive, height, width, flattened_regions)[0]
 
         return (model, processd_positive)
@@ -1292,7 +1293,7 @@ class ED_Reg:
             
             _, _, reg_positive, prompt = BNK_EncoderWrapper.imp_encode(prompt, model, clip, seed, clip_encoder, None)        
             hooks = ED_Reg.process_script_lora_stack(lora_stack)
-            base_positive = nodes.NODE_CLASS_MAPPINGS['ConditioningSetPropertiesAndCombine']().set_properties(base_positive, reg_positive, condition_strength, set_conditon_area, mask, hooks, None)[0]
+            base_positive = NODES['ConditioningSetPropertiesAndCombine']().set_properties(base_positive, reg_positive, condition_strength, set_conditon_area, mask, hooks, None)[0]
             regions.extend([{"cond": reg_positive, "mask": mask, "weight": region_weight}])
 
         return (base_positive, regions)
@@ -1311,7 +1312,7 @@ class ED_Reg:
                 lora_count += 1
                 lora_model_info = f"{os.path.splitext(os.path.basename(lora_name))[0]}({round(strength_model, 2)},{round(strength_clip, 2)})"
                 print(f"  [{lora_count}] lora(mod,clip): {lora_model_info}")
-                hooks = nodes.NODE_CLASS_MAPPINGS['CreateHookLora']().create_hook(lora_name, strength_model, strength_clip, hooks)[0]
+                hooks = NODES['CreateHookLora']().create_hook(lora_name, strength_model, strength_clip, hooks)[0]
 
         return hooks
 
@@ -1417,14 +1418,14 @@ class Regional_Script_ED():
         if mask is not None:
             if use_blur_mask:
 
-                if 'ImpactGaussianBlurMask' not in nodes.NODE_CLASS_MAPPINGS:
+                if 'ImpactGaussianBlurMask' not in NODES:
                     ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                                   "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
                     raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
-                mask = nodes.NODE_CLASS_MAPPINGS['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
+                mask = NODES['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
             
-            mask_image = nodes.NODE_CLASS_MAPPINGS['MaskToImage']().mask_to_image(mask)[0]
+            mask_image = NODES['MaskToImage']().mask_to_image(mask)[0]
             region_script.extend([(mask, prompt, condition_strength, set_conditon_area, region_weight, lora_stack)])
 
         return (region_script, mask_image)
@@ -1557,7 +1558,6 @@ class GetBooruTag_ED():
 
 ##############################################################################################################
 # Simple text
-
 class SimpleText_ED():
     @classmethod
     def INPUT_TYPES(s):
@@ -1587,7 +1587,7 @@ class SimpleText_ED():
 ##############################################################################################################
 # KSampler (Efficient) ED
 class KSampler_ED():
-    set_seed_cfg_from = {
+    SET_SEED_CFG_SAMPLER = {
         "from node to ctx": 1,
         "from context": 2,
         "from node only": 3,
@@ -1597,7 +1597,7 @@ class KSampler_ED():
     def INPUT_TYPES(cls):
         return {"required":
                     {"context": ("RGTHREE_CONTEXT",),
-                    "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler": (list(cls.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
@@ -1669,7 +1669,7 @@ class KSampler_ED():
 
         ###### KSampler (Efficient) ######
         elif not do_refine_only:
-            return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
+            return_dict = NODES['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
                 optional_vae=vae, script=script, add_noise=add_noise, start_at_step=start_at_step, end_at_step=end_at_step,
@@ -1792,7 +1792,7 @@ class KSamplerTEXT_ED():
     def INPUT_TYPES(cls):
         return {"required":
                     {"context": ("RGTHREE_CONTEXT",),
-                    "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
@@ -1857,7 +1857,7 @@ class KSamplerTEXT_ED():
         positive_encoded = nodes.CLIPTextEncode().encode(clip, positive)[0]
         negative_encoded = nodes.CLIPTextEncode().encode(clip, negative)[0]
         
-        return_dict = nodes.NODE_CLASS_MAPPINGS['KSampler (Efficient)']().sample(model, seed, steps, cfg, sampler_name, scheduler, 
+        return_dict = NODES['KSampler (Efficient)']().sample(model, seed, steps, cfg, sampler_name, scheduler, 
                 positive_encoded, negative_encoded, latent_image, preview_method, vae_decode, denoise=denoise, prompt=prompt, 
                 extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
                 optional_vae=vae, script=script, add_noise=add_noise, start_at_step=start_at_step, end_at_step=end_at_step,
@@ -1880,7 +1880,7 @@ class FaceDetailer_ED():
         sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
-                    "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                     "bbox_detector": (bboxs, ),
                     "segm_detector_opt": (segms, ),
                     "sam_model_opt": (sams, ), 
@@ -1964,13 +1964,13 @@ class FaceDetailer_ED():
         segm_detector_opt = ED_Util.ultra_detector_model(segm_detector_opt, "segm")
         sam_model_opt = ED_Util.load_sam_model(sam_model_opt, sam_mode)                
         
-        if 'FaceDetailer' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'FaceDetailer' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         result_img, result_cropped_enhanced, result_cropped_enhanced_alpha, result_mask, _, result_cnet_images = \
-            nodes.NODE_CLASS_MAPPINGS['FaceDetailer']().doit(image, model, clip, vae, guide_size, guide_size_for, max_size, 
+            NODES['FaceDetailer']().doit(image, model, clip, vae, guide_size, guide_size_for, max_size, 
             seed, steps, cfg, sampler_name, scheduler, positive, negative, denoise, feather, noise_mask, force_inpaint,
             bbox_threshold, bbox_dilation, bbox_crop_factor, sam_detection_hint, sam_dilation, 
             sam_threshold, sam_bbox_expansion, sam_mask_hint_threshold,
@@ -1988,7 +1988,7 @@ class MaskDetailer_ED():
     def INPUT_TYPES(s):
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
-                    "set_seed_cfg_sampler_batch": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler_batch": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
 
                     "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
@@ -2034,13 +2034,13 @@ class MaskDetailer_ED():
         
         basic_pipe = (model, clip, vae, positive, negative)
         
-        if 'MaskDetailerPipe' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'MaskDetailerPipe' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list, _, _ = \
-            nodes.NODE_CLASS_MAPPINGS['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
+            NODES['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
             guide_size, guide_size_for, max_size, mask_mode, seed, steps, cfg, sampler_name, 
             scheduler, denoise, feather, crop_factor, drop_size, refiner_ratio, 
             batch_size, cycle, None, detailer_hook, inpaint_model, noise_mask_feather)
@@ -2098,7 +2098,7 @@ class DetailerForEach_ED():
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
                     "segs": ("SEGS", ),
-                    "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
 
                     "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
@@ -2167,13 +2167,13 @@ class DetailerForEach_ED():
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)
 
-        if 'DetailerForEachDebug' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'DetailerForEachDebug' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img, _, cropped_enhanced, cropped_enhanced_alpha, cnet_pil_list = \
-            nodes.NODE_CLASS_MAPPINGS['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
+            NODES['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
             guide_size_for, max_size, seed, steps, cfg, sampler_name, scheduler, positive, negative, denoise,
             feather, noise_mask, force_inpaint, wildcard, detailer_hook=detailer_hook,
             cycle=cycle, inpaint_model=inpaint_model, noise_mask_feather=noise_mask_feather)
@@ -2184,7 +2184,7 @@ class DetailerForEach_ED():
 ##############################################################################################################
 # Ultimate SD Upscale ED
 class UltimateSDUpscaleED():
-    set_tile_size_from_what = {
+    SET_TILE_SIZE_FROM = {
         "Image size": 1,
         "Canvas size": 2,
         "Node setting": 3,
@@ -2207,7 +2207,7 @@ class UltimateSDUpscaleED():
         return {"required": 
                 {
                 "context": ("RGTHREE_CONTEXT",),
-                "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                 "upscale_model": (folder_paths.get_filename_list("upscale_models"), ),
                 "upscale_by": ("FLOAT", {"default": 2, "min": 0.05, "max": 4, "step": 0.05}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
@@ -2217,15 +2217,15 @@ class UltimateSDUpscaleED():
                 "scheduler": (SCHEDULERS,),                        
                 "denoise": ("FLOAT", {"default": 0.2, "min": 0.0, "max": 1.0, "step": 0.01}),
                 # Upscale Params
-                "mode_type": (list(UltimateSDUpscaleED.MODES.keys()),),
+                "mode_type": (list(s.MODES.keys()),),
                 #"mode_type": UltimateSDUpscale().INPUT_TYPES()["required"]["mode_type"],
-                "set_tile_size_from": (list(UltimateSDUpscaleED.set_tile_size_from_what.keys()), {"default": "Image size"}),
+                "set_tile_size_from": (list(s.SET_TILE_SIZE_FROM.keys()), {"default": "Image size"}),
                 "tile_width": ("INT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 "tile_height": ("INT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 "mask_blur": ("INT", {"default": 8, "min": 0, "max": 64, "step": 1}),
                 "tile_padding": ("INT", {"default": 32, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 8}),
                 # Seam fix params
-                "seam_fix_mode": (list(UltimateSDUpscaleED.SEAM_FIX_MODES.keys()),),
+                "seam_fix_mode": (list(s.SEAM_FIX_MODES.keys()),),
                 #"seam_fix_mode": UltimateSDUpscale().INPUT_TYPES()["required"]["seam_fix_mode"],
                 "seam_fix_denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                 "seam_fix_width": ("INT", {"default": 64, "min": 0, "max": nodes.MAX_RESOLUTION, "step": 8}),
@@ -2285,12 +2285,12 @@ class UltimateSDUpscaleED():
         
         upscaler = ED_Util.load_upscale_model(upscale_model)
 
-        if 'UltimateSDUpscale' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'UltimateSDUpscale' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ssitu/ComfyUI_UltimateSDUpscale',
                                           "to use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
 
-        tensor = nodes.NODE_CLASS_MAPPINGS['UltimateSDUpscale']().upscale(image, model, 
+        tensor = NODES['UltimateSDUpscale']().upscale(image, model, 
                 positive, negative, vae, upscale_by, seed,
                 steps, cfg, sampler_name, scheduler, denoise, upscaler,
                 mode_type, tile_width, tile_height, mask_blur, tile_padding,
@@ -2360,12 +2360,12 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
         else:
             upscaled_image = image
 
-        if 'SUPIR_model_loader_v2' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'SUPIR_model_loader_v2' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
-        sup_model, sup_vae = nodes.NODE_CLASS_MAPPINGS['SUPIR_model_loader_v2']().process(supir_model, diffusion_dtype,
+        sup_model, sup_vae = NODES['SUPIR_model_loader_v2']().process(supir_model, diffusion_dtype,
             fp8_unet, model, clip, vae, high_vram=False)
         return (context, sup_model, sup_vae, upscaled_image)
 
@@ -2379,7 +2379,7 @@ class SUPIR_Sampler_ED():
                 "context": ("RGTHREE_CONTEXT",),
                 "SUPIR_model": ("SUPIRMODEL",),
                 "SUPIR_vae": ("SUPIRVAE",),                        
-                "set_seed_cfg_sampler": (list(KSampler_ED.set_seed_cfg_from.keys()), {"default": "from context"}),
+                "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                 "steps": ("INT", {"default": 20, "min": 1, "max": 10000, "step": 1}),
                 "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
@@ -2465,27 +2465,27 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg)
     
-        if 'SUPIR_first_stage' not in nodes.NODE_CLASS_MAPPINGS:
+        if 'SUPIR_first_stage' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
                                           "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
             raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
         # SUPIR_first_stage
-        SUPIR_vae2, denoised_image, denoised_latent = nodes.NODE_CLASS_MAPPINGS['SUPIR_first_stage']().process(SUPIR_vae, image_opt, encoder_dtype, use_tiled_vae, vae_tile_size, vae_tile_size)
+        SUPIR_vae2, denoised_image, denoised_latent = NODES['SUPIR_first_stage']().process(SUPIR_vae, image_opt, encoder_dtype, use_tiled_vae, vae_tile_size, vae_tile_size)
     
         # SUPIR_conditioner
-        positive_encoded, negative_encoded = nodes.NODE_CLASS_MAPPINGS['SUPIR_conditioner']().condition(SUPIR_model, denoised_latent, positive_prompt, negative_prompt, captions="")
+        positive_encoded, negative_encoded = NODES['SUPIR_conditioner']().condition(SUPIR_model, denoised_latent, positive_prompt, negative_prompt, captions="")
     
         # SUPIR_encode
-        SUPIR_latent = nodes.NODE_CLASS_MAPPINGS['SUPIR_encode']().encode(SUPIR_vae2, denoised_image, encoder_dtype, use_tiled_vae, vae_tile_size)[0]
+        SUPIR_latent = NODES['SUPIR_encode']().encode(SUPIR_vae2, denoised_image, encoder_dtype, use_tiled_vae, vae_tile_size)[0]
     
         # SUPIR_sample
-        SUPIR_latent = nodes.NODE_CLASS_MAPPINGS['SUPIR_sample']().sample(SUPIR_model, SUPIR_latent, steps, seed, 
+        SUPIR_latent = NODES['SUPIR_sample']().sample(SUPIR_model, SUPIR_latent, steps, seed, 
             cfg, EDM_s_churn, s_noise, positive_encoded, negative_encoded, cfg, control_scale_start, control_scale_end, 
             restore_cfg, keep_model_loaded, DPMPP_eta, sampler, sampler_tile_size=1024, sampler_tile_stride=512)[0]
         
         # SUPIR_decode
-        output_image = nodes.NODE_CLASS_MAPPINGS['SUPIR_decode']().decode(SUPIR_vae, SUPIR_latent, use_tiled_vae, vae_tile_size)[0]
+        output_image = NODES['SUPIR_decode']().decode(SUPIR_vae, SUPIR_latent, use_tiled_vae, vae_tile_size)[0]
         context = new_context_ed(context, images=output_image)
         
         return (context, output_image, source_image)
