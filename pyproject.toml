@@ -11,5 +11,5 @@ Repository = "https://github.com/NyaamZ/efficiency-nodes-ED"
 
 [tool.comfy]
 PublisherId = "nyaamz"
-DisplayName = "Efficiency Nodes ExtendeD"
+DisplayName = "efficiency-nodes-ED"
 Icon = "https://upload.wikimedia.org/wikipedia/commons/d/d5/Speech_balloon_green_icon.svg"
