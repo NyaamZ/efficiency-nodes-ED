@@ -58,6 +58,7 @@ app.registerExtension({
                 const result = onNodeCreated?.apply(this, arguments);
 				this.setProperty("MaskDetailer mode", false);
 				this.setProperty("(MaskDetailer) drop size", 5);
+				this.setProperty("(MaskDetailer) cycle", 1);
 				this.setProperty("(MaskDetailer) inpaint model enable", false);
 				this.setProperty("(MaskDetailer) noise mask feather", 20);
 				this.setProperty("Use tiled VAE decode", false);
@@ -72,7 +73,7 @@ app.registerExtension({
 					toggleWidget(this, findWidgetByName(this, 'max_size'), value);
 					toggleWidget(this, findWidgetByName(this, 'feather'), value);
 					toggleWidget(this, findWidgetByName(this, 'crop_factor'), value);
-					toggleWidget(this, findWidgetByName(this, 'cycle'), value);
+					//toggleWidget(this, findWidgetByName(this, 'cycle'), value);
 					
 					if (this.size[1] < adjustment)
 						this.setSize([this.size[0], adjustment]);

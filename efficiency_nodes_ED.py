@@ -1613,7 +1613,7 @@ class KSampler_ED():
                     "max_size": ("FLOAT", {"default": 1216, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "feather": ("INT", {"default": 15, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
-                    "cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
+                    #"cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
                     "script": ("SCRIPT",),
                     "detailer_hook": ("DETAILER_HOOK",),
                     },
@@ -1626,7 +1626,7 @@ class KSampler_ED():
     CATEGORY = "Efficiency Nodes/Sampling"
 
     def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, preview_method, 
-                  vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3, cycle=1,
+                  vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3,
                   t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
                   extra_pnginfo=None, my_unique_id=None, script=None, detailer_hook=None,
                   add_noise=None, start_at_step=None, end_at_step=None,
@@ -1660,7 +1660,7 @@ class KSampler_ED():
             output_images, _, _ = MaskDetailer_ED.mask_sampling(optional_image, mask, model, clip, vae, positive, negative,
                     guide_size, guide_size_for, max_size, properties['mask_mode'],
                     seed, steps, cfg, sampler_name, scheduler, denoise,
-                    feather, crop_factor, properties['drop_size'], properties['refiner_ratio'], batch_size, cycle, 
+                    feather, crop_factor, properties['drop_size'], properties['refiner_ratio'], batch_size, properties['cycle'], 
                     detailer_hook, properties['inpaint_model'], properties['noise_mask_feather'])
 
             latent_list = ED_Util.vae_encode(vae, output_images, properties['tiled_vae']) if refiner_script else None
@@ -1696,6 +1696,7 @@ class KSampler_ED():
         properties = {
             "mask_detailer_mode": False,
             "drop_size": 5,
+            "cycle": 1,
             "inpaint_model": False,
             "noise_mask_feather": 20,
             "mask_mode": True,
@@ -1712,6 +1713,7 @@ class KSampler_ED():
                     props = node["properties"]
                     properties['mask_detailer_mode'] = props.get("MaskDetailer mode", False)
                     properties['drop_size'] = int(props.get("(MaskDetailer) drop size", 5))
+                    properties['cycle'] = int(props.get("(MaskDetailer) cycle", 1))
                     properties['inpaint_model'] = props.get("(MaskDetailer) inpaint model enable", False)
                     properties['noise_mask_feather'] = int(props.get("(MaskDetailer) noise mask feather", 20))
                     if vae_decode != "true (tiled)":
