@@ -45,6 +45,7 @@ const NODE_COLORS = {
 
 	"Get Booru Tag 💬ED": "cyan",
 	"Simple Text 💬ED": "cyan",
+	"TIPO Script 💬ED": "blue",
  };
 
 function shuffleArray(array) {

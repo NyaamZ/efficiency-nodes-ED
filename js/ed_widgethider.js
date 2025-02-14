@@ -72,7 +72,7 @@ function toggleWidget_2(node, widget, show = false, suffix = "") {
 }
 
 /////////////////////////////////////////////////////////////////////////// ED
-let previous_value = { ed_sampler_noise : 0, ed_loader_vae : "", ed_loader_cfg : 0};
+let previous_value = { sampler_ed_denoise : 0, ed_loader_vae : "", ed_loader_cfg : 0};
 
 /* function find_neighbor_node(node, nodetype){
 	const linkk = node.outputs[0].links;
@@ -103,7 +103,8 @@ let previous_value = { ed_sampler_noise : 0, ed_loader_vae : "", ed_loader_cfg :
 }
  */
  
- function findNeighborNode(node, nodeType) {
+ 
+ function recursive_FindLinkedNode(node, nodeType) {
 	if (!node) return null;
     const links = node.outputs[0]?.links;
     if (!links) return null;
@@ -116,17 +117,7 @@ let previous_value = { ed_sampler_noise : 0, ed_loader_vae : "", ed_loader_cfg :
         }
 
         if (isContextNode(targetNode)) {
-            const contextLinks = targetNode.outputs[0]?.links;
-
-            if (!contextLinks) continue;
-
-            for (const contextLinkId of contextLinks) {
-                const contextNode = getNodeFromLink(targetNode, contextLinkId);
-
-                if (isMatchingNode(contextNode, nodeType)) {
-                    return contextNode;
-                }
-            }
+			return recursive_FindLinkedNode(targetNode, nodeType);
         }
     }
 
@@ -143,7 +134,7 @@ function isMatchingNode(node, nodeType) {
 }
 
 function isContextNode(node) {
-    return node.type && (node.type.includes('Context') || node.type === 'Wildcard Encode 💬ED');
+    return node.type && (node.type.includes('Context') || node.type === 'Wildcard Encode 💬ED' || node.type === 'TIPO Script 💬ED');
 }
 
  
@@ -332,27 +323,24 @@ function restore_prev_value(widget, compare_value, prev_value, change = false) {
 }
 
 // Efficient Loader ED Paint Mode Handlers
-function handleEfficientLoaderPaintMode_ED(node, widget) {
-	
-	const n_node = findNeighborNode(node, 'KSampler')	
-	if (n_node == null)
-		return;
-	const is_ed_sampler = (n_node.type == "KSampler (Efficient) 💬ED")
-	const target_wiget = findWidgetByName(n_node, "denoise");
+function handleEfficientLoaderPaintMode_ED(node, widget) {	
+	const sampler_ed = recursive_FindLinkedNode(node, 'KSampler (Efficient) 💬ED')	
+	if (!sampler_ed) return;
+	const target_wiget = findWidgetByName(sampler_ed, "denoise");
 	
     if (widget.value == '✍️ Txt2Img') {
-		previous_value.ed_sampler_noise = restore_prev_value(target_wiget, 1.0, previous_value.ed_sampler_noise, true);
-		if (is_ed_sampler && (typeof n_node.toggleWidgetByProperty === 'function')) 
-			n_node.toggleWidgetByProperty(false);
+		previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise, true);
+		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
+			sampler_ed.toggleWidgetByProperty(false);
     } else if(widget.value == '🎨 Inpaint(MaskDetailer)') {		
-        previous_value.ed_sampler_noise = restore_prev_value(target_wiget, 1.0, previous_value.ed_sampler_noise);
-		if (is_ed_sampler && (typeof n_node.toggleWidgetByProperty === 'function')) 
-			n_node.toggleWidgetByProperty(true);
+        previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise);
+		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
+			sampler_ed.toggleWidgetByProperty(true);
     }
 	else{
-		previous_value.ed_sampler_noise = restore_prev_value(target_wiget, 1.0, previous_value.ed_sampler_noise);
-		if (is_ed_sampler && (typeof n_node.toggleWidgetByProperty === 'function')) 
-			n_node.toggleWidgetByProperty(false);
+		previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise);
+		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
+			sampler_ed.toggleWidgetByProperty(false);
 	}	
 }
 

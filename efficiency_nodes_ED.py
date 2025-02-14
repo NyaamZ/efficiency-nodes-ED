@@ -268,8 +268,8 @@ class ED_Util:
         
         if 'UltralyticsDetectorProvider' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
         
         if type == "bbox":
             model, _ = NODES['UltralyticsDetectorProvider']().doit(model_name)
@@ -288,8 +288,8 @@ class ED_Util:
 
         if 'SAMLoader' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
 
         sam = NODES['SAMLoader']().load_model(model_name, device_mode)[0]
         ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ULTRALYTICS)
@@ -353,24 +353,9 @@ class ED_Util:
                             # use_apply_lora = True
                         # break
 
-class BNK_EncoderWrapper:
-    wildcards_dir = os.path.abspath(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack/wildcards"))
-    
-    def __init__(self, token_normalization, weight_interpretation):
-        self.token_normalization = token_normalization
-        self.weight_interpretation = weight_interpretation
-
-    def encode(self, clip, text):
-
-        if 'BNK_CLIPTextEncodeAdvanced' not in NODES:
-            ED_Util.try_install_custom_node('https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb',
-                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
-
-        return NODES['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
-    
+class wildcard_ED:
     @staticmethod
-    def process_wildcard_sq(text, iterate_count):
+    def sq_wildcard(text, iterate_count):
         def read_wildcard(match, card_name, operation, counter, iterate_count):
             file_path = os.path.join(BNK_EncoderWrapper.wildcards_dir, f"{card_name}.txt")
             
@@ -429,19 +414,37 @@ class BNK_EncoderWrapper:
         return text
 
     @staticmethod
-    def imp_encode(text, model, clip, seed, clip_encoder, processed=None, iterate_count=0):
-        text = BNK_EncoderWrapper.process_wildcard_sq(text, iterate_count)
-        
-        if processed is None:
-            processed = []
+    def process(text, seed, iterate_count=0):
+        text = wildcard_ED.sq_wildcard(text, iterate_count)
 
-        if 'ImpactWildcardEncode' not in NODES:
+        if 'ImpactWildcardProcessor' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
-        model, clip, conditioning = NODES['ImpactWildcardEncode'].process_with_loras(wildcard_opt=text, model=model, clip=clip, seed=seed, clip_encoder=clip_encoder, processed=processed)
-        return (model, clip, conditioning, processed[0])
+        return NODES['ImpactWildcardProcessor'].process(text=text, seed=seed)
+
+class BNK_EncoderWrapper:
+    wildcards_dir = os.path.abspath(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack/wildcards"))
+    
+    def __init__(self, token_normalization, weight_interpretation):
+        self.token_normalization = token_normalization
+        self.weight_interpretation = weight_interpretation
+
+    def encode(self, clip, text):
+        if 'BNK_CLIPTextEncodeAdvanced' not in NODES:
+            ED_Util.try_install_custom_node('https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb',
+                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
+
+        return NODES['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
+
+    @staticmethod
+    def imp_encode(text, clip, clip_encoder=None):        
+        if clip_encoder is None:
+            return nodes.CLIPTextEncode().encode(clip, text)[0]
+        else:
+            return clip_encoder.encode(clip, text)[0]
 
 ##############################################################################################################
 # LoRA Stacker ED
@@ -669,7 +672,7 @@ class WildcardEncode_ED:
     def wildcard_encode(self, context=None, signal=None, unique_id=None, **kwargs):
         ctx = new_context_ed(context, **kwargs)  
     
-        _, model, clip, vae, positive, negative, latent, images, seed, batch_size, pos_prompt, lora_stack, clip_encoder = context_2_tuple_ed(ctx,["model", "clip", "vae", "positive", "negative", "latent", "images", "seed", "step_refiner", "text_pos_g", "lora_stack", "clip_encoder"])
+        _, model, clip, vae, positive, negative, latent, images, seed, batch_size, pos_prompt, lora_stack, clip_encoder, tipo_parm = context_2_tuple_ed(ctx,["model", "clip", "vae", "positive", "negative", "latent", "images", "seed", "step_refiner", "text_pos_g", "lora_stack", "clip_encoder", "tipo_parm"])
         
         if pos_prompt:        
             #Process wildcard
@@ -683,8 +686,8 @@ class WildcardEncode_ED:
                 seed += count
             
             if not positive:
-                processed = []                
-                _, _, positive, pos_prompt = BNK_EncoderWrapper.imp_encode(pos_prompt, model, clip, seed, clip_encoder, processed, count)
+                pos_prompt = wildcard_ED.process(pos_prompt, seed, count)
+                positive = BNK_EncoderWrapper.imp_encode(pos_prompt, clip, clip_encoder)          
         
         if lora_stack:
             model, clip = ED_Util.apply_load_lora(lora_stack, model, clip, "Wildcard Encode ED")
@@ -752,10 +755,10 @@ class EfficientLoader_ED():
         # Clean globally stored objects
         globals_cleanup(prompt)
         list_counter_map.clear()
-
-        #Strip comments
+        
+        # Strip comments
         positive_prompt = ED_Util.strip_comments(positive)
-        negative_prompt = ED_Util.strip_comments(negative)
+        negative_prompt = ED_Util.strip_comments(negative)        
 
         # Embedding stacker process
         lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner = Embedding_Stacker_ED.embedding_process(lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner)     
@@ -771,15 +774,15 @@ class EfficientLoader_ED():
         #Encode prompt
         if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
             print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
-
-            clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])
-            negative_encoded = clip_encoder.encode(clip, negative_prompt)[0]            
+            clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])            
         else:
             clip_encoder = None
-            negative_encoded = nodes.CLIPTextEncode().encode(clip, negative_prompt)[0]
+
+        negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
         
         if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
-            _, _, positive_encoded, positive_prompt = BNK_EncoderWrapper.imp_encode(positive_prompt, model, clip, seed, clip_encoder, None)
+            positive_prompt = wildcard_ED.process(positive_prompt, seed)
+            positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
         else:
             positive_encoded = None
 
@@ -791,18 +794,20 @@ class EfficientLoader_ED():
         else:
             if pixels is None:
                 raise Exception("Efficient Loader ED: Img2Img or inpaint mode requires an image.\n\n\n\n\n\n")
-            
+            image_width, image_height = ED_Util.get_image_size(pixels)
+
             #VAE Encode
             latent_t = ED_Util.vae_encode(vae, pixels, properties['tiled_vae_encode'])
-            image_width, image_height = ED_Util.get_image_size(pixels)
             
             # 🎨 Inpaint
             if paint_mode == "🎨 Inpaint(Ksampler)":
                 if  mask is None:
                     raise Exception("Efficient Loader ED: inpaint mode requires an mask.\n\n\n\n\n\n")
                 if not positive_encoded:
-                    _, _, positive_encoded, positive_prompt = BNK_EncoderWrapper.imp_encode(positive_prompt, model, clip, seed, clip_encoder, None)
-                (positive_encoded, negative_encoded, latent_t) = nodes.InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
+                    positive_prompt = wildcard_ED.process(positive_prompt, seed)
+                    positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
+                    
+                positive_encoded, negative_encoded, latent_t = nodes.InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
                 
             elif paint_mode == "🎨 Inpaint(MaskDetailer)":
                 if  mask is None:
@@ -1277,8 +1282,8 @@ class ED_Reg:
         
         if 'AttentionCouple' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ramyma/A8R8_ComfyUI_nodes',
-                                                  "to use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
+                                                  "To use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
 
         model = NODES['AttentionCouple']().attention_couple(model, global_prompt_weight, 
             base_positive, height, width, flattened_regions)[0]
@@ -1290,8 +1295,9 @@ class ED_Reg:
         regions = []
         for region_tuple in region_script:
             mask, prompt, condition_strength, set_conditon_area, region_weight, lora_stack = region_tuple
-            
-            _, _, reg_positive, prompt = BNK_EncoderWrapper.imp_encode(prompt, model, clip, seed, clip_encoder, None)        
+
+            prompt = wildcard_ED.process(prompt, seed)
+            reg_positive = BNK_EncoderWrapper.imp_encode(prompt, clip, clip_encoder)
             hooks = ED_Reg.process_script_lora_stack(lora_stack)
             base_positive = NODES['ConditioningSetPropertiesAndCombine']().set_properties(base_positive, reg_positive, condition_strength, set_conditon_area, mask, hooks, None)[0]
             regions.extend([{"cond": reg_positive, "mask": mask, "weight": region_weight}])
@@ -1420,8 +1426,8 @@ class Regional_Script_ED():
 
                 if 'ImpactGaussianBlurMask' not in NODES:
                     ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                                  "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-                    raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                                  "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+                    raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
                 mask = NODES['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
             
@@ -1552,7 +1558,7 @@ class GetBooruTag_ED():
         if text_c != "":
             out_text += f"{text_c.lstrip(strip).rstrip(strip)}"
 
-        out_text = f"{out_text.rstrip(strip)},"
+        out_text = f"{out_text.rstrip(strip)}"
         
         return (out_text,)
 
@@ -1578,9 +1584,73 @@ class SimpleText_ED():
         text = ED_Util.strip_comments(text)
 
         strip = " ,\n"
-        text = f"{text.lstrip(strip).rstrip(strip)},"
+        text = f"{text.lstrip(strip).rstrip(strip)}"
         
         return (text,)
+
+##############################################################################################################
+# TIPO Script ED
+
+class TIPOScript_ED:
+    @classmethod
+    def INPUT_TYPES(s):
+        if 'TIPO' in NODES:
+            import kgen.models as tipo_models
+            MODEL_NAME_LIST = [
+                f"{model_name} | {file}".strip("_")
+                for model_name, ggufs in tipo_models.tipo_model_list
+                for file in ggufs
+            ] + [i[0] for i in tipo_models.tipo_model_list]
+        else:
+            MODEL_NAME_LIST = ["TIPO-extension required"]
+        
+        return {"required": {
+                        "context": ("RGTHREE_CONTEXT",),
+                        #"tags": ("STRING", {"default": "", "multiline": True}),
+                        "tipo_model": (MODEL_NAME_LIST, {"default": MODEL_NAME_LIST[0]}),
+                        "format": ("STRING", {"default": """<|special|>, 
+<|characters|>, <|copyrights|>, 
+<|artist|>, 
+
+<|general|>,
+
+<|extended|>.
+
+<|quality|>, <|meta|>, <|rating|>""", "multiline": True, },),
+                    "temperature": ("FLOAT", {"default": 0.5, "step": 0.01}),
+                    "top_p": ("FLOAT", {"default": 0.95, "step": 0.01}),
+                    "min_p": ("FLOAT", {"default": 0.05, "step": 0.01}),
+                    "top_k": ("INT", {"default": 80}),
+                    "tag_length": (["very_short", "short", "long", "very_long"], {"default": "long"},),
+                    "nl_length": (["very_short", "short", "long", "very_long"], {"default": "long"},),
+                    "device": (["cpu", "cuda"], {"default": "cuda"}),
+                },
+                "optional": {
+                        "nl_prompt": ("STRING", {"default": "", "multiline": True}),
+                        "ban_tags": ("STRING", {"default": "", "multiline": True}),
+                    },
+                }
+
+    RETURN_TYPES = ("RGTHREE_CONTEXT", "STRING", "STRING", "STRING", "STRING",)
+    RETURN_NAMES = ("CONTEXT", "PROMPT", "USER_PROMPT", "UNFORMATTED_PROMPT", "UNFORMATTED_USER_PROMPT",)
+    FUNCTION = "tipo_process"
+    CATEGORY = 'Efficiency Nodes/Prompt'
+
+    def tipo_process(self, context, tipo_model, tag_length, nl_length, format, temperature, top_p, min_p, top_k, device, nl_prompt = "", ban_tags = ""):
+        # Unpack context
+        _, clip, seed, width, height, positive_prompt, clip_encoder = context_2_tuple_ed(context, ["clip", "seed", "clip_width", "clip_height", "text_pos_g", "clip_encoder"])
+
+        if 'TIPO' not in NODES:
+            ED_Util.try_install_custom_node('https://github.com/KohakuBlueleaf/z-tipo-extension',
+                                      "To use 'This Efficiency Nodes ED' node, 'TIPO-extension' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'TIPO-extension'")
+        
+        out_string = NODES['TIPO']().execute(tipo_model, positive_prompt, nl_prompt, width, height, seed, tag_length, nl_length, ban_tags, format, temperature, top_p, min_p, top_k, device)
+        
+        positive_encoded = BNK_EncoderWrapper.imp_encode(out_string[0], clip, clip_encoder)
+        context = new_context_ed(context, positive=positive_encoded, text_pos_g=out_string[0])        
+        
+        return context, out_string[0], out_string[1], out_string[2], out_string[3]
 
 ##############################################################################################################
 # SAMPLER
@@ -1877,9 +1947,14 @@ class KSamplerTEXT_ED():
 class FaceDetailer_ED():
     @classmethod
     def INPUT_TYPES(s):
-        bboxs = ["bbox/"+x for x in folder_paths.get_filename_list("ultralytics_bbox")] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
-        segms = ["None"] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
-        sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]
+        if 'UltralyticsDetectorProvider' in NODES:
+            bboxs = ["bbox/"+x for x in folder_paths.get_filename_list("ultralytics_bbox")] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
+            segms = ["None"] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
+            sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]
+        else:
+            bboxs = ["ComfyUI Impact Subpack required"]
+            segms = ["ComfyUI Impact Subpack required"]
+            sams = ["ComfyUI Impact Subpack required"]
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
                     "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
@@ -1968,8 +2043,8 @@ class FaceDetailer_ED():
         
         if 'FaceDetailer' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         result_img, result_cropped_enhanced, result_cropped_enhanced_alpha, result_mask, _, result_cnet_images = \
             NODES['FaceDetailer']().doit(image, model, clip, vae, guide_size, guide_size_for, max_size, 
@@ -2038,8 +2113,8 @@ class MaskDetailer_ED():
         
         if 'MaskDetailerPipe' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list, _, _ = \
             NODES['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
@@ -2171,8 +2246,8 @@ class DetailerForEach_ED():
 
         if 'DetailerForEachDebug' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
 
         enhanced_img, _, cropped_enhanced, cropped_enhanced_alpha, cnet_pil_list = \
             NODES['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
@@ -2289,8 +2364,8 @@ class UltimateSDUpscaleED():
 
         if 'UltimateSDUpscale' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ssitu/ComfyUI_UltimateSDUpscale',
-                                          "to use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
+                                          "To use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
 
         tensor = NODES['UltimateSDUpscale']().upscale(image, model, 
                 positive, negative, vae, upscale_by, seed,
@@ -2364,8 +2439,8 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
 
         if 'SUPIR_model_loader_v2' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
         sup_model, sup_vae = NODES['SUPIR_model_loader_v2']().process(supir_model, diffusion_dtype,
             fp8_unet, model, clip, vae, high_vram=False)
@@ -2469,8 +2544,8 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
     
         if 'SUPIR_first_stage' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "to use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] to use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
 
         # SUPIR_first_stage
         SUPIR_vae2, denoised_image, denoised_latent = NODES['SUPIR_first_stage']().process(SUPIR_vae, image_opt, encoder_dtype, use_tiled_vae, vae_tile_size, vae_tile_size)
@@ -2517,6 +2592,7 @@ NODE_CLASS_MAPPINGS = {
     "Context To DetailerPipe": ContextToDetailerPipe,
     "Get Booru Tag 💬ED": GetBooruTag_ED,
     "Simple Text 💬ED": SimpleText_ED,
+    "TIPO Script 💬ED": TIPOScript_ED,
     
     "FaceDetailer 💬ED": FaceDetailer_ED,
     "MaskDetailer 💬ED": MaskDetailer_ED,
