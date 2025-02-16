@@ -256,7 +256,7 @@ app.registerExtension({
 		
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 		if( node.comfyClass == "Regional Stacker 💬ED" || node.comfyClass == "Regional Processor 💬ED") {
-			node._wvalue = "Creates empty image";
+			node._wvalue = "Create empty image";
 			var button_widget = findWidgetByName(node, "empty image");
 			var width_widget = findWidgetByName(node, "width");
 			var height_widget = findWidgetByName(node, "height");
@@ -267,20 +267,20 @@ app.registerExtension({
 
 			Object.defineProperty(button_widget, "value", {
 				set: (value) => {
-                    if (value !== "Creates empty image")
+                    if (value !== "Create empty image")
                         node._wildcard_value = value;
                 },
-				get: () => { return "Creates empty image"; }
+				get: () => { return "Create empty image"; }
 			});
 
 			Object.defineProperty(button_widget.options, "values", {
 				set: (x) => {},
 				get: () => {
-					return ["Creates empty image"];
+					return ["Create empty image"];
 				}
 			});
 
-			button_widget.serializeValue = () => { return "Creates empty image"; }
+			button_widget.serializeValue = () => { return "Create empty image"; }
 		}
 	}
 });

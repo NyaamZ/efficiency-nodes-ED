@@ -1347,7 +1347,7 @@ class Regional_Stacker_ED:
                             "global_prompt_weight": ("FLOAT",{"default": 1.0, "min": 0.01, "max": 1.0, "step": 0.1, "tooltip": "Base prompt strength.", }, ),
                             "width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                             "height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
-                            "empty image": (["Creates empty image"],),},
+                            "empty image": (["Create empty image"],),},
                     }
 
     RETURN_TYPES = ("CONTROL_NET_STACK",)
