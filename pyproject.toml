@@ -1,7 +1,7 @@
 [project]
 name = "efficiency-nodes-ED"
 description = "Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.[w/NOTE: This node requires [a/efficiency-nodes-comfyui](https://github.com/jags111/efficiency-nodes-comfyui) and [a/ComfyUI-Custom-Scripts](https://github.com/pythongosssss/ComfyUI-Custom-Scripts); it also requires start.bat to run.]"
-version = "0.7.6"
+version = "0.7.7"
 license = { file = "LICENSE" }
 dependencies = []
 

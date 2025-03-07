@@ -17,8 +17,7 @@ annotating_js_files = [
 impact_wildcard_py = "../ComfyUI-Impact-Pack/modules/impact/wildcards.py"
 
 read_css_folder = "./user_css/"
-write_css_folder = "../../web/"
-user_css = "user.css"
+write_css_folder = "../../../python_embeded/Lib/site-packages/comfyui_frontend_package/static/"
 
 def annotate_file(js_file):
     contents = []
@@ -57,28 +56,28 @@ def annotate_wildcard(py_file):
                     f.write(c)
 
 def copy_user_css():
-    if os.path.isfile(write_css_folder + user_css):
-        os.remove(write_css_folder + user_css)
-    shutil.copy(read_css_folder + user_css, write_css_folder + user_css)
+    if os.path.isfile(write_css_folder + "user.css"):
+        os.remove(write_css_folder + "user.css")
+    shutil.copy(read_css_folder + "user.css", write_css_folder + "user.css")
     
 def restore_user_css():
-    if os.path.isfile(write_css_folder + user_css):
-        os.remove(write_css_folder + user_css)
-    if os.path.isfile(write_css_folder + user_css + ".old"):
-        os.rename(write_css_folder + user_css + ".old", write_css_folder + user_css)
+    if os.path.isfile(write_css_folder + "user.css"):
+        os.remove(write_css_folder + "user.css")
+    if os.path.isfile(write_css_folder + "user.css.old"):
+        os.rename(write_css_folder + "user.css.old", write_css_folder + "user.css")
     else:
-        with open(write_css_folder + user_css, 'w', encoding='UTF8') as f:
+        with open(write_css_folder + "user.css", 'w', encoding='UTF8') as f:
             f.write("/* Put custom styles here */")
             
 try:
-    printout = "Copy user.css and Disable unnecessary js files"
+    printout = "copy user.css and disable unnecessary js files"
     
     for file in annotating_js_files:
         annotate_file(file)
     annotate_wildcard(impact_wildcard_py)
     copy_user_css()
-    print(f"Efficiency Nodes ED: Attempting to {printout} success!")
+    print(f"\n\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
     
 except Exception as e:
-    print("[ERROR] efficiency nodes ED: An error occurred while annotating the file.")
+    print("\n\n\n[ERROR] efficiency nodes ED: An error occurred while annotating the file.")
     

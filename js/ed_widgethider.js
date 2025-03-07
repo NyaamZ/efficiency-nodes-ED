@@ -621,27 +621,25 @@ app.registerExtension({
 
             widgetLogic(node, w);
 
-            Object.defineProperty(w, 'value', {
-                get() {
-                    // If there's an original getter, use it. Otherwise, return widgetValue.
-                    let valueToReturn = originalDescriptor && originalDescriptor.get
-                        ? originalDescriptor.get.call(w)
-                        : widgetValue;
-
-                    return valueToReturn;
-                },
-                set(newVal) {
-
-                    // If there's an original setter, use it. Otherwise, set widgetValue.
-                    if (originalDescriptor && originalDescriptor.set) {
-                        originalDescriptor.set.call(w, newVal);
-                    } else {
-                        widgetValue = newVal;
-                    }
-
-                    widgetLogic(node, w);
-                }
-            });
+            if (originalDescriptor.configurable) {
+				Object.defineProperty(w, 'value', {
+					get() {
+						// If there's an original getter, use it. Otherwise, return widgetValue.
+						return originalDescriptor && originalDescriptor.get
+							? originalDescriptor.get.call(w)
+							: widgetValue;
+					},
+					set(newVal) {
+						// If there's an original setter, use it. Otherwise, set widgetValue.
+						if (originalDescriptor && originalDescriptor.set) {
+							originalDescriptor.set.call(w, newVal);
+						} else {
+							widgetValue = newVal;
+						}
+						widgetLogic(node, w);
+					}
+				});
+			}
         }
         setTimeout(() => {initialized = true;}, 500);
     }

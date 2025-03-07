@@ -272,9 +272,9 @@ class ED_Util:
             raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
         
         if type == "bbox":
-            model, _ = NODES['UltralyticsDetectorProvider']().doit(model_name)
+            model = NODES['UltralyticsDetectorProvider']().doit(model_name)[0]
         else:
-            _, model = NODES['UltralyticsDetectorProvider']().doit(model_name)        
+            model = NODES['UltralyticsDetectorProvider']().doit(model_name)[1]
         ED_Cashe.cashsave(detector_type, model_name, model, MAX_CASHE_ULTRALYTICS)
         return model
 
@@ -354,10 +354,12 @@ class ED_Util:
                         # break
 
 class wildcard_ED:
+    wildcards_dir = os.path.abspath(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack/wildcards"))
+    
     @staticmethod
     def sq_wildcard(text, iterate_count):
         def read_wildcard(match, card_name, operation, counter, iterate_count):
-            file_path = os.path.join(BNK_EncoderWrapper.wildcards_dir, f"{card_name}.txt")
+            file_path = os.path.join(wildcard_ED.wildcards_dir, f"{card_name}.txt")
             
             if not os.path.isfile(file_path):
                 raise Exception(f"Efficient nodes ED: wildcard file ({card_name}.txt) is not found.")
@@ -383,7 +385,7 @@ class wildcard_ED:
         global get_booru_tag_id, get_booru_tag_text_b
         text_b = get_booru_tag_text_b
 
-        card_files, _ = folder_paths.recursive_search(BNK_EncoderWrapper.wildcards_dir)
+        card_files, _ = folder_paths.recursive_search(wildcard_ED.wildcards_dir)
 
         pattern = r"(__[\w.\-+/*\\]+?__#[A-Z]{3}[0-9]*)"
         matches = re.findall(pattern, text)
@@ -425,7 +427,6 @@ class wildcard_ED:
         return NODES['ImpactWildcardProcessor'].process(text=text, seed=seed)
 
 class BNK_EncoderWrapper:
-    wildcards_dir = os.path.abspath(os.path.join(custom_nodes_dir, "ComfyUI-Impact-Pack/wildcards"))
     
     def __init__(self, token_normalization, weight_interpretation):
         self.token_normalization = token_normalization
@@ -737,7 +738,7 @@ class EfficientLoader_ED():
         return types
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
-    RETURN_NAMES = ("CONTEXT", "MODEL", "CONDITIONING+", "CONDITIONING-", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
+    RETURN_NAMES = ("CONTEXT", "MODEL", "POSITIVE", "NEGATIVE", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
     OUTPUT_IS_LIST = (False, False, False, False, True, False, False, False,)
     FUNCTION = "efficientloader_ed"
     CATEGORY = "Efficiency Nodes/Loaders"
@@ -768,7 +769,7 @@ class EfficientLoader_ED():
        
         # Model, clip, vae, lora_params 
         model, clip, vae, lora_stack, lora_params, is_flux_model = \
-            self. load_model_clip_vae(properties, ckpt_name, vae_name, clip_skip,lora_stack, model_opt, clip_opt, prompt, my_unique_id)       
+            self.load_model_clip_vae(properties, ckpt_name, vae_name, clip_skip,lora_stack, model_opt, clip_opt, prompt, my_unique_id)       
 
         #################### PROMPT ENCODING #####################
         #Encode prompt
@@ -999,7 +1000,8 @@ class LoadImage_ED(nodes.LoadImage):
 
     def load_image(self, image, upscale_method, width, height, keep_proportions, my_unique_id):        
         output_image, output_mask = super().load_image(image)
-        text, image_width, image_height = self.get_prompt(image, output_image)
+        image_width, image_height = ED_Util.get_image_size(output_image)
+        text = self.get_prompt(image, image_width, image_height)
 
         if "not upscale" not in upscale_method:
             if "upscale_models" in upscale_method:
@@ -1063,7 +1065,7 @@ class LoadImage_ED(nodes.LoadImage):
         return True
 
     @staticmethod
-    def get_prompt(image, output_image):
+    def get_prompt(image, image_width, image_height):
         image_path = folder_paths.get_annotated_filepath(image)
         info = Image.open(image_path).info
 
@@ -1091,7 +1093,7 @@ class LoadImage_ED(nodes.LoadImage):
             prompt = json.loads(info['prompt'])
             for k, v in prompt.items():
                 input_types = get_node_inputs(v['class_type'])
-                if input_types is not None:
+                if input_types is not None and 'required' in input_types:
                     inputs = input_types['required'].copy()
                     if 'optional' in input_types:
                         inputs.update(input_types['optional'])
@@ -1113,10 +1115,9 @@ class LoadImage_ED(nodes.LoadImage):
         else:
             text = "There is no prompt information within the image."
 
-        image_width, image_height = ED_Util.get_image_size(output_image)
         text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
         
-        return text, image_width, image_height
+        return text
 
 
 # Save Image ED
@@ -1205,8 +1206,7 @@ class Refiner_Script_ED:
                             "ignore_batch_size": ("BOOLEAN", {"default": True}),
                             "do_refine_only": ("BOOLEAN", {"default": True}),
                         },
-                "optional": {"context_opt": ("RGTHREE_CONTEXT",),
-                            "refiner_model_opt": ("MODEL",),
+                "optional": {"refiner_model_opt": ("MODEL",),
                             "refiner_clip_opt": ("CLIP",),
                             "refiner_vae_opt": ("VAE",),
                             #"script": ("SCRIPT",),
@@ -1217,38 +1217,19 @@ class Refiner_Script_ED:
     FUNCTION = "refiner_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only, context_opt=None, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
+    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
         script = script or {}
         
-        if refiner_model_opt is not None:
-            if refiner_clip_opt is not None and refiner_vae_opt is not None:
-                refiner_model = refiner_model_opt
-                refiner_clip = refiner_clip_opt
-                refiner_vae = refiner_vae_opt
-            else:
+        if refiner_model_opt:
+            if refiner_clip_opt is None or refiner_vae_opt is None:
                 raise Exception("Refiner Script ED: refiner_clip and refiner_vae are required.\n\n\n\n\n\n")
-        elif context_opt is not None:
-            # Unpack from CONTEXT 
-            _, refiner_model, refiner_clip, refiner_vae, c_seed, c_cfg, c_sampler, c_scheduler, = context_2_tuple_ed(context_opt,["model", "clip", "vae", "seed", "cfg", "sampler", "scheduler"])
-            if set_seed_cfg_sampler == "from context":
-                if c_seed is None:
-                    raise Exception("Refiner Script ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
-                else:
-                    seed = c_seed
-                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
-                    cfg = c_cfg
-                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "cfg", "type": "text", "data": cfg})
-                    sampler_name = c_sampler
-                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "sampler_name", "type": "text", "data": sampler_name})
-                    scheduler = c_scheduler
-                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "scheduler", "type": "text", "data": scheduler})
-        else:
-            refiner_model = None
+
+        if set_seed_cfg_sampler == "from context":
+            seed = None
         
-        if refiner_model is not None:
-            refiner_script = (refiner_model, refiner_clip, refiner_vae, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
+        refiner_script = (refiner_model_opt, refiner_clip_opt, refiner_vae_opt, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
             #print(f"\033[38;5;173mRefiner Script ED: Refiner script loading. steps:{steps}, start step:{start_at_step}, end step:{end_at_step}\033[0m")
-            script["refiner_script"] = refiner_script
+        script["refiner_script"] = refiner_script
         
         return (script,)
 
@@ -1442,8 +1423,11 @@ class Int_Holder_ED:
     @classmethod
     def INPUT_TYPES(cls):
         return {
-            "required": {"output_int": ("INT", {"default": 0, "min": 0, "max": sys.maxsize, "step": 1}),},
-            "optional": {"int_opt": ("INT", {"forceInput": True}),},
+            "required": { },
+            "optional": {
+                    "int_opt": ("INT", {"forceInput": True}),
+                    "output_int": ("INT", {"default": 0, "min": 0, "max": sys.maxsize, "step": 1}),
+            },
             "hidden": {"my_unique_id": "UNIQUE_ID",},
         }
 
@@ -1453,10 +1437,12 @@ class Int_Holder_ED:
     OUTPUT_NODE = True
     CATEGORY = "Efficiency Nodes/Simple Eval"    
 
-    def store_value(self, output_int, int_opt=None, my_unique_id=None):
-        if int_opt is not None:
-            PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "output_int", "type": "text", "data": int_opt})
+    def store_value(self, int_opt=None, output_int=0, my_unique_id=None):
+        if int_opt:
+            PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "output_int", "type": "text", "data": int_opt})            
             output_int = int_opt
+            
+        PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "", "type": "title", "data": output_int})
         return (output_int,)
 
 ##############################################################################################################
@@ -1626,20 +1612,21 @@ class TIPOScript_ED:
                     "device": (["cpu", "cuda"], {"default": "cuda"}),
                 },
                 "optional": {
+                        "positive_opt": ("CONDITIONING",),
                         "nl_prompt": ("STRING", {"default": "", "multiline": True}),
                         "ban_tags": ("STRING", {"default": "", "multiline": True}),
                     },
                 }
 
-    RETURN_TYPES = ("RGTHREE_CONTEXT", "STRING", "STRING", "STRING", "STRING",)
-    RETURN_NAMES = ("CONTEXT", "PROMPT", "USER_PROMPT", "UNFORMATTED_PROMPT", "UNFORMATTED_USER_PROMPT",)
+    RETURN_TYPES = ("RGTHREE_CONTEXT", "CONDITIONING", "STRING", "STRING", "STRING", "STRING",)
+    RETURN_NAMES = ("CONTEXT", "POSITIVE", "PROMPT", "USER_PROMPT", "UNFORMATTED_PROMPT", "UNFORMATTED_USER_PROMPT",)
     FUNCTION = "tipo_process"
     CATEGORY = 'Efficiency Nodes/Prompt'
 
-    def tipo_process(self, context, tipo_model, tag_length, nl_length, format, temperature, top_p, min_p, top_k, device, nl_prompt = "", ban_tags = ""):
+    def tipo_process(self, context, tipo_model, tag_length, nl_length, format, temperature, top_p, min_p, top_k, device, positive_opt=None, nl_prompt = "", ban_tags = ""):
         # Unpack context
         _, clip, seed, width, height, positive_prompt, clip_encoder = context_2_tuple_ed(context, ["clip", "seed", "clip_width", "clip_height", "text_pos_g", "clip_encoder"])
-
+        
         if 'TIPO' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/KohakuBlueleaf/z-tipo-extension',
                                       "To use 'This Efficiency Nodes ED' node, 'TIPO-extension' extension is required.")
@@ -1650,7 +1637,7 @@ class TIPOScript_ED:
         positive_encoded = BNK_EncoderWrapper.imp_encode(out_string[0], clip, clip_encoder)
         context = new_context_ed(context, positive=positive_encoded, text_pos_g=out_string[0])        
         
-        return context, out_string[0], out_string[1], out_string[2], out_string[3]
+        return context, positive_encoded, out_string[0], out_string[1], out_string[2], out_string[3]
 
 ##############################################################################################################
 # SAMPLER
@@ -1684,6 +1671,7 @@ class KSampler_ED():
                     "feather": ("INT", {"default": 15, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
                     #"cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
+                    "positive_opt": ("CONDITIONING",),
                     "script": ("SCRIPT",),
                     "detailer_hook": ("DETAILER_HOOK",),
                     },
@@ -1698,13 +1686,16 @@ class KSampler_ED():
     def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, preview_method, 
                   vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3,
                   t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
-                  extra_pnginfo=None, my_unique_id=None, script=None, detailer_hook=None,
+                  extra_pnginfo=None, my_unique_id=None, positive_opt=None, script=None, detailer_hook=None,
                   add_noise=None, start_at_step=None, end_at_step=None,
                   return_with_leftover_noise=None, sampler_type="regular"):
 
         # Unpack context
-        _, model, clip, vae, positive, negative, latent_image, optional_image, batch_size, positive_prompt, negative_prompt, mask = \
-            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "text_pos_g", "text_neg_g", "mask"])
+        _, model, clip, vae, positive, negative, latent_image, optional_image, batch_size, mask = \
+            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "mask"])
+
+        if positive_opt:
+            positive = positive_opt
 
         if model is None or latent_image is None:
             raise Exception("KSampler (Efficient) ED: model and latent are required.")
@@ -1722,8 +1713,11 @@ class KSampler_ED():
         latent_list = None
         script, refiner_script, do_refine_only = self.check_refiner_script(script)
         
+        if do_refine_only:
+            latent_list = ED_Util.vae_encode(vae, optional_image, properties['tiled_vae'])
+
         ###### Mask Detailer ######
-        if properties['mask_detailer_mode']:
+        elif properties['mask_detailer_mode']:
             print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m use Mask Detailer(ImpactPack) for inpainting\033[0m")
             set_preview_method(preview_method)
             
@@ -1738,7 +1732,7 @@ class KSampler_ED():
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]
 
         ###### KSampler (Efficient) ######
-        elif not do_refine_only:
+        else:
             return_dict = NODES['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
@@ -1749,9 +1743,8 @@ class KSampler_ED():
             result_ui = return_dict["ui"]
 
         ###### Refiner Script ######
-        if refiner_script:
-            output_images = self.apply_refiner_script(refiner_script, latent_list or latent_image, positive_prompt, negative_prompt,
-                preview_method, properties['tiled_vae'], return_with_leftover_noise)
+        if refiner_script:            
+            output_images = self.apply_refiner_script(context, refiner_script, latent_list or latent_image, preview_method, properties['tiled_vae'], return_with_leftover_noise)
             
             store_ksampler_results("image", my_unique_id, output_images)
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]        
@@ -1832,21 +1825,35 @@ class KSampler_ED():
         return script, refiner_script, do_refine_only
         
     @staticmethod
-    def apply_refiner_script(refiner_script, latent_image, positive_prompt, negative_prompt, preview_method, is_tiled, return_with_leftover_noise):
+    def apply_refiner_script(context, refiner_script, latent_image, preview_method, is_tiled, return_with_leftover_noise):
 
         if refiner_script:
             refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, _ = refiner_script
             
-            if not refiner_model:
-                raise Exception("KSampler (Efficient) ED: refiner model information is missing in the script.")
+            # Unpack context
+            _, model, clip, vae, positive, negative, seed, cfg, sampler, scheduler, positive_prompt, negative_prompt = \
+            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "text_neg_g"])
             
-            refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
-            refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, negative_prompt)[0]
+            if not refiner_model:
+                refiner_model = model
+                refiner_clip = clip
+                refiner_vae = vae
+                refiner_positive = positive
+                refiner_negative = negative            
+            else:
+                refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
+                refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, negative_prompt)[0]
+            
+            if not refiner_seed:
+                refiner_seed = seed
+                refiner_cfg =cfg
+                refiner_sampler_name = sampler
+                refiner_scheduler = scheduler                
             
             if refiner_ignore_batch_size:
                 latent_image = nodes.LatentFromBatch().frombatch(latent_image, 0, 1)[0]
             
-            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m running refiner script. steps:{refiner_steps}, start step:{refiner_start_at_step}, end step:{refiner_end_at_step}\033[0m")
+            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m running refiner script. start step:{refiner_start_at_step}, steps:{refiner_steps}, cfg:{refiner_cfg}, seed:{refiner_seed}\033[0m")
             
             set_preview_method(preview_method)
             latent_image = nodes.KSamplerAdvanced().sample(refiner_model, refiner_add_noise, refiner_seed, refiner_steps, 
