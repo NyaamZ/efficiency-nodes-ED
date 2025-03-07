@@ -1671,8 +1671,8 @@ class KSampler_ED():
                     "feather": ("INT", {"default": 15, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
                     #"cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
-                    "positive_opt": ("CONDITIONING",),
                     "script": ("SCRIPT",),
+                    "positive_opt": ("CONDITIONING",),
                     "detailer_hook": ("DETAILER_HOOK",),
                     },
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "my_unique_id": "UNIQUE_ID",},}
@@ -1686,7 +1686,7 @@ class KSampler_ED():
     def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, preview_method, 
                   vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3,
                   t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
-                  extra_pnginfo=None, my_unique_id=None, positive_opt=None, script=None, detailer_hook=None,
+                  extra_pnginfo=None, my_unique_id=None, script=None, positive_opt=None, detailer_hook=None,
                   add_noise=None, start_at_step=None, end_at_step=None,
                   return_with_leftover_noise=None, sampler_type="regular"):
 

@@ -56,18 +56,22 @@ def annotate_wildcard(py_file):
                     f.write(c)
 
 def copy_user_css():
-    if os.path.isfile(write_css_folder + "user.css"):
-        os.remove(write_css_folder + "user.css")
-    shutil.copy(read_css_folder + "user.css", write_css_folder + "user.css")
+    if os.path.isdir(write_css_folder):
+        if os.path.isfile(write_css_folder + "user.css"):
+            os.remove(write_css_folder + "user.css")
+        shutil.copy(read_css_folder + "user.css", write_css_folder + "user.css")
+    else:
+        print(f"\nDirectory does not exist - {write_css_folder}")
     
 def restore_user_css():
-    if os.path.isfile(write_css_folder + "user.css"):
-        os.remove(write_css_folder + "user.css")
-    if os.path.isfile(write_css_folder + "user.css.old"):
-        os.rename(write_css_folder + "user.css.old", write_css_folder + "user.css")
-    else:
-        with open(write_css_folder + "user.css", 'w', encoding='UTF8') as f:
-            f.write("/* Put custom styles here */")
+    if os.path.isdir(write_css_folder):
+        if os.path.isfile(write_css_folder + "user.css"):
+            os.remove(write_css_folder + "user.css")
+        if os.path.isfile(write_css_folder + "user.css.old"):
+            os.rename(write_css_folder + "user.css.old", write_css_folder + "user.css")
+        else:
+            with open(write_css_folder + "user.css", 'w', encoding='UTF8') as f:
+                f.write("/* Put custom styles here */")
             
 try:
     printout = "copy user.css and disable unnecessary js files"
