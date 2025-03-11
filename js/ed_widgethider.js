@@ -349,8 +349,10 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 	const mute_n1_type = ["UnetLoaderGGUF", "CLIPLoaderGGUF", "DualCLIPLoaderGGUF", "TripleCLIPLoaderGGUF", "UnetLoaderGGUFAdvanced", "UNETLoader", "DualCLIPLoader"];
 	const mute_n2_type = ["FluxGuidance"];
 	const bypass_n_type = ["LoRA Stacker 💬ED", "Embedding Stacker 💬ED"];
-	const opposite_n_type = ["FreeU", "FreeU_V2"];
+	const opposite_n_type = ["FreeU", "FreeU_V2", "ModelSamplingDiscrete", "RescaleCFG"];
 	const adjustment  = node.size[1];
+	
+	if (!initialized) return;
 	
 	function add_group(type_list){
 		let group = [];

@@ -137,34 +137,34 @@ class AnyType(str):
 class ED_Util:
     any_typ = AnyType("*")
     
-    @staticmethod
-    def populate_items(names, type):
-        idx = None
-        item_name = None
-        for idx, item_name in enumerate(names):
+    # @staticmethod
+    # def populate_items(names, type):
+        # idx = None
+        # item_name = None
+        # for idx, item_name in enumerate(names):
             
-            file_name = os.path.splitext(item_name)[0]
-            file_path = folder_paths.get_full_path(type, item_name)
+            # file_name = os.path.splitext(item_name)[0]
+            # file_path = folder_paths.get_full_path(type, item_name)
 
-            if file_path is None:
-                names[idx] = {
-                    "content": item_name,
-                    "image": None,
-                }
-                continue
+            # if file_path is None:
+                # names[idx] = {
+                    # "content": item_name,
+                    # "image": None,
+                # }
+                # continue
 
-            file_path_no_ext = os.path.splitext(file_path)[0]
+            # file_path_no_ext = os.path.splitext(file_path)[0]
 
-            for ext in ["png", "jpg", "jpeg", "preview.png", "preview.jpeg"]:
-                has_image = os.path.isfile(file_path_no_ext + "." + ext)
-                if has_image:
-                    item_image = f"{file_name}.{ext}"
-                    break
+            # for ext in ["png", "jpg", "jpeg", "preview.png", "preview.jpeg"]:
+                # has_image = os.path.isfile(file_path_no_ext + "." + ext)
+                # if has_image:
+                    # item_image = f"{file_name}.{ext}"
+                    # break
 
-            names[idx] = {
-                "content": item_name,
-                "image": f"{type}/{item_image}" if has_image else None,
-            }
+            # names[idx] = {
+                # "content": item_name,
+                # "image": f"{type}/{item_image}" if has_image else None,
+            # }
     
     @staticmethod
     def try_install_custom_node(custom_node_url, msg):
@@ -460,9 +460,8 @@ class LoRA_Stacker_ED:
                 "lora_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_LORA_COUNT, "step": 1}),
             }
         }        
-        inputs["required"][f"lora_name_{1}"] = (["None"] + folder_paths.get_filename_list("loras"),)
-        ED_Util.populate_items(inputs["required"][f"lora_name_{1}"][0], "loras")
-        loras = inputs["required"][f"lora_name_{1}"]
+
+        loras = (["None"] + folder_paths.get_filename_list("loras"),)
         for i in range(1, cls.MAX_LORA_COUNT):
             inputs["required"][f"lora_name_{i}"] = loras
             inputs["required"][f"lora_wt_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
@@ -481,8 +480,6 @@ class LoRA_Stacker_ED:
 
     def lora_stacker_ed(self, input_mode, lora_count, lora_stack=None, **kwargs):
         if lora_count > 0:
-            for i in range(1, self.MAX_LORA_COUNT):
-                kwargs[f"lora_name_{i}"] = kwargs[f"lora_name_{i}"]["content"]
             # Extract values from kwargs
             loras = [kwargs.get(f"lora_name_{i}") for i in range(1, lora_count + 1)]
 
@@ -510,7 +507,7 @@ class LoRA_Stacker_ED:
 
         if kwargs['lora_count'] > 0:
             for i in range(1, cls.MAX_LORA_COUNT):                
-                name = kwargs[f"lora_name_{i}"]["content"]
+                name = kwargs[f"lora_name_{i}"]
                 if not name in names:
                     return_value = f"Lora not found: {name}"
                     raise Exception(f"\033[30m \033[101mLoRA Stacker ED: LoRA '{name}' is not found\033[0m")
@@ -526,13 +523,12 @@ class Embedding_Stacker_ED:
     def INPUT_TYPES(cls):
         inputs = {
             "required": {
-                "positive_embeddings_count": ("INT", {"default": 0, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
+                "positive_embeddings_count": ("INT", {"default": 1, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
                 "negative_embeddings_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
             }
-        }        
-        inputs["required"][f"positive_embedding_{1}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
-        ED_Util.populate_items(inputs["required"][f"positive_embedding_{1}"][0], "embeddings")
-        embeddings = inputs["required"][f"positive_embedding_{1}"]
+        }
+        embeddings = (["None"] + folder_paths.get_filename_list("embeddings"),)
+        
         for i in range(1, cls.MAX_EMBEDDING_COUNT):
             inputs["required"][f"positive_embedding_{i}"] = embeddings
             inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
@@ -552,10 +548,7 @@ class Embedding_Stacker_ED:
 
     def embedding_stacker(self, positive_embeddings_count, negative_embeddings_count, lora_stack=None, **kwargs):
         # POSITIVE EMBEDDING
-        if positive_embeddings_count > 0:
-            for i in range(1, self.MAX_EMBEDDING_COUNT):
-                kwargs[f"positive_embedding_{i}"] = kwargs[f"positive_embedding_{i}"]["content"]
-
+        if positive_embeddings_count > 0:            
             # Extract values from kwargs
             pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
             # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
@@ -566,8 +559,6 @@ class Embedding_Stacker_ED:
         
         # NEGTIVE EMBEDDING
         if negative_embeddings_count > 0:
-            for i in range(1, self.MAX_EMBEDDING_COUNT):
-                kwargs[f"negative_embedding_{i}"] = kwargs[f"negative_embedding_{i}"]["content"]
             # Extract values from kwargs
             neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
             # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
@@ -590,7 +581,7 @@ class Embedding_Stacker_ED:
 
         if kwargs['positive_embeddings_count'] > 0:
             for i in range(1, cls.MAX_EMBEDDING_COUNT):                
-                name = kwargs[f"positive_embedding_{i}"]["content"]
+                name = kwargs[f"positive_embedding_{i}"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
                     raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: embedding '{name}' is not found\033[0m")
@@ -598,7 +589,7 @@ class Embedding_Stacker_ED:
                     
         if kwargs['negative_embeddings_count'] > 0:
             for i in range(1, cls.MAX_EMBEDDING_COUNT):                
-                name = kwargs[f"negative_embedding_{i}"]["content"]
+                name = kwargs[f"negative_embedding_{i}"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
                     raise Exception(f"\033[30m \033[101mEmbedding Stacker ED: embedding '{name}' is not found\033[0m")
@@ -619,7 +610,7 @@ class Embedding_Stacker_ED:
     
         for entry in lora_stack:
             if entry[0] == "POS_EMBEDDING":
-                emb = "embedding:" + Path(entry[1]).stem        
+                emb = "embedding:" + os.path.splitext(entry[1])[0]
                 if entry[2] != 1:
                     emb = f"({emb}:{entry[2]})"
                 pos = f"{positive.rstrip(' ,')}, {emb},"
@@ -628,7 +619,7 @@ class Embedding_Stacker_ED:
                     pos_refiner = f"{positive_refiner.rstrip(' ,')}, {emb},"
                     positive_refiner = pos_refiner
             elif entry[0] == "NEG_EMBEDDING":
-                emb = "embedding:" + Path(entry[1]).stem        
+                emb = "embedding:" + os.path.splitext(entry[1])[0]    
                 if entry[2] != 1:
                     emb = f"({emb}:{entry[2]})"
                 neg = f"{negative.rstrip(' ,')}, {emb},"
@@ -733,8 +724,6 @@ class EfficientLoader_ED():
                             "my_unique_id": "UNIQUE_ID",
                             "extra_pnginfo": "EXTRA_PNGINFO",}
                 }
-        names = types["required"]["ckpt_name"][0]
-        ED_Util.populate_items(names, "checkpoints")        
         return types
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
@@ -743,16 +732,15 @@ class EfficientLoader_ED():
     FUNCTION = "efficientloader_ed"
     CATEGORY = "Efficiency Nodes/Loaders"
         
-    def efficientloader_ed(self, vae_name, clip_skip, paint_mode, batch_size, 
+    def efficientloader_ed(self, ckpt_name, vae_name, clip_skip, paint_mode, batch_size, 
                         seed, cfg, sampler_name, scheduler,
                         positive, negative, image_width, image_height, lora_stack=None, cnet_stack=None,
                         pixels=None, mask=None, model_opt=None, clip_opt=None,
                         refiner_name="None", positive_refiner=None, negative_refiner=None, ascore=None, prompt=None,
-                        my_unique_id=None, extra_pnginfo=None, loader_type="regular", **kwargs):
+                        my_unique_id=None, extra_pnginfo=None, loader_type="regular"):
         
         global loaded_objects
-        ckpt_name  = kwargs["ckpt_name"]["content"]
-
+        
         # Clean globally stored objects
         globals_cleanup(prompt)
         list_counter_map.clear()
@@ -849,7 +837,7 @@ class EfficientLoader_ED():
         return_value = True
         names = ["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints")
 
-        name = kwargs["ckpt_name"]["content"]
+        name = kwargs["ckpt_name"]
 
         if not name in names:
             return_value = f"Checkpoint not found: {name}"
@@ -880,7 +868,7 @@ class EfficientLoader_ED():
                     properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
                     properties['token_normalization'] = node["properties"]["Token normalization"]
                     properties['weight_interpretation'] = node["properties"]["Weight interpretation"]
-                if node["type"] == "Wildcard Encode 💬ED":
+                if node["type"] == "Wildcard Encode 💬ED" and node["mode"] == 0:
                     properties['wildcard_node_exist'] = True
                     if not properties['use_apply_lora']:
                         if node["properties"]["Turn on Apply Lora"] == True:
@@ -889,7 +877,7 @@ class EfficientLoader_ED():
                 if node["type"] == "KSampler (Efficient) 💬ED":
                     if node["mode"] != 0:
                         properties['use_latent_rebatch'] = False
-                if node["type"] == "Refiner Script 💬ED":
+                if node["type"] == "Refiner Script 💬ED" and node["mode"] == 0:
                     if ED_Util.get_widget_value(prompt, node, "ignore_batch_size") == True:
                         properties['use_latent_rebatch'] = False
 
@@ -2111,6 +2099,7 @@ class MaskDetailer_ED():
 
     CATEGORY = "Efficiency Nodes/Image"
 
+    @staticmethod
     def mask_sampling(image, mask, model, clip, vae, positive, negative, guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle, 
@@ -2165,7 +2154,7 @@ class MaskDetailer_ED():
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)      
         
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list = \
-            self.mask_sampling(image, mask, model, clip, vae, positive, negative,
+            MaskDetailer_ED.mask_sampling(image, mask, model, clip, vae, positive, negative,
             guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle,
