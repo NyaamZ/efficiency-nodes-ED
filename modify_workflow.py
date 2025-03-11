@@ -52,4 +52,4 @@ def get_prompt(image_path):
 
 print ("\n\n\n")
 search(current_dir)
-print ("\n\n\nmodify workflow is ENDED!")
+print ("\n\n\nmodify workflow is Done!")
