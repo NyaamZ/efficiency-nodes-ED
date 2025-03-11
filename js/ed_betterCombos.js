@@ -151,7 +151,7 @@ app.registerExtension({
 					background-position: center;
 					background-repeat: no-repeat;
 					/* No-image image attribution: Picture icons created by Pixel perfect - Flaticon */
-				background-image: var(--background-image, ${NO_IMAGE_ICON}) !important;
+					background-image: var(--background-image, ${NO_IMAGE_ICON}) !important;
 				}
 
 			`,
