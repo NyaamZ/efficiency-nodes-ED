@@ -208,7 +208,7 @@ app.registerExtension({
 			menu.style.maxHeight = `${maxHeight}px`;
 
 			const images = imagesByType[type];
-			let items = menu.querySelectorAll(".litemenu-entry");
+			const items = menu.querySelectorAll(".litemenu-entry");
 
 			// Add image handler to items
 			const addImageHandler = (item) => {
