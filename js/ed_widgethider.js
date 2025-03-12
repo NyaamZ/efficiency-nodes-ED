@@ -1,21 +1,20 @@
 import { app } from "../../scripts/app.js";
-//import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
 
 let origProps = {};
 let initialized = false;
 
 function show_message(short_msg, detail_msg, node=null) {
-	if (node) {
-		console.log("## " + detail_msg + " ID:" + node.id);
-	} else {
-		console.log("## " + detail_msg);	
+	try {
+		app.extensionManager.toast.add({
+			severity: short_msg.toLowerCase(),
+			summary: short_msg,
+			detail: detail_msg,
+			life: 3500
+		});
 	}
-	// useToastStore().add({
-        // severity: short_msg.toLowerCase(),
-        // summary: short_msg,
-        // detail: detail_msg,
-        // life: 3e3
-      // });
+	catch {
+		// do nothing
+	}
 }
 
 export const findWidgetByName = (node, name) => {
@@ -382,8 +381,8 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		w_clipskip.value = 0;
 		mute1_group.forEach(n => n.mode = 2);
 		mute2_group.forEach(n => n.mode = 0);
-		bypass_group.forEach(n => n.mode = 4);
-		opposite_group.forEach(n => n.mode = 2);
+		//bypass_group.forEach(n => n.mode = 4);
+		opposite_group.forEach(n => n.mode = 4);
 		
 		let w =  findWidgetByName(node, 'cfg');
 		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg, true);
@@ -401,8 +400,8 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
 		w_clipskip.value = 0;
 		mute1_group.forEach(n => n.mode = 0);
 		mute2_group.forEach(n => n.mode = 0);
-		bypass_group.forEach(n => n.mode = 4);
-		opposite_group.forEach(n => n.mode = 2);
+		//bypass_group.forEach(n => n.mode = 4);
+		opposite_group.forEach(n => n.mode = 4);
 		
 		let w =  findWidgetByName(node, 'cfg');
 		previous_value.ed_loader_cfg = restore_prev_value(w, 1.0, previous_value.ed_loader_cfg, true);
@@ -524,7 +523,7 @@ async function handleGetBooruTag(node, widget) {
 				setTags(tags);
 				widget.value = widget.value.replaceAll("danbooru", "Danbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Danbooru tags loading is successful', node);
+				show_message("Success", 'Danbooru tag loading is successful', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}
@@ -543,7 +542,7 @@ async function handleGetBooruTag(node, widget) {
                 setTags(data.post[0].tags);
 				widget.value = widget.value.replaceAll("gelbooru", "Gelbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Gelbooru tags loading is successful', node);
+				show_message("Success", 'Gelbooru tag loading is successful', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}

@@ -3,7 +3,6 @@ import { api } from "../../scripts/api.js";
 import { ComfyDialog, $el } from "../../scripts/ui.js";
 import { ComfyApp } from "../../scripts/app.js";
 import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
-// import { bo as useToastStore } from "../../assets/index-DIU5yZe9.js";
 
 let wildcards_list = [];
 async function load_wildcards() {
@@ -15,17 +14,17 @@ async function load_wildcards() {
 load_wildcards();
 
 function show_message(short_msg, detail_msg, node=null) {
-	if (node) {
-		console.log("## " + detail_msg + " ID:" + node.id);
-	} else {
-		console.log("## " + detail_msg);	
+	try {
+		app.extensionManager.toast.add({
+			severity: short_msg.toLowerCase(),
+			summary: short_msg,
+			detail: detail_msg,
+			life: 3500
+		});
 	}
-	// useToastStore().add({
-        // severity: short_msg.toLowerCase(),
-        // summary: short_msg,
-        // detail: detail_msg,
-        // life: 3e3
-      // });
+	catch {
+		// do nothing
+	}
 }
 
 async function uploadImage(filepath, formData) {
@@ -164,7 +163,7 @@ async function createEmptyImage(width, height, color="white") {
         ComfyApp.onClipspaceEditorSave();
 
 		find_script_load_image(width, height);
-		show_message("Info", "Create empty image to Regional Script 💬ED")
+		show_message("Info", "Created empty image to Regional Script 💬ED")
     } catch (error) {
         console.error('Error saving image:', error);
     }

@@ -171,7 +171,7 @@ class ED_Util:
         try:
             import cm_global
             cm_global.try_call(api='cm.try-install-custom-node',
-                               sender="Impact Pack", custom_node_url=custom_node_url, msg=msg)
+                               sender="Efficiency Nodes 💬ED", custom_node_url=custom_node_url, msg=msg)
         except Exception as e:
             print(msg)
             print(f"Efficiency Nodes ED - ComfyUI-Manager is outdated. The custom node installation feature is not available.")
@@ -267,9 +267,9 @@ class ED_Util:
             return cash
         
         if 'UltralyticsDetectorProvider' not in NODES:
-            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Subpack',
+                                          "To use this node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Subpack'")
         
         if type == "bbox":
             model = NODES['UltralyticsDetectorProvider']().doit(model_name)[0]
@@ -287,9 +287,9 @@ class ED_Util:
             return cash
 
         if 'SAMLoader' not in NODES:
-            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Subpack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Subpack'")
+            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Subpack',
+                                          "To use this node, 'Impact Subpack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Subpack'")
 
         sam = NODES['SAMLoader']().load_model(model_name, device_mode)[0]
         ED_Cashe.cashsave("sam_model", model_name, sam, MAX_CASHE_ULTRALYTICS)
@@ -421,8 +421,8 @@ class wildcard_ED:
 
         if 'ImpactWildcardProcessor' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use this node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Pack'")
 
         return NODES['ImpactWildcardProcessor'].process(text=text, seed=seed)
 
@@ -435,8 +435,8 @@ class BNK_EncoderWrapper:
     def encode(self, clip, text):
         if 'BNK_CLIPTextEncodeAdvanced' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/BlenderNeko/ComfyUI_ADV_CLIP_emb',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Advanced CLIP Text Encode'")
+                                          "To use this node, 'ComfyUI_ADV_CLIP_emb' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Advanced CLIP Text Encode'")
 
         return NODES['BNK_CLIPTextEncodeAdvanced']().encode(clip, text, self.token_normalization, self.weight_interpretation)
 
@@ -664,7 +664,7 @@ class WildcardEncode_ED:
     def wildcard_encode(self, context=None, signal=None, unique_id=None, **kwargs):
         ctx = new_context_ed(context, **kwargs)  
     
-        _, model, clip, vae, positive, negative, latent, images, seed, batch_size, pos_prompt, lora_stack, clip_encoder, tipo_parm = context_2_tuple_ed(ctx,["model", "clip", "vae", "positive", "negative", "latent", "images", "seed", "step_refiner", "text_pos_g", "lora_stack", "clip_encoder", "tipo_parm"])
+        _, model, clip, vae, positive, negative, latent, images, seed, batch_size, pos_prompt, lora_stack, clip_encoder = context_2_tuple_ed(ctx,["model", "clip", "vae", "positive", "negative", "latent", "images", "seed", "step_refiner", "text_pos_g", "lora_stack", "clip_encoder"])
         
         if pos_prompt:        
             #Process wildcard
@@ -1251,8 +1251,8 @@ class ED_Reg:
         
         if 'AttentionCouple' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ramyma/A8R8_ComfyUI_nodes',
-                                                  "To use 'This Efficiency Nodes ED' node, 'A8R8 ComfyUI Nodes' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'A8R8 ComfyUI Nodes'")
+                                                  "To use this node, 'A8R8 ComfyUI Nodes' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'A8R8 ComfyUI Nodes'")
 
         model = NODES['AttentionCouple']().attention_couple(model, global_prompt_weight, 
             base_positive, height, width, flattened_regions)[0]
@@ -1395,8 +1395,8 @@ class Regional_Script_ED():
 
                 if 'ImpactGaussianBlurMask' not in NODES:
                     ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                                  "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-                    raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                                  "To use this node, 'Impact Pack' extension is required.")
+                    raise Exception(f"[ERROR] To use this node, you need to install 'Impact Pack'")
 
                 mask = NODES['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
             
@@ -1576,7 +1576,7 @@ class TIPOScript_ED:
                 for file in ggufs
             ] + [i[0] for i in tipo_models.tipo_model_list]
         else:
-            MODEL_NAME_LIST = ["TIPO-extension required"]
+            MODEL_NAME_LIST = ['KBlueLeaf/TIPO-500M-ft | TIPO-500M-ft-F16.gguf', 'KBlueLeaf/TIPO-200M-ft2 | TIPO-200M-ft2-F16.gguf', 'KBlueLeaf/TIPO-200M-ft | TIPO-200M-ft-F16.gguf', 'KBlueLeaf/TIPO-500M | TIPO-500M_epoch5-F16.gguf', 'KBlueLeaf/TIPO-200M | TIPO-200M-40Btok-F16.gguf', 'KBlueLeaf/TIPO-100M | TIPO-100M-F16.gguf', 'KBlueLeaf/TIPO-500M-ft', 'KBlueLeaf/TIPO-200M-ft2', 'KBlueLeaf/TIPO-200M-ft', 'KBlueLeaf/TIPO-500M', 'KBlueLeaf/TIPO-200M', 'KBlueLeaf/TIPO-100M']
         
         return {"required": {
                         "context": ("RGTHREE_CONTEXT",),
@@ -1617,8 +1617,8 @@ class TIPOScript_ED:
         
         if 'TIPO' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/KohakuBlueleaf/z-tipo-extension',
-                                      "To use 'This Efficiency Nodes ED' node, 'TIPO-extension' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'TIPO-extension'")
+                                      "To use this node, 'TIPO-extension' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'TIPO-extension'")
         
         out_string = NODES['TIPO']().execute(tipo_model, positive_prompt, nl_prompt, width, height, seed, tag_length, nl_length, ban_tags, format, temperature, top_p, min_p, top_k, device)
         
@@ -1945,11 +1945,11 @@ class FaceDetailer_ED():
         if 'UltralyticsDetectorProvider' in NODES:
             bboxs = ["bbox/"+x for x in folder_paths.get_filename_list("ultralytics_bbox")] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
             segms = ["None"] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
-            sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]
+            sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]      
         else:
-            bboxs = ["ComfyUI Impact Subpack required"]
-            segms = ["ComfyUI Impact Subpack required"]
-            sams = ["ComfyUI Impact Subpack required"]
+            bboxs = ['bbox/face_yolov8m.pt', 'bbox/face_yolov8s.pt', 'bbox/hand_yolov8s.pt', 'bbox/hand_yolov9c.pt', 'segm/face_yolov8n-seg2_60.pt', 'segm/person_yolov8m-seg.pt']
+            segms = ['None', 'segm/face_yolov8n-seg2_60.pt', 'segm/person_yolov8m-seg.pt']
+            sams = ['None', 'sam_vit_b_01ec64.pth']
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
                     "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
@@ -2038,8 +2038,8 @@ class FaceDetailer_ED():
         
         if 'FaceDetailer' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use this node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Pack'")
 
         result_img, result_cropped_enhanced, result_cropped_enhanced_alpha, result_mask, _, result_cnet_images = \
             NODES['FaceDetailer']().doit(image, model, clip, vae, guide_size, guide_size_for, max_size, 
@@ -2109,8 +2109,8 @@ class MaskDetailer_ED():
         
         if 'MaskDetailerPipe' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use this node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Pack'")
 
         enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list, _, _ = \
             NODES['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
@@ -2242,8 +2242,8 @@ class DetailerForEach_ED():
 
         if 'DetailerForEachDebug' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'Impact Pack' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'Impact Pack'")
+                                          "To use this node, 'Impact Pack' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'Impact Pack'")
 
         enhanced_img, _, cropped_enhanced, cropped_enhanced_alpha, cnet_pil_list = \
             NODES['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
@@ -2360,8 +2360,8 @@ class UltimateSDUpscaleED():
 
         if 'UltimateSDUpscale' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/ssitu/ComfyUI_UltimateSDUpscale',
-                                          "To use 'This Efficiency Nodes ED' node, 'UltimateSDUpscale' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'UltimateSDUpscale'")
+                                          "To use this node, 'UltimateSDUpscale' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'UltimateSDUpscale'")
 
         tensor = NODES['UltimateSDUpscale']().upscale(image, model, 
                 positive, negative, vae, upscale_by, seed,
@@ -2406,7 +2406,7 @@ fp8_unet casts the unet weights to torch.float8_e4m3fn, which saves a lot of VRA
 high_vram: uses Accelerate to load weights to GPU, slightly faster model loading.
 """
 
-    def upscale(upscale_model, image, upscale_by, rescale_method):
+    def upscale(self, upscale_model, image, upscale_by, rescale_method):
         samples = image.movedim(-1,1)
         width = round(samples.shape[3])
         height = round(samples.shape[2])
@@ -2434,9 +2434,9 @@ high_vram: uses Accelerate to load weights to GPU, slightly faster model loading
             upscaled_image = image
 
         if 'SUPIR_model_loader_v2' not in NODES:
-            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+            ED_Util.try_install_custom_node('https://github.com/kijai/ComfyUI-SUPIR',
+                                          "To use this node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'ComfyUI-SUPIR'")
 
         sup_model, sup_vae = NODES['SUPIR_model_loader_v2']().process(supir_model, diffusion_dtype,
             fp8_unet, model, clip, vae, high_vram=False)
@@ -2530,18 +2530,18 @@ SUPIR Tiles -node for preview to understand how the image is tiled.
             else:
                 seed = c_seed
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "seed", "type": "text", "data": seed})
-                if c_steps is not None:
-                    steps = c_steps
-                    PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "steps", "type": "text", "data": steps})
+                # if c_steps is not None:
+                    # steps = c_steps
+                    # PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "steps", "type": "text", "data": steps})
                 cfg = c_cfg
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "cfg", "type": "text", "data": cfg})
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg)
     
         if 'SUPIR_first_stage' not in NODES:
-            ED_Util.try_install_custom_node('https://github.com/ltdrdata/ComfyUI-Impact-Pack',
-                                          "To use 'This Efficiency Nodes ED' node, 'ComfyUI-SUPIR' extension is required.")
-            raise Exception(f"[ERROR] To use 'This Efficiency Nodes ED', you need to install 'ComfyUI-SUPIR'")
+            ED_Util.try_install_custom_node('https://github.com/kijai/ComfyUI-SUPIR',
+                                          "To use this node, 'ComfyUI-SUPIR' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'ComfyUI-SUPIR'")
 
         # SUPIR_first_stage
         SUPIR_vae2, denoised_image, denoised_latent = NODES['SUPIR_first_stage']().process(SUPIR_vae, image_opt, encoder_dtype, use_tiled_vae, vae_tile_size, vae_tile_size)

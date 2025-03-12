@@ -349,144 +349,124 @@ app.registerExtension({
 				}
 			};
 			
-			const checkCurrentLevelList = (currentLevel, item, folder_depth, path) => {
-				if (!currentLevel["list"]) {
-					currentLevel["list"] = [];
-					makeGoBackIcon(currentLevel, item, folder_depth, path);					
-				}				
-			}
-
-			const makeGoBackIcon = (currentLevel, item, folder_depth, path) => {				
-				if (!folder_depth) return;
-
-				const path_b = path.slice(0, folder_depth - 1)
-				const value = path_b.join('\\');		
-				const go_back_icon = $el("div.litemenu-entry.submenu", {
-					innerHTML: `Back`,
-					value: `${value}`,
-				});
-				go_back_icon.style.setProperty("--background-image", `${GO_BACK_ICON}`);
-				go_back_icon.addEventListener("click", (e) => {
-					e.stopPropagation();
-					showHideIcon(go_back_icon.value);
-				});
-				menu.insertBefore(go_back_icon, item);
-				folder_list.push(go_back_icon);
-				currentLevel["list"].push(go_back_icon);
-				return;
-			}
-			
-			const makeFolderIcon = (currentLevel, item, folder_depth, path) => {
-
-				const path_b = path.slice(0, folder_depth +1)
-				const value = path_b.join('\\');
-				const folder_icon = $el("div.litemenu-entry.submenu", {
-					innerHTML: `${value}`,
-					value: `${value}`,
-				});
-				folder_icon.style.setProperty("--background-image", `${FOLDER_ICON}`);				
-				folder_icon.addEventListener("click", (e) => {
-					e.stopPropagation();
-					showHideIcon(folder_icon.value);
-				});
-				menu.insertBefore(folder_icon, item);
-				folder_list.push(folder_icon);
-				currentLevel["list"].push(folder_icon);
-				return;
-			}
-			
-			const iconChange = (item) => {
-				item.style.removeProperty('color'); 
-				item.style.removeProperty('background-color');
-
-				if (item.value === "None") {
-					item.style.setProperty("--background-image", `${NONE_ICON}`);
-					item.style = "--background-image: " + NONE_ICON + ';';
-					return true
+			// 현재 레벨의 리스트가 존재하지 않으면 생성하고, 뒤로 가기 아이콘을 추가
+			const checkCurrentLevelList = (currentLevel, item, folderDepth, path) => {
+				if (!currentLevel.list) {
+					currentLevel.list = [];
+					createGoBackIcon(currentLevel, item, folderDepth, path);
 				}
-				else if(item.value === "🔌 model_opt input") {
-					item.style.setProperty("--background-image", `${PLUG_ICON}`);
-					//item.style = "--background-image: " + PLUG_ICON + ';';
-					return true
-				}
-				return false
-			}
+			};
 
+			// 뒤로 가기 아이콘을 생성하는 함수
+			const createGoBackIcon = (currentLevel, item, folderDepth, path) => {
+				if (!folderDepth) return;
+
+				const value = path.slice(0, folderDepth - 1).join('\\');
+				const goBackIcon = createMenuEntry('Back', value, GO_BACK_ICON);
+
+				insertMenuEntry(goBackIcon, item, currentLevel);
+			};
+
+			// 폴더 아이콘을 생성하는 함수
+			const createFolderIcon = (currentLevel, item, folderDepth, path) => {
+				const value = path.slice(0, folderDepth + 1).join('\\');
+				const folderIcon = createMenuEntry(value, value, FOLDER_ICON);
+				
+				insertMenuEntry(folderIcon, item, currentLevel);
+			};
+
+			// 메뉴 엔트리를 생성하는 함수
+			const createMenuEntry = (text, value, icon) => {
+				const entry = $el("div.litemenu-entry.submenu", {
+					innerHTML: text,
+					value: value,
+				});
+				entry.style.setProperty("--background-image", icon);
+				entry.addEventListener("click", (e) => {
+					e.stopPropagation();
+					toggleFolderIcons(entry.value);
+				});
+				return entry;
+			};
+
+			// 생성된 메뉴 엔트리를 삽입하는 함수
+			const insertMenuEntry = (entry, item, currentLevel) => {
+				menu.insertBefore(entry, item);
+				folderList.push(entry);
+				currentLevel.list.push(entry);
+			};
+
+			// 아이콘을 업데이트하는 함수
+			const updateIcon = (item) => {
+				item.style.removeProperty("color");
+				item.style.removeProperty("background-color");
+				
+				const iconMapping = {
+					"None": NONE_ICON,
+					"🔌 model_opt input": PLUG_ICON,
+				};
+				
+				if (iconMapping[item.value]) {
+					item.style.setProperty("--background-image", iconMapping[item.value]);
+					return true;
+				}
+				return false;
+			};
+
+			// 폴더 계층 구조를 생성하는 함수
 			const buildFolderHierarchy = (items) => {
-				const tree = {}; // JSON 구조를 위한 빈 객체
+				const tree = {};
 				const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? /\\|\// : /\//;
 
 				for (const item of items) {
-					const value = item.getAttribute("data-value").trim();
-					const path = value.split(splitBy);
+					const path = item.getAttribute("data-value").trim().split(splitBy);
 					let currentLevel = tree;
 
-					for (let i = 0; i < path.length; i++) {
-						const folder = path[i];
-
-						if (i === path.length - 1) {
-							// 파일이면 "list" 배열이 존재하는지 확인하고 push
-							checkCurrentLevelList(currentLevel, item, i, path);
-							currentLevel["list"].push(item);
-							if (!iconChange(item)) addImageData(item);
-							
+					path.forEach((folder, index) => {
+						if (index === path.length - 1) {
+							// 마지막 요소(파일)일 경우 리스트에 추가
+							checkCurrentLevelList(currentLevel, item, index, path);
+							currentLevel.list.push(item);
+							if (!updateIcon(item)) addImageData(item);
 						} else {
-							// 폴더이면 객체 생성
+							// 폴더일 경우 계층 구조를 생성
 							if (!currentLevel[folder]) {
 								currentLevel[folder] = {};
-								checkCurrentLevelList(currentLevel, item, i, path);
-								makeFolderIcon(currentLevel, item, i, path);								
+								checkCurrentLevelList(currentLevel, item, index, path);
+								createFolderIcon(currentLevel, item, index, path);
 							}
 							currentLevel = currentLevel[folder];
 						}
-					}
+					});
 				}
 				return tree;
 			};
 
-			const getFolderHierarchy = (folder_name, tree) => {
-				if (folder_name.length === 0) {
-					return tree["list"] || []; // 현재 경로에서 가능한 키(폴더/파일) 반환
-				}
-				const currentFolder = folder_name.shift(); // 첫 번째 요소 가져오기
+			// 특정 폴더의 아이콘 목록을 가져오는 함수
+			const getFolderHierarchy = (folderPath, tree) => {
+				if (!folderPath.length) return tree.list || [];
+				return getFolderHierarchy(folderPath.slice(1), tree[folderPath[0]] || {});
+			};
 
-				if (currentFolder in tree) {
-					return getFolderHierarchy(folder_name, tree[currentFolder]); // 재귀적으로 탐색
-				} else {
-					return []; // 폴더가 존재하지 않으면 빈 배열 반환
-				}
-			};
-			
-			const showHideIcon = (folder_name) => {
+			// 폴더 아이콘을 표시하거나 숨기는 함수
+			const toggleFolderIcons = (folderName) => {
 				const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? /\\|\// : /\//;
+				const folderPath = folderName ? folderName.split(splitBy) : [];
 				
-				for (const el of [...items, ...folder_list]) {
-					el.style.display = "none";
-				}
-				const folder_path = folder_name ? folder_name.split(splitBy) : [];
-				const icons = getFolderHierarchy(folder_path, folderTree);
-				if (icons){
-					for (const icon of icons) {
-						icon.style.display = "block";
-					}
-				}
+				[...items, ...folderList].forEach(el => el.style.display = "none");
+				getFolderHierarchy(folderPath, folderTree).forEach(icon => icon.style.display = "block");
 			};
-			
+
 			let displaySetting = app.ui.settings.getSettingValue("pysssss.Combo++.Submenu");
 			let folderTree = {};
-			let folder_list = [];
-			
+			let folderList = [];
+
 			if (displaySetting === 1) {
 				createTree();
 			} else if (displaySetting === 2) {
 				menu.classList.add("pysssss-combo-grid");
-				
 				folderTree = buildFolderHierarchy(items);
-				showHideIcon("");
-				// for (const item of items) {
-					// addImageData(item);
-				// }
-				
+				toggleFolderIcons("");
 				positionMenu(menu, true);
 			} else {
 				for (const item of items) {
