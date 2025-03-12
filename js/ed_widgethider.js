@@ -523,7 +523,7 @@ async function handleGetBooruTag(node, widget) {
 				setTags(tags);
 				widget.value = widget.value.replaceAll("danbooru", "Danbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Danbooru tag loading is successful', node);
+				show_message("Success", 'Danbooru tags are successfully loaded', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}
@@ -542,7 +542,7 @@ async function handleGetBooruTag(node, widget) {
                 setTags(data.post[0].tags);
 				widget.value = widget.value.replaceAll("gelbooru", "Gelbooru");
 				console.log('Tags loading success :\n' + url );
-				show_message("Success", 'Gelbooru tag loading is successful', node);
+				show_message("Success", 'Gelbooru tags are successfully loaded', node);
             } else {
 				showError('ERROR: Tags was not found in JSON file.');
 			}
