@@ -1617,8 +1617,8 @@ class TIPOScript_ED:
         
         if 'TIPO' not in NODES:
             ED_Util.try_install_custom_node('https://github.com/KohakuBlueleaf/z-tipo-extension',
-                                      "To use this node, 'TIPO-extension' extension is required.")
-            raise Exception(f"[ERROR] To use this node, you need to install 'TIPO-extension'")
+                                      "To use this node, 'z-tipo-extension' extension is required.")
+            raise Exception(f"[ERROR] To use this node, you need to install 'z-tipo-extension'")
         
         out_string = NODES['TIPO']().execute(tipo_model, positive_prompt, nl_prompt, width, height, seed, tag_length, nl_length, ban_tags, format, temperature, top_p, min_p, top_k, device)
         
