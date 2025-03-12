@@ -192,7 +192,7 @@ app.registerExtension({
 			}
 		};
 
-		const updateMenu = async (menu, type) => {
+		const updateMenu = async (menu, type, overWidget) => {
 			try {
 				await p1;
 				await p2;
@@ -361,15 +361,15 @@ app.registerExtension({
 			const createGoBackIcon = (currentLevel, item, folderDepth, path) => {
 				if (!folderDepth) return;
 
-				const value = path.slice(0, folderDepth - 1).join('\\');
-				const goBackIcon = createMenuEntry('Back', value, GO_BACK_ICON);
+				const value = path.slice(0, folderDepth - 1).join(splitBy);
+				const goBackIcon = createMenuEntry('Back to ' + (value || 'root'), value, GO_BACK_ICON);
 
 				insertMenuEntry(goBackIcon, item, currentLevel);
 			};
 
 			// 폴더 아이콘을 생성하는 함수
 			const createFolderIcon = (currentLevel, item, folderDepth, path) => {
-				const value = path.slice(0, folderDepth + 1).join('\\');
+				const value = path.slice(0, folderDepth + 1).join(splitBy);
 				const folderIcon = createMenuEntry(value, value, FOLDER_ICON);
 				
 				insertMenuEntry(folderIcon, item, currentLevel);
@@ -415,8 +415,7 @@ app.registerExtension({
 
 			// 폴더 계층 구조를 생성하는 함수
 			const buildFolderHierarchy = (items) => {
-				const tree = {};
-				const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? /\\|\// : /\//;
+				const tree = {};				
 
 				for (const item of items) {
 					const path = item.getAttribute("data-value").trim().split(splitBy);
@@ -449,24 +448,26 @@ app.registerExtension({
 			};
 
 			// 폴더 아이콘을 표시하거나 숨기는 함수
-			const toggleFolderIcons = (folderName) => {
-				const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? /\\|\// : /\//;
+			const toggleFolderIcons = (folderName) => {				
 				const folderPath = folderName ? folderName.split(splitBy) : [];
 				
 				[...items, ...folderList].forEach(el => el.style.display = "none");
 				getFolderHierarchy(folderPath, folderTree).forEach(icon => icon.style.display = "block");
 			};
 
-			let displaySetting = app.ui.settings.getSettingValue("pysssss.Combo++.Submenu");
+			const displaySetting = app.ui.settings.getSettingValue("pysssss.Combo++.Submenu");
+			const splitBy = (navigator.platform || navigator.userAgent).includes("Win") ? '\\' : '/';
 			let folderTree = {};
 			let folderList = [];
 
 			if (displaySetting === 1) {
 				createTree();
 			} else if (displaySetting === 2) {
+				const widget_folder = overWidget.value.substring(0, overWidget.value.lastIndexOf(splitBy));
+				
 				menu.classList.add("pysssss-combo-grid");
-				folderTree = buildFolderHierarchy(items);
-				toggleFolderIcons("");
+				folderTree = buildFolderHierarchy(items);				
+				toggleFolderIcons(widget_folder);
 				positionMenu(menu, true);
 			} else {
 				for (const item of items) {
@@ -497,7 +498,7 @@ app.registerExtension({
 							requestAnimationFrame(() => {
 								// Bad hack to prevent showing on right click menu by checking for the filter input
 								if (!added.querySelector(".comfy-context-menu-filter")) return;
-								updateMenu(added, type);
+								updateMenu(added, type, overWidget);
 							});
 						}
 						return;
