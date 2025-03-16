@@ -428,9 +428,8 @@ class LoRA_Stacker_ED:
             }
         }        
 
-        loras = (["None"] + folder_paths.get_filename_list("loras"),)
         for i in range(1, cls.MAX_LORA_COUNT):
-            inputs["required"][f"lora_name_{i}"] = loras
+            inputs["required"][f"lora_name_{i}"] = (["None"] + folder_paths.get_filename_list("loras"),)
             inputs["required"][f"lora_wt_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"model_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"clip_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})        
@@ -494,13 +493,12 @@ class Embedding_Stacker_ED:
                 "negative_embeddings_count": ("INT", {"default": 3, "min": 0, "max": cls.MAX_EMBEDDING_COUNT, "step": 1}),
             }
         }
-        embeddings = (["None"] + folder_paths.get_filename_list("embeddings"),)
         
         for i in range(1, cls.MAX_EMBEDDING_COUNT):
-            inputs["required"][f"positive_embedding_{i}"] = embeddings
+            inputs["required"][f"positive_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
             inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
         for i in range(1, cls.MAX_EMBEDDING_COUNT):
-            inputs["required"][f"negative_embedding_{i}"] = embeddings
+            inputs["required"][f"negative_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
             inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
 
         inputs["optional"] = {
@@ -666,7 +664,7 @@ class EfficientLoader_ED():
             "🎨 Inpaint(Ksampler)": 3,
             "🎨 Inpaint(MaskDetailer)": 4,
         }
-        types = {"required": { "ckpt_name": (["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints"),),
+        inputs = {"required": { "ckpt_name": (["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints"),),
                               "vae_name": (["Baked VAE"] + folder_paths.get_filename_list("vae"),),
                               "clip_skip": ("INT", {"default": -2, "min": -24, "max": 0, "step": 1}),                        
                               "paint_mode": ( list(paint_mode.keys()), {"default": "✍️ Txt2Img"}),
@@ -691,7 +689,7 @@ class EfficientLoader_ED():
                             "my_unique_id": "UNIQUE_ID",
                             "extra_pnginfo": "EXTRA_PNGINFO",}
                 }
-        return types
+        return inputs
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
     RETURN_NAMES = ("CONTEXT", "MODEL", "POSITIVE", "NEGATIVE", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
@@ -932,8 +930,7 @@ prompt_blacklist_ed = set([
 ])
 
 class LoadImage_ED(nodes.LoadImage):
-    UPSCALE_METHODS = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"] + ["upscale_models/"+x for x in folder_paths.get_filename_list("upscale_models")]
-    
+    UPSCALE_METHODS = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"] + ["upscale_models/"+x for x in folder_paths.get_filename_list("upscale_models")]    
     PROPORTION_METHODS = ["disabled", "1.5x", "2x", "3x", "4x", "based on width", "based on height", "disabled & crop center"]
     
     @classmethod
@@ -1022,7 +1019,8 @@ class LoadImage_ED(nodes.LoadImage):
     @staticmethod
     def get_prompt(image, image_width, image_height):
         image_path = folder_paths.get_annotated_filepath(image)
-        info = Image.open(image_path).info
+        img = Image.open(image_path)
+        info = img.info
 
         positive = ""
         negative = ""
@@ -1044,7 +1042,10 @@ class LoadImage_ED(nodes.LoadImage):
                 else:
                     return None
 
-        if isinstance(info, dict) and 'workflow' in info:
+        if not isinstance(info, dict):
+            text = "There is no prompt information within the image."
+        
+        elif 'prompt' in info:
             prompt = json.loads(info['prompt'])
             for k, v in prompt.items():
                 input_types = get_node_inputs(v['class_type'])
@@ -1064,9 +1065,20 @@ class LoadImage_ED(nodes.LoadImage):
 
             for k, v in prompt_dicts.items():
                 text += f"{k} [{v[0]}] ==> {v[1]}\n"
-
             #positive = prompt_dicts.get(positive_id.strip(), "")
             #negative = prompt_dicts.get(negative_id.strip(), "")
+
+        elif 'exif' in info:
+            text = info['exif'].decode("utf-16-be")
+            
+            # 영어 알파벳이 처음 등장하는 위치 찾기
+            match = re.search(r'[a-zA-Z]', text)
+            if match:
+                text = text[match.start():]  # 첫 번째 영어 문자가 나온 위치부터 출력
+                text = text.replace("\n","\n\n") + ("\n")
+            else:
+                text = "There is no prompt information within the image."
+
         else:
             text = "There is no prompt information within the image."
 
