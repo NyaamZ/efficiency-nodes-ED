@@ -882,7 +882,7 @@ class EfficientLoader_ED():
             
             ### lora apply when using model_opt !!After print_loaded_objects_entries()!!
             if lora_stack and not properties['use_apply_lora']:
-                model, clip, lora_stack = ED_Util.apply_load_lora(lora_stack, model, clip)
+                model, clip = ED_Util.apply_load_lora(lora_stack, model, clip)
                 lora_stack = None
         
         else:            
