@@ -443,7 +443,11 @@ app.registerExtension({
 
 			// 특정 폴더의 아이콘 목록을 가져오는 함수
 			const getFolderHierarchy = (folderPath, tree) => {
-				if (!folderPath.length) return tree.list || [];
+				if (folderPath[0] && !tree[folderPath[0]]) {
+					console.log(">> folder Path (%s) is not exist!!", folderPath[0]);
+					folderPath = [];				
+				}
+				if (!folderPath.length) return tree.list || [];			
 				return getFolderHierarchy(folderPath.slice(1), tree[folderPath[0]] || {});
 			};
 
