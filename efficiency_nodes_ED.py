@@ -886,7 +886,7 @@ class EfficientLoader_ED():
                 lora_stack = None
         
         else:            
-            if lora_stack and not properties['use_apply_lora']:            
+            if lora_stack and not properties['use_apply_lora']:   
                 # Load LoRa(s)
                 model, clip = load_lora(lora_params, ckpt_name, my_unique_id, cache=lora_cache, ckpt_cache=ckpt_cache, cache_overwrite=True)
                 lora_stack = None
