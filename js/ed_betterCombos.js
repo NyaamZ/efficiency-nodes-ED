@@ -445,7 +445,7 @@ app.registerExtension({
 			const getFolderHierarchy = (folderPath, tree) => {
 				if (folderPath[0] && !tree[folderPath[0]]) {
 					console.log(">> folder Path (%s) is not exist!!", folderPath[0]);
-					folderPath = [];				
+					folderPath = [];
 				}
 				if (!folderPath.length) return tree.list || [];			
 				return getFolderHierarchy(folderPath.slice(1), tree[folderPath[0]] || {});
