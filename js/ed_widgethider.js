@@ -119,7 +119,7 @@ let previous_value = { sampler_ed_denoise : 0, ed_loader_vae : "", ed_loader_cfg
 			return recursive_FindLinkedNode(targetNode, nodeType);
         }
     }
-
+	
     return null;
 }
 
@@ -324,22 +324,19 @@ function restore_prev_value(widget, compare_value, prev_value, change = false) {
 // Efficient Loader ED Paint Mode Handlers
 function handleEfficientLoaderPaintMode_ED(node, widget) {	
 	const sampler_ed = recursive_FindLinkedNode(node, 'KSampler (Efficient) 💬ED')	
-	if (!sampler_ed) return;
+	if (!sampler_ed?.toggleWidgetByProperty) return;
 	const target_wiget = findWidgetByName(sampler_ed, "denoise");
 	
     if (widget.value == '✍️ Txt2Img') {
 		previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise, true);
-		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
-			sampler_ed.toggleWidgetByProperty(false);
+		sampler_ed.toggleWidgetByProperty(false);
     } else if(widget.value == '🎨 Inpaint(MaskDetailer)') {		
         previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise);
-		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
-			sampler_ed.toggleWidgetByProperty(true);
+		sampler_ed.toggleWidgetByProperty(true);
     }
 	else{
 		previous_value.sampler_ed_denoise = restore_prev_value(target_wiget, 1.0, previous_value.sampler_ed_denoise);
-		if (typeof sampler_ed.toggleWidgetByProperty === 'function') 
-			sampler_ed.toggleWidgetByProperty(false);
+		sampler_ed.toggleWidgetByProperty(false);
 	}	
 }
 
