@@ -8,7 +8,7 @@
     
 ### 워크플로 예제:
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/248ce92a-cc0a-464e-87f2-232269847329" width="800" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png" width="800" style="display: inline-block;">
 </p>
 원본과 다르게 💬ED노드는 Context 링크를 주고 받는다.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;-( 오른쪽 아래에 BiRefNet이 포함되어 있다. 필요없으면 워크플로에서 삭제하자.<br>
