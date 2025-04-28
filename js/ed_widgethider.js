@@ -22,7 +22,8 @@ export const findWidgetByName = (node, name) => {
 };
 
 const doesInputWithNameExist = (node, name) => {
-    return node.inputs ? node.inputs.some((input) => input.name === name) : false;
+    //return node.inputs ? node.inputs.some((input) => input.name === name) : false;
+	return false;
 };
 
 const HIDDEN_TAG = "tschide";
@@ -262,7 +263,7 @@ const nodeWidgetHandlers = {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
 	"MaskDetailer 💬ED": {
-        'set_seed_cfg_sampler_batch': handleEfficientSamplerSetSeed_ED
+        'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
     },
 	"Detailer (SEGS) 💬ED": {
         'set_seed_cfg_sampler': handleEfficientSamplerSetSeed_ED
@@ -442,7 +443,7 @@ function handleEfficientSamplerSetSeed_ED(node, widget) {
     toggleWidget(node, findWidgetByName(node, 'cfg'), opened);
 	toggleWidget(node, findWidgetByName(node, 'sampler_name'), opened);
 	toggleWidget(node, findWidgetByName(node, 'scheduler'), opened);
-	toggleWidget(node, findWidgetByName(node, 'batch_size'), opened);
+	//toggleWidget(node, findWidgetByName(node, 'batch_size'), opened);
 	if (node.size[1] < adjustment) 	node.setSize([node.size[0], adjustment]);
 }
 

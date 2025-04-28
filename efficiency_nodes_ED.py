@@ -37,7 +37,7 @@ sys.path.remove(efficiency_nodes_dir)
 sys.path.append(custom_nodes_dir)
 
 NODES = nodes.NODE_CLASS_MAPPINGS
-SCHEDULERS = comfy.samplers.KSampler.SCHEDULERS + ["AYS SD1", "AYS SDXL", "AYS SVD"]
+SCHEDULERS = comfy.samplers.KSampler.SCHEDULERS + ["AYS SD1", "AYS SDXL", "AYS SVD", "GITS"]
 
 ##############################################################################################################
 ##############################################################################################################
@@ -673,8 +673,8 @@ class EfficientLoader_ED():
                               "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
                               "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
                               "scheduler": (SCHEDULERS,),
-                              "positive": ("STRING", {"default": "","multiline": True, "dynamicPrompts": True}),
-                              "negative": ("STRING", {"default": "", "multiline": True, "dynamicPrompts": True}),
+                              #"positive": ("STRING", {"default": "","multiline": True, "dynamicPrompts": True}),
+                              #"negative": ("STRING", {"default": "", "multiline": True, "dynamicPrompts": True}),
                               "image_width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               "image_height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               },
@@ -684,7 +684,9 @@ class EfficientLoader_ED():
                              "pixels": ("IMAGE",),
                              "mask": ("MASK",),
                              "model_opt": ("MODEL",),
-                             "clip_opt": ("CLIP",)},
+                             "clip_opt": ("CLIP",),
+                             "positive": ("STRING", {"forceInput": True}),                             
+                             "negative": ("STRING", {"forceInput": True}),},
                 "hidden": { "prompt": "PROMPT",
                             "my_unique_id": "UNIQUE_ID",
                             "extra_pnginfo": "EXTRA_PNGINFO",}
@@ -698,9 +700,8 @@ class EfficientLoader_ED():
     CATEGORY = "Efficiency Nodes/Loaders"
         
     def efficientloader_ed(self, ckpt_name, vae_name, clip_skip, paint_mode, batch_size, 
-                        seed, cfg, sampler_name, scheduler,
-                        positive, negative, image_width, image_height, lora_stack=None, cnet_stack=None,
-                        pixels=None, mask=None, model_opt=None, clip_opt=None,
+                        seed, cfg, sampler_name, scheduler, image_width, image_height, lora_stack=None, cnet_stack=None,
+                        pixels=None, mask=None, model_opt=None, clip_opt=None, positive="", negative="",
                         refiner_name="None", positive_refiner=None, negative_refiner=None, ascore=None, prompt=None,
                         my_unique_id=None, extra_pnginfo=None, loader_type="regular"):
         
@@ -771,9 +772,8 @@ class EfficientLoader_ED():
             samples_latent = nodes.RepeatLatentBatch().repeat(latent_t, batch_size)[0]            
             
             # change image_width and image_height widget from image size
-            if properties['this_sync']:
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_width", "type": "text", "data": image_width})
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_height", "type": "text", "data": image_height})
+            PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_width", "type": "text", "data": image_width})
+            PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_height", "type": "text", "data": image_height})
         
         # LatentRebatch -> List
         if properties['use_latent_rebatch'] and paint_mode != "🎨 Inpaint(MaskDetailer)" and not properties['use_apply_lora']:
@@ -824,13 +824,13 @@ class EfficientLoader_ED():
         
         if extra_pnginfo and "workflow" in extra_pnginfo:
             workflow = extra_pnginfo["workflow"]
-            #nodes, links = workflow_to_map(workflow)
+            # nodes, links = workflow_to_map(workflow)
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     properties['tiled_vae_encode'] = node["properties"]["Use tiled VAE encode"]
                     if properties['use_latent_rebatch']:
                         properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]
-                    properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
+                    # properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
                     properties['token_normalization'] = node["properties"]["Token normalization"]
                     properties['weight_interpretation'] = node["properties"]["Weight interpretation"]
                 if node["type"] == "Wildcard Encode 💬ED" and node["mode"] == 0:
@@ -907,15 +907,14 @@ class EfficientLoader_ED():
         
         modle_type = None
         if hasattr(model, "model"):
-            modle_type = model.model.__class__.__name__            
-
-        is_flux_model = True
-        if ckpt_name == "🔌 model_opt input":
-            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model from model_opt input, Ignore clip skip\033[0m")
-        elif modle_type == "Flux":
-            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, Ignore clip skip\033[0m")
+            modle_type = model.model.__class__.__name__
+        
+        if modle_type == "Flux":
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, ignore clip skip\033[0m")
+            is_flux_model = True
         elif clip_skip == 0:
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, Ignore clip skip\033[0m")
+            is_flux_model = False
         else:
             clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
             print(f"Clip skip: {clip_skip}")
@@ -953,7 +952,7 @@ class LoadImage_ED(nodes.LoadImage):
     def load_image(self, image, upscale_method, width, height, keep_proportions, my_unique_id):        
         output_image, output_mask = super().load_image(image)
         image_width, image_height = ED_Util.get_image_size(output_image)
-        text = self.get_prompt(image, image_width, image_height)
+        text = self.get_prompt(image)
 
         if "not upscale" not in upscale_method:
             if "upscale_models" in upscale_method:
@@ -1017,7 +1016,7 @@ class LoadImage_ED(nodes.LoadImage):
         return True
 
     @staticmethod
-    def get_prompt(image, image_width, image_height):
+    def get_prompt(image):
         image_path = folder_paths.get_annotated_filepath(image)
         img = Image.open(image_path)
         info = img.info
@@ -1064,7 +1063,10 @@ class LoadImage_ED(nodes.LoadImage):
                             prompt_dicts[f"{k}.{name.strip()}"] = (v['class_type'], v['inputs'][name])
 
             for k, v in prompt_dicts.items():
-                text += f"{k} [{v[0]}] ==> {v[1]}\n"
+                if type(v[1]) is str and ',' in v[1]:
+                    text += f"{k} [{v[0]}] ==> {v[1]}\n"
+                elif type(v[1]) is int:
+                    text += f"{k} [{v[0]}] ==> {v[1]}\n"
             #positive = prompt_dicts.get(positive_id.strip(), "")
             #negative = prompt_dicts.get(negative_id.strip(), "")
 
@@ -1081,8 +1083,6 @@ class LoadImage_ED(nodes.LoadImage):
 
         else:
             text = "There is no prompt information within the image."
-
-        text += "\nImage Size: " + str(image_width) + " x " + str(image_height )
         
         return text
 
@@ -1095,7 +1095,7 @@ class SaveImage_ED(nodes.SaveImage):
                     "optional": {
                         "context_opt": ("RGTHREE_CONTEXT",),
                         "image_opt": ("IMAGE",),
-                        "filename_prefix": ("STRING", {"default": "ComfyUI"}),
+                        "filename_prefix": ("STRING", {"default": "%date:yyyy-MM-dd%/%date:MM-dd%"}),
                     },
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"},
                 }
@@ -1474,9 +1474,11 @@ class GetBooruTag_ED():
                 "url": ("STRING", {"default": "None", "multiline": False}),                
             },
             "optional": {                
-                "text_a": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                #"text_a": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                "text_a": ("STRING", {"forceInput": True}),
                 "text_b": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                "text_c": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                #"text_c": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                "text_c": ("STRING", {"forceInput": True}),
                 "Select to add Wildcard": (["Select the Wildcard to add to the text"], ),
             },
             "hidden": {"my_unique_id": "UNIQUE_ID",},
@@ -1549,8 +1551,8 @@ class TIPOScript_ED:
                 for file in ggufs
             ] + [i[0] for i in tipo_models.tipo_model_list]
         else:
-            MODEL_NAME_LIST = ['KBlueLeaf/TIPO-500M-ft | TIPO-500M-ft-F16.gguf', 'KBlueLeaf/TIPO-200M-ft2 | TIPO-200M-ft2-F16.gguf', 'KBlueLeaf/TIPO-200M-ft | TIPO-200M-ft-F16.gguf', 'KBlueLeaf/TIPO-500M | TIPO-500M_epoch5-F16.gguf', 'KBlueLeaf/TIPO-200M | TIPO-200M-40Btok-F16.gguf', 'KBlueLeaf/TIPO-100M | TIPO-100M-F16.gguf', 'KBlueLeaf/TIPO-500M-ft', 'KBlueLeaf/TIPO-200M-ft2', 'KBlueLeaf/TIPO-200M-ft', 'KBlueLeaf/TIPO-500M', 'KBlueLeaf/TIPO-200M', 'KBlueLeaf/TIPO-100M']
-        
+            MODEL_NAME_LIST = ['KBlueLeaf/TIPO-500M-ft | TIPO-500M-ft-F16.gguf']
+
         return {"required": {
                         "context": ("RGTHREE_CONTEXT",),
                         #"tags": ("STRING", {"default": "", "multiline": True}),
@@ -1623,16 +1625,15 @@ class KSampler_ED():
                     "preview_method": (["auto", "latent2rgb", "taesd", "vae_decoded_only", "none"],),
                     },
                 "optional": {
-                    #"vae_decode": (["true", "true (tiled)", "false"],),
                     "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
                     "max_size": ("FLOAT", {"default": 1216, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "feather": ("INT", {"default": 15, "min": 0, "max": 100, "step": 1}),
                     "crop_factor": ("FLOAT", {"default": 3.0, "min": 1.0, "max": 10, "step": 0.1}),
                     #"cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
-                    "script": ("SCRIPT",),
                     "positive_opt": ("CONDITIONING",),
-                    "detailer_hook": ("DETAILER_HOOK",),
+                    "script": ("SCRIPT",),                    
+                    #"detailer_hook": ("DETAILER_HOOK",),
                     },
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "my_unique_id": "UNIQUE_ID",},}
 
@@ -1642,26 +1643,23 @@ class KSampler_ED():
     FUNCTION = "sample_ed"
     CATEGORY = "Efficiency Nodes/Sampling"
 
-    def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, preview_method, 
-                  vae_decode="true", guide_size=512, guide_size_for=False, max_size=1216, feather=15, crop_factor=3,
-                  t_positive=None, t_negative=None, denoise=1.0, refiner_denoise=1.0, prompt=None, 
-                  extra_pnginfo=None, my_unique_id=None, script=None, positive_opt=None, detailer_hook=None,
-                  add_noise=None, start_at_step=None, end_at_step=None,
-                  return_with_leftover_noise=None, sampler_type="regular"):
+    def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, denoise, preview_method, 
+                  guide_size=512, guide_size_for=True, max_size=1216, feather=15, crop_factor=3,
+                  positive_opt=None, script=None, 
+                  prompt=None, extra_pnginfo=None, my_unique_id=None):        
 
         # Unpack context
         _, model, clip, vae, positive, negative, latent_image, optional_image, batch_size, mask = \
             context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "latent", "images", "step_refiner", "mask"])
-
-        if positive_opt:
-            positive = positive_opt
+        
+        # positive에  guidance 가 있는지 확인하고 있으면 스킵이 안되게 함.
+        positive, c_index = self.is_positive_changed(positive, positive_opt)
 
         if model is None or latent_image is None:
             raise Exception("KSampler (Efficient) ED: model and latent are required.")
 
         previous_preview_method = global_preview_method()
-        properties, vae_decode = self.extract_mask_detailer_settings(extra_pnginfo, my_unique_id, vae_decode)
-        positive, negative = t_positive or positive, t_negative or negative
+        properties, vae_decode = self.extract_mask_detailer_settings(extra_pnginfo, my_unique_id)
 
         # Handle seed, cfg, sampler, scheduler from context or update context
         context, seed, cfg, sampler_name, scheduler = self.handle_seed_cfg_sampler(context, set_seed_cfg_sampler, seed, cfg, sampler_name, scheduler, my_unique_id)
@@ -1684,7 +1682,7 @@ class KSampler_ED():
                     guide_size, guide_size_for, max_size, properties['mask_mode'],
                     seed, steps, cfg, sampler_name, scheduler, denoise,
                     feather, crop_factor, properties['drop_size'], properties['refiner_ratio'], batch_size, properties['cycle'], 
-                    detailer_hook, properties['inpaint_model'], properties['noise_mask_feather'])
+                    None, properties['inpaint_model'], properties['noise_mask_feather'])
 
             latent_list = ED_Util.vae_encode(vae, output_images, properties['tiled_vae']) if refiner_script else None
             store_ksampler_results("image", my_unique_id, output_images)
@@ -1695,15 +1693,15 @@ class KSampler_ED():
             return_dict = NODES['KSampler (Efficient)']().sample(model, seed, steps, cfg, 
                 sampler_name, scheduler, positive, negative, latent_image, preview_method, vae_decode, 
                 denoise=denoise, prompt=prompt, extra_pnginfo=extra_pnginfo, my_unique_id=my_unique_id,
-                optional_vae=vae, script=script, add_noise=add_noise, start_at_step=start_at_step, end_at_step=end_at_step,
-                return_with_leftover_noise=return_with_leftover_noise, sampler_type=sampler_type)               
+                optional_vae=vae, script=script, add_noise=None, start_at_step=None, end_at_step=c_index,
+                return_with_leftover_noise=None, sampler_type="regular")               
 
             _, _, _, latent_list, _, output_images = return_dict["result"]
             result_ui = return_dict["ui"]
 
         ###### Refiner Script ######
         if refiner_script:            
-            output_images = self.apply_refiner_script(context, refiner_script, latent_list or latent_image, preview_method, properties['tiled_vae'], return_with_leftover_noise)
+            output_images = self.apply_refiner_script(context, refiner_script, latent_list or latent_image, preview_method, properties['tiled_vae'])
             
             store_ksampler_results("image", my_unique_id, output_images)
             result_ui = nodes.PreviewImage().save_images(output_images, prompt=prompt, extra_pnginfo=extra_pnginfo)["ui"]        
@@ -1714,7 +1712,18 @@ class KSampler_ED():
         return {"ui": result_ui, "result": (context, output_images, steps)}
 
     @staticmethod
-    def extract_mask_detailer_settings(extra_pnginfo, my_unique_id, vae_decode):
+    def is_positive_changed(positive, positive_opt):
+        c_index = 1000
+        if positive_opt:
+            positive = positive_opt
+            for t in positive:
+                if "guidance" in t[1]:
+                    c_index += t[1]["guidance"]             
+                    break        
+        return positive, c_index
+
+    @staticmethod
+    def extract_mask_detailer_settings(extra_pnginfo, my_unique_id):
         properties = {
             "mask_detailer_mode": False,
             "drop_size": 5,
@@ -1725,8 +1734,8 @@ class KSampler_ED():
             "refiner_ratio": 0.2,
             "tiled_vae": False,
         }
-        if vae_decode != "true (tiled)":
-            vae_decode = "true"
+        # if vae_decode != "true (tiled)":
+            # vae_decode = "true"
 
         if extra_pnginfo and "workflow" in extra_pnginfo:
             workflow = extra_pnginfo["workflow"]
@@ -1738,11 +1747,8 @@ class KSampler_ED():
                     properties['cycle'] = int(props.get("(MaskDetailer) cycle", 1))
                     properties['inpaint_model'] = props.get("(MaskDetailer) inpaint model enable", False)
                     properties['noise_mask_feather'] = int(props.get("(MaskDetailer) noise mask feather", 20))
-                    if vae_decode != "true (tiled)":
-                        properties['tiled_vae'] = props.get("Use tiled VAE decode", False)
-                        vae_decode = "true (tiled)" if properties['tiled_vae'] else "true"
-                    else:
-                        properties['tiled_vae'] = True
+                    properties['tiled_vae'] = props.get("Use tiled VAE decode", False)
+                    vae_decode = "true (tiled)" if properties['tiled_vae'] else "true"
                     return properties , vae_decode
 
         return properties, vae_decode
@@ -1769,12 +1775,6 @@ class KSampler_ED():
         refiner_script = None
         do_refine_only = False
         
-        # if script and "control_net" in script:
-            # print(f"\033[38;5;173mKSampler (Efficient) ED: Apply control net from script\033[0m")
-            # _, positive, negative = ED_Reg.apply_controlnet_region(script["control_net"], positive, negative)            
-            # script = script.copy()
-            # del script['control_net']        
-
         if script and "refiner_script" in script:
             refiner_script = script["refiner_script"]
             do_refine_only = refiner_script[-1]
@@ -1784,7 +1784,7 @@ class KSampler_ED():
         return script, refiner_script, do_refine_only
         
     @staticmethod
-    def apply_refiner_script(context, refiner_script, latent_image, preview_method, is_tiled, return_with_leftover_noise):
+    def apply_refiner_script(context, refiner_script, latent_image, preview_method, is_tiled, return_with_leftover_noise=None):
 
         if refiner_script:
             refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, _ = refiner_script
@@ -1918,8 +1918,8 @@ class FaceDetailer_ED():
             segms = ["None"] + ["segm/"+x for x in folder_paths.get_filename_list("ultralytics_segm")]
             sams = ["None"] + [x for x in folder_paths.get_filename_list("sams") if 'hq' not in x]      
         else:
-            bboxs = ['bbox/face_yolov8m.pt', 'bbox/face_yolov8s.pt', 'bbox/hand_yolov8s.pt', 'bbox/hand_yolov9c.pt', 'segm/face_yolov8n-seg2_60.pt', 'segm/person_yolov8m-seg.pt']
-            segms = ['None', 'segm/face_yolov8n-seg2_60.pt', 'segm/person_yolov8m-seg.pt']
+            bboxs = ['bbox/face_yolov8m.pt']
+            segms = ['None']
             sams = ['None', 'sam_vit_b_01ec64.pth']
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
@@ -1929,7 +1929,7 @@ class FaceDetailer_ED():
                     "sam_model_opt": (sams, ), 
                     "sam_mode": (["AUTO", "Prefer GPU", "CPU"],),
              
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "bbox", "label_off": "crop_region"}),
                     "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
@@ -1957,19 +1957,24 @@ class FaceDetailer_ED():
                     },
                 "optional": {
                     "image_opt": ("IMAGE",),
+                    "wildcard": ("STRING", {"forceInput": True}),
                     "detailer_hook": ("DETAILER_HOOK",),
-                    "wildcard": ("STRING", {"multiline": True, "dynamicPrompts": False}),
+                    #"wildcard": ("STRING", {"multiline": True, "dynamicPrompts": False}),
                     "inpaint_model": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
                     "noise_mask_feather": ("INT", {"default": 20, "min": 0, "max": 100, "step": 1}),
-                },
-                "hidden": {"my_unique_id": "UNIQUE_ID",},
+                    "scheduler_func_opt": ("SCHEDULER_FUNC",),
+                },     
+                "hidden": {
+                    "my_unique_id": "UNIQUE_ID",
+                    "extra_pnginfo": "EXTRA_PNGINFO",}
             }
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "IMAGE", "IMAGE", "IMAGE", "MASK", "IMAGE",)
-    RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "CROPPED_REFINED", "CROPPED_ENHANCED_ALPHA", "MASK", "CNET_IMAGES",)
+    RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "CROPPED_REFINED", "CROPPED_ALPHA", "MASK", "CNET_IMAGES",)
     OUTPUT_IS_LIST = (False, False, True, True, False, True,)    
     FUNCTION = "doit_ed"
     CATEGORY = "Efficiency Nodes/Image"
+    DESCRIPTION = "This node enhances details by automatically detecting specific objects in the input image using detection models (bbox, segm, sam) and regenerating the image by enlarging the detected area based on the guide size.\nAlthough this node is specialized to simplify the commonly used facial detail enhancement workflow, it can also be used for various automatic inpainting purposes depending on the detection model."
 
     def doit_ed(self, context, set_seed_cfg_sampler, bbox_detector, segm_detector_opt, sam_model_opt, sam_mode, 
             guide_size, guide_size_for, 
@@ -1977,9 +1982,13 @@ class FaceDetailer_ED():
             bbox_threshold, bbox_dilation, bbox_crop_factor,
             sam_detection_hint, sam_dilation, sam_threshold, sam_bbox_expansion, sam_mask_hint_threshold,
             sam_mask_hint_use_negative, drop_size, wildcard="", image_opt=None, cycle=1,
-            detailer_hook=None, inpaint_model=False, noise_mask_feather=0, my_unique_id=None):
+            detailer_hook=None, inpaint_model=False, noise_mask_feather=0, 
+            scheduler_func_opt=None, my_unique_id=None, extra_pnginfo=None):
 
         _, model, clip, vae, positive, negative, image, c_seed, c_steps, c_cfg, c_sampler, c_scheduler = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative",  "images", "seed", "steps", "cfg", "sampler", "scheduler"])
+
+        # GET PROPERTIES #  
+        properties = self.get_properties(extra_pnginfo, my_unique_id)
 
         if image_opt is not None:       
             image = image_opt
@@ -2017,10 +2026,26 @@ class FaceDetailer_ED():
             sam_threshold, sam_bbox_expansion, sam_mask_hint_threshold,
             sam_mask_hint_use_negative, drop_size, bbox_detector, wildcard, cycle=cycle,
             sam_model_opt=sam_model_opt, segm_detector_opt=segm_detector_opt, detailer_hook=detailer_hook, 
-            inpaint_model=inpaint_model, noise_mask_feather=noise_mask_feather)
+            inpaint_model=inpaint_model, noise_mask_feather=noise_mask_feather,
+            scheduler_func_opt=scheduler_func_opt, tiled_encode=properties['tiled_vae_decode'], tiled_decode=properties['tiled_vae_decode'])
 
         context = new_context_ed(context, images=result_img) #RE 
         return (context, result_img, result_cropped_enhanced, result_cropped_enhanced_alpha, result_mask, result_cnet_images,)
+
+    @staticmethod
+    def get_properties(extra_pnginfo, my_unique_id):
+        properties = {
+            "tiled_vae_decode": False,
+        }
+        
+        if extra_pnginfo and "workflow" in extra_pnginfo:
+            workflow = extra_pnginfo["workflow"]
+            for node in workflow["nodes"]:
+                if node["id"] == int(my_unique_id):
+                    properties['tiled_vae_decode'] = node["properties"]["Use tiled VAE decode"]
+
+        return properties
+
 
 ##############################################################################################################
 # Mask Detailer ED
@@ -2029,9 +2054,9 @@ class MaskDetailer_ED():
     def INPUT_TYPES(s):
         return {"required": {
                     "context": ("RGTHREE_CONTEXT",),
-                    "set_seed_cfg_sampler_batch": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
+                    "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
 
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
                     "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "mask_mode": ("BOOLEAN", {"default": True, "label_on": "masked only", "label_off": "whole"}),
@@ -2052,17 +2077,18 @@ class MaskDetailer_ED():
                     "cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
                 },
                 "optional": {
-                    "image_opt": ("IMAGE",),
-                    "mask_opt": ("MASK", ),
                     "detailer_hook": ("DETAILER_HOOK",),
                     "inpaint_model": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
                     "noise_mask_feather": ("INT", {"default": 20, "min": 0, "max": 100, "step": 1}),
+                    "bbox_fill": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
+                    "contour_fill": ("BOOLEAN", {"default": True, "label_on": "enabled", "label_off": "disabled"}),
+                    "scheduler_func_opt": ("SCHEDULER_FUNC",),
                 },
                 "hidden": {"my_unique_id": "UNIQUE_ID",},
             }
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "IMAGE", "IMAGE", "IMAGE", )
-    RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "CROPPED_REFINED", "CROPPED_ENHANCED_ALPHA", )
+    RETURN_NAMES = ("CONTEXT", "OUTPUT_IMAGE", "CROPPED_REFINED", "CROPPED_ALPHA", )
     OUTPUT_IS_LIST = (False, False, True, True,)
     FUNCTION = "doit_ed"
 
@@ -2072,7 +2098,8 @@ class MaskDetailer_ED():
     def mask_sampling(image, mask, model, clip, vae, positive, negative, guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle, 
-            detailer_hook, inpaint_model, noise_mask_feather):
+            detailer_hook, inpaint_model, noise_mask_feather,
+            bbox_fill=False, contour_fill=True, scheduler_func_opt=None):
         
         basic_pipe = (model, clip, vae, positive, negative)
         
@@ -2083,24 +2110,26 @@ class MaskDetailer_ED():
             NODES['MaskDetailerPipe']().doit(image, mask, basic_pipe, 
             guide_size, guide_size_for, max_size, mask_mode, seed, steps, cfg, sampler_name, 
             scheduler, denoise, feather, crop_factor, drop_size, refiner_ratio, 
-            batch_size, cycle, None, detailer_hook, inpaint_model, noise_mask_feather)
+            batch_size, cycle, None, detailer_hook, inpaint_model, noise_mask_feather,
+            bbox_fill, contour_fill, scheduler_func_opt)
         return (enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list)                
         
-    def doit_ed(self, context, set_seed_cfg_sampler_batch, guide_size, guide_size_for, max_size, mask_mode,
+    def doit_ed(self, context, set_seed_cfg_sampler, guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle=1,
-            image_opt=None, mask_opt=None, detailer_hook=None, inpaint_model=False, noise_mask_feather=0, my_unique_id=None):
+            detailer_hook=None, inpaint_model=False, noise_mask_feather=0,
+            bbox_fill=False, contour_fill=True, scheduler_func_opt=None, my_unique_id=None):
 
         _, model, clip, vae, positive, negative, image, c_batch, c_seed, c_steps, c_cfg, c_sampler, c_scheduler, mask = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative",  "images", "step_refiner", "seed", "steps", "cfg", "sampler", "scheduler", "mask"])
 
-        if image_opt is not None:
-            image = image_opt
-            print(f"MaskDetailer ED: Using image_opt instead of context image.")
-        if mask_opt is not None:
-            mask = mask_opt
-            print(f"MaskDetailer ED: Using mask_opt instead of context mask.")
+        # if image_opt is not None:
+            # image = image_opt
+            # print(f"MaskDetailer ED: Using image_opt instead of context image.")
+        # if mask_opt is not None:
+            # mask = mask_opt
+            # print(f"MaskDetailer ED: Using mask_opt instead of context mask.")
 
-        if set_seed_cfg_sampler_batch == "from context":
+        if set_seed_cfg_sampler == "from context":
             if c_seed is None:
                 raise Exception("MaskDetailer ED: no seed, cfg, sampler, scheduler in the context.\n\n\n\n\n\n")
             else:
@@ -2115,8 +2144,8 @@ class MaskDetailer_ED():
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "sampler_name", "type": "text", "data": sampler_name})
                 scheduler = c_scheduler
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "scheduler", "type": "text", "data": scheduler})
-                batch_size = c_batch
-                PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "batch_size", "type": "text", "data": batch_size})
+                # batch_size = c_batch
+                # PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "batch_size", "type": "text", "data": batch_size})
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)      
         
@@ -2125,7 +2154,8 @@ class MaskDetailer_ED():
             guide_size, guide_size_for, max_size, mask_mode,
             seed, steps, cfg, sampler_name, scheduler, denoise,
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle,
-            detailer_hook, inpaint_model, noise_mask_feather)
+            detailer_hook, inpaint_model, noise_mask_feather,
+            bbox_fill, contour_fill, scheduler_func_opt)
 
         context = new_context_ed(context, images=enhanced_img_batch) #RE 
         return (context, enhanced_img_batch, cropped_enhanced_list, cropped_enhanced_alpha_list,)
@@ -2140,7 +2170,7 @@ class DetailerForEach_ED():
                     "segs": ("SEGS", ),
                     "set_seed_cfg_sampler": (list(KSampler_ED.SET_SEED_CFG_SAMPLER.keys()), {"default": "from context"}),
 
-                    "guide_size": ("FLOAT", {"default": 384, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
+                    "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "guide_size_for": ("BOOLEAN", {"default": True, "label_on": "mask bbox", "label_off": "crop region"}),
                     "max_size": ("FLOAT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
                     "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
@@ -2162,8 +2192,11 @@ class DetailerForEach_ED():
                     "detailer_hook": ("DETAILER_HOOK",),
                     "inpaint_model": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
                     "noise_mask_feather": ("INT", {"default": 20, "min": 0, "max": 100, "step": 1}),
+                    "scheduler_func_opt": ("SCHEDULER_FUNC",),
                 },
-                "hidden": {"my_unique_id": "UNIQUE_ID",},
+                "hidden": {
+                    "my_unique_id": "UNIQUE_ID",
+                    "extra_pnginfo": "EXTRA_PNGINFO",}
             }
 
     RETURN_TYPES = ("RGTHREE_CONTEXT", "SEGS", "IMAGE", "IMAGE", "IMAGE", "IMAGE", )
@@ -2172,15 +2205,20 @@ class DetailerForEach_ED():
     
     FUNCTION = "doit_ed"
 
-    CATEGORY = "Efficiency Nodes/Image"          
+    CATEGORY = "Efficiency Nodes/Image"
+    DESCRIPTION = "It enhances details by inpainting each region within the detected area bundle (SEGS) after enlarging them based on the guide size."    
         
     def doit_ed(self, context, set_seed_cfg_sampler, segs, guide_size, guide_size_for, max_size, 
             seed, steps, cfg, sampler_name, scheduler,
             denoise, feather, noise_mask, force_inpaint, wildcard, cycle=1,
             image_opt=None, detailer_hook=None, refiner_basic_pipe_opt=None,
-            inpaint_model=False, noise_mask_feather=0, my_unique_id=None):
+            inpaint_model=False, noise_mask_feather=0, 
+            scheduler_func_opt=None, my_unique_id=None, extra_pnginfo=None):
         
         _, model, clip, vae, positive, negative, image, c_batch, c_seed, c_steps, c_cfg, c_sampler, c_scheduler, mask = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative",  "images", "step_refiner", "seed", "steps", "cfg", "sampler", "scheduler", "mask"])
+
+        # GET PROPERTIES #  
+        properties = self.get_properties(extra_pnginfo, my_unique_id)
 
         if image_opt is not None:
             image = image_opt
@@ -2214,10 +2252,26 @@ class DetailerForEach_ED():
             NODES['DetailerForEachDebug']().doit(image, segs, model, clip, vae, guide_size, 
             guide_size_for, max_size, seed, steps, cfg, sampler_name, scheduler, positive, negative, denoise,
             feather, noise_mask, force_inpaint, wildcard, detailer_hook=detailer_hook,
-            cycle=cycle, inpaint_model=inpaint_model, noise_mask_feather=noise_mask_feather)
+            cycle=cycle, inpaint_model=inpaint_model, noise_mask_feather=noise_mask_feather,
+            scheduler_func_opt=scheduler_func_opt, tiled_encode=properties['tiled_vae_decode'], tiled_decode=properties['tiled_vae_decode'])
 
         context = new_context_ed(context, images=enhanced_img) #RE 
         return (context, segs, enhanced_img, cropped_enhanced, cropped_enhanced_alpha, cnet_pil_list,)
+        
+    @staticmethod
+    def get_properties(extra_pnginfo, my_unique_id):
+        properties = {
+            "tiled_vae_decode": False,
+        }
+        
+        if extra_pnginfo and "workflow" in extra_pnginfo:
+            workflow = extra_pnginfo["workflow"]
+            for node in workflow["nodes"]:
+                if node["id"] == int(my_unique_id):
+                    properties['tiled_vae_decode'] = node["properties"]["Use tiled VAE decode"]
+
+        return properties
+        
 
 ##############################################################################################################
 # Ultimate SD Upscale ED

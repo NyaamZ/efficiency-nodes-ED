@@ -15,7 +15,7 @@ app.registerExtension({
                 const result = onNodeCreated?.apply(this, arguments);				
 				
 				this.setProperty("Use Latent Rebatch", true);				
-				this.setProperty("Synchronize widget with image size", true);
+				//this.setProperty("Synchronize widget with image size", true);
 				this.setProperty("Token normalization", "none")
 				this.constructor["@Token normalization"] = {
 					type: "combo",
@@ -79,8 +79,7 @@ app.registerExtension({
 						this.setSize([this.size[0], adjustment]);
 				};
 				
-				this.onPropertyChanged = (property, value) => {
-					//onPropertyChanged.call(this, property, value);					
+				this.onPropertyChanged = (property, value) => {				
 					if (property == "MaskDetailer mode"){						
 						this.toggleWidgetByProperty(value);
 					}
@@ -88,6 +87,20 @@ app.registerExtension({
 				
 				this.toggleWidgetByProperty(this.properties["MaskDetailer mode"]);
 				
+                return result;
+            };
+        }
+    },
+});
+
+app.registerExtension({
+    name: "ed.DetailerED",
+    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+        if (nodeData.name === "FaceDetailer 💬ED" || nodeData.name === "Detailer (SEGS) 💬ED") {
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function () {
+                const result = onNodeCreated?.apply(this, arguments);
+				this.setProperty("Use tiled VAE decode", false);
                 return result;
             };
         }

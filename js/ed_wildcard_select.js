@@ -182,8 +182,8 @@ app.registerExtension({
 			
 			switch(node.comfyClass){
 				case "Get Booru Tag 💬ED":
-					tbox_id = 2;
-					combo_id = 3;
+					tbox_id = 1;
+					combo_id = 1;
 					has_lora = false;
 					break;
 
@@ -255,16 +255,17 @@ app.registerExtension({
 		
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
 		if( node.comfyClass == "Regional Stacker 💬ED" || node.comfyClass == "Regional Processor 💬ED") {
-			node._wvalue = "Create empty image";
-			var button_widget = findWidgetByName(node, "empty image");
-			var width_widget = findWidgetByName(node, "width");
-			var height_widget = findWidgetByName(node, "height");
+			node._wvalue = "Create empty image";			
+
+			const empty_image_widget = node.widgets[3];
+			const width_widget = node.widgets[1];
+			const height_widget = node.widgets[2];
 			
-            button_widget.callback = (value, canvas, node, pos, e) => {
+            empty_image_widget.callback = (value, canvas, node, pos, e) => {
                 createEmptyImage(width_widget.value, height_widget.value);
             }
 
-			Object.defineProperty(button_widget, "value", {
+			Object.defineProperty(empty_image_widget, "value", {
 				set: (value) => {
                     if (value !== "Create empty image")
                         node._wildcard_value = value;
@@ -272,14 +273,14 @@ app.registerExtension({
 				get: () => { return "Create empty image"; }
 			});
 
-			Object.defineProperty(button_widget.options, "values", {
+			Object.defineProperty(empty_image_widget.options, "values", {
 				set: (x) => {},
 				get: () => {
-					return ["Create empty image"];
+					return ["Create empty image."];
 				}
 			});
 
-			button_widget.serializeValue = () => { return "Create empty image"; }
+			empty_image_widget.serializeValue = () => { return "Create empty image"; }
 		}
 	}
 });

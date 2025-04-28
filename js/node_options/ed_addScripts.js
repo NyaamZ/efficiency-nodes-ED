@@ -9,7 +9,7 @@ const connectionMap = {
     "Tiled Upscaler Script": ["input & output", 0],
 	// "Control Net Script 💬ED": ["output", 0],
 	"Refiner Script 💬ED": ["output", 0],
-	"KSampler (Efficient) 💬ED": ["input", 1]
+	"KSampler (Efficient) 💬ED": ["input", 2]
 };
 
     /**
