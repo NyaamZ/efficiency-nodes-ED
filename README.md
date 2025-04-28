@@ -1,7 +1,7 @@
 ✨🍬A version of Efficiency Nodes for ComfyUI that improves UX by adding various features. See https://github.com/jags111/efficiency-nodes-comfyui for the original description.🍬
 
 
-<b> Efficiency Nodes 💬ExtendeD (V7)
+<b> Efficiency Nodes 💬ExtendeD (V8)
 =======
 <details>
     <summary><b>한국어 설명</b></summary>
