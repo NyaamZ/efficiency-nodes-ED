@@ -660,13 +660,13 @@
 
    [**ComfyUI Impact Subpack**](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)
 
-   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (필수!)
+   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (반드시 필요!)
 
    [**ComfyUI_UltimateSDUpscale**](https://github.com/ssitu/ComfyUI_UltimateSDUpscale)
 
    [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)
 
-   [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)  (필수!)
+   [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)  (반드시 필요!)
 
    [**efficiency-nodes-ED**](https://github.com/NyaamZ/efficiency-nodes-ED)  (본체)
 
