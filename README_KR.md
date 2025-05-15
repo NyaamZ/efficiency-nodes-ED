@@ -41,6 +41,7 @@
 - ## Context:
 
   Efficiency Nodes 원본과 다르게 💬ED노드는 <code>context</code> 링크를 주고 받는다.
+
   <code>context</code> 링크는 <code>model, clip, vae, conditioning</code> 등등 수많은 링크 등을 하나로 묶은 링크 다발이라고 생각하면 된다.
 
   
@@ -144,22 +145,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 - ## 체크 포인트, 로라, 인베딩 썸네일:
 
   Efficient Loader 💬ED, LoRA Stacker 💬ED, Embedding Stacker 💬ED 에서 모델을 선택할 때 썸네일이 표시된다.
@@ -181,6 +166,7 @@
     </p>
 
   - 썸네일은 처음에는 이미지가 없다고 보이지 않는데,
+
     Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > <code>🔍 View model info...</code>
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
@@ -234,173 +220,188 @@
 
 - ## 리저널 프롬프트:
 
-리저널 프롬프트는 영역별로 프롬프트를 달리하고 싶을 때 쓰는 방법이다. ([리저널 워크플로](https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png))
+  리저널 프롬프트는 영역별로 프롬프트를 달리하고 싶을 때 쓰는 방법이다. ([리저널 워크플로](https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png))
 
-리저널 프롬프트 사용시 [**A8R8 ComfyUI Nodes**](https://github.com/ramyma/A8R8_ComfyUI_nodes) 노드 설치가 필요.
+  리저널 프롬프트 사용시 [**A8R8 ComfyUI Nodes**](https://github.com/ramyma/A8R8_ComfyUI_nodes) 노드 설치가 필요.
 
-- ### 리저널 프롬프트 - Text 2 Image
+  
 
-  1. Regional Stacker 💬ED를 오른쪽 클릭, aspect ratio 에서 가로 세로 입력, <code>Create empty image</code>를 누른다. 누르면 자동으로 Efficient Loader 💬ED에 가로 세로가 입력되고, Regional Script 💬ED에 연결된 Load Image에 빈 이미지가 들어간다.
+  - ### 리저널 프롬프트 - Text 2 Image
 
-     <p align="left">
-       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0011.png" width="300" style="display: inline-block;">
-     </p>
+    1. Regional Stacker 💬ED를 오른쪽 클릭, aspect ratio 에서 가로 세로 입력, <code>Create empty image</code>를 누른다. 자동으로 Efficient Loader 💬ED에 가로 세로가 입력되고, Regional Script 💬ED에 연결된 Load Image에 빈 이미지가 들어간다.
 
-  1. 다음 처럼 마스크로 영역을 지정한 후, 프롬프트를 작성한다. (로라를 사용하고 싶으면 LoRA Stacker 💬ED를 붙이면 된다)
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0011.png" width="300" style="display: inline-block;">
+       </p>
 
-     <p align="left">
-       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0012.jpg" width="800" style="display: inline-block;">
-     </p>
+    2. 다음 처럼 마스크로 영역을 지정한 후, 프롬프트를 작성한다. (로라를 사용하고 싶으면 LoRA Stacker 💬ED를 붙이면 된다)
 
-  1. 베이스 프롬프트에 다음처럼 적당한 프롬프트를 작성하고 큐 실행.
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0012.jpg" width="800" style="display: inline-block;">
+       </p>
 
-     <p align="left">
-       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0013.png" width="700" style="display: inline-block;">
-     </p>
+    3. 베이스 프롬프트에 다음처럼 적당한 프롬프트를 작성하고 큐 실행
 
-  1. 결과물
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0013.png" width="700" style="display: inline-block;">
+       </p>
 
-     <div id="wrap">
-         <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
-         <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-     </div>
+    4. 결과물
 
+       <div id="wrap">
+           <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
+           <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+       </div>
 
+       
 
-- ### 리저널 프롬프트 - Image 2 Image
+  - ### 리저널 프롬프트 - Image 2 Image
 
-  1. [ComfyUI-ImageGallery-ED](https://github.com/NyaamZ/ComfyUI-ImageGallery-ED)가 설치 되어 있다면, 이미지를 더블클릭하면 다음처럼 이미지 갤러리가 열린다.
+    1. [ComfyUI-ImageGallery-ED](https://github.com/NyaamZ/ComfyUI-ImageGallery-ED)가 설치 되어 있다면, 이미지를 더블클릭하면 다음처럼 이미지 갤러리가 열린다.
 
-     <p align="left">
-       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0015.png" width="600" style="display: inline-block;">
-     </p>
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0015.png" width="600" style="display: inline-block;">
+       </p>
 
     2. 빨간 부분을 클릭하면 Regional Script 💬ED에 연결된 Load Image에 현재 이미지가 들어간다. 
 
     3. 마스크로 영역 지정, 프롬프트 작성후, 큐
 
+       
 
+       
 
 - ## 컨트롤넷:
 
-컨트롤 넷 사용은 다음처럼 Efficient Loader 💬ED에 Control Net Stacker를 붙여서 사용하면 된다.
+  컨트롤 넷 사용은 다음처럼 Efficient Loader 💬ED에 Control Net Stacker를 붙여서 사용하면 된다.
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0016.png" width="800" style="display: inline-block;">
-</p>
+  <p align="left">
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0016.png" width="800" style="display: inline-block;">
+  </p>
 
-컨트롤넷과 리저널 스크립트를 동시에 사용 가능.
+  컨트롤넷과 리저널 스크립트를 동시에 사용 가능.
+
+  
 
 
 
 
 - ## Get booru Tag:
 
-   1. 단부루나 갤부루에서 괜찮은 이미지를 발견했다면, 이렇게 주소를 복사해서
+  1. 단부루나 갤부루에서 괜찮은 이미지를 발견했다면, 이렇게 주소를 복사해서
 
-      <p align="left">
-        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0018.jpg" width="600" style="display: inline-block;">
-      </p>
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0018.jpg" width="600" style="display: inline-block;">
+     </p>
 
-   2. Get booru Tag 💬ED <code>url</code>에 넣어주면,
+  2. Get booru Tag 💬ED <code>url</code>에 넣어주면,
 
-      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.png" width="500" style="display: inline-block;"></p>
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.png" width="500" style="display: inline-block;"></p>
 
-   3. 다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
+  3. 다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
 
-       <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
+
+     
 
 
 
 
 - ## Set_seed_cfg_sampler:
 
-KSampler (Efficient) 💬ED, FaceDetailer 💬ED, Ultimate SD Upscale 💬ED 등에는 <code>set_seed_cfg_sampler</code> 위젯이 있다.
-Efficient Loader 💬ED에서 seed, cfg, sampler, scheduler를 한 번만 설정하고 나머지는 일일이 설정하지 않아도 됨.
+  KSampler (Efficient) 💬ED, FaceDetailer 💬ED, Ultimate SD Upscale 💬ED 등에는 <code>set_seed_cfg_sampler</code> 위젯이 있다.
 
-- <code>from context</code>는 Efficient Loader 💬ED에서 출력한 <code>context</code>에서 seed, cfg, sampler, scheduler 설정을 가져와서 사용.
+  Efficient Loader 💬ED에서 seed, cfg, sampler, scheduler를 한 번만 설정하고 나머지는 일일이 설정하지 않아도 됨.
 
-- <code>from node to ctx</code>는 현재 노드의 seed, cfg, sampler, scheduler 설정을 <code>context</code>로 내보낸다.
+  - <code>from context</code>는 Efficient Loader 💬ED에서 출력한 <code>context</code>에서 seed, cfg, sampler, scheduler 설정을 가져와서 사용.
+  - <code>from node to ctx</code>는 현재 노드의 seed, cfg, sampler, scheduler 설정을 <code>context</code>로 내보낸다.
+  - <code>from node only</code>는 현재 노드의 seed, cfg, sampler, scheduler 설정을 이용하고 <code>context</code>에 저장하지는 않음.
 
-- <code>from node only</code>는 현재 노드의 seed, cfg, sampler, scheduler 설정을 이용하고 <code>context</code>에 저장하지는 않음.
+  <p align="left">
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0023.png" width="400" style="display: inline-block;">
+  </p>
 
   
-
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0023.png" width="400" style="display: inline-block;">
-</p>
-
-
-
 
 
 
 
 - ## XY 플롯:
 
-AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 선명하게 할 수는 없을까? 지금 cfg와 샘플러가 최적인걸까?
+  AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 선명하게 할 수는 없을까? 지금 cfg와 샘플러가 최적인걸까?
 
-그럴 때 최적의 설정 값을 찾기 유용한 것이 xy플롯이다.
+  그럴 때 최적의 설정 값을 찾기 유용한 것이 xy플롯이다.
 
-1. KSampler (Efficient) 💬ED 오른 클릭 > add script > XY plot
+  1. KSampler (Efficient) 💬ED 오른 클릭 > add script > XY plot
 
-   <p align="left">
-     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
-   </p>
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
+     </p>
 
-2. XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
-   XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler
+  2. XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
 
-   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0025.png" width="500" style="display: inline-block;"></p>
+     XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler
 
-3. 큐를 돌리면 다음처럼 한눈에 적절한 설정 값을 확인할 수 있다.
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0025.png" width="500" style="display: inline-block;"></p>
 
-    <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
+  3. 큐를 돌리면 다음처럼 한눈에 적절한 설정 값을 확인할 수 있다.
 
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
 
+     
 
 
 
 - ## Refiner script:
 
-리파이너 스크립트는 KSampler (Advanced)를 차용한 노드이다.
+  리파이너 스크립트는 KSampler (Advanced)를 차용한 노드이다.
 
-- ### 용도
+  
 
-     1. Hires FIx
-     1. 다른 모델로 리파이닝하기 (색감, 텍스쳐 같은걸 변경시킬 수 있다.)
+  - ### 용도
 
- Ultimate SD Upscale 💬ED로 Hires FIx하면 느리기도 하거니와 배꼽이 두 개가 되는 것 처럼 이미지가 변형될 경우가 있다. 
-  그럴때 Refiner script로 Hires FIx하면 훨씬 낫다.
+    1. Hires FIx
 
-- ### Refiner script로 Hires FIx 하는법
+       (Ultimate SD Upscale 💬ED로 Hires FIx하면 느리기도 하거니와 배꼽이 두 개가 되는 것 처럼 이미지가 변형될 경우가 있다. 
+         그럴때 Refiner script로 Hires FIx하면 훨씬 낫다.)
 
-   1. Load Image 💬ED의 <code>upscale_method</code>와 <code>keep_proportions</code>를 이용해 2배로 업스케일. 
-      (<code>keep_proportions</code>를 2x로 설정하면 <code>width, height</code>를 일일히 입력하지 않아도 자동으로 맞춰준다.)
-   
-      <p align="left">
-        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0035.png" width="400" style="display: inline-block;">
-      </p>
-   
-     2. KSampler (Efficient) 💬ED 오른클릭 > Add script > Refiner Script 💬ED 추가
-        <code>steps, denoise, start_at_step</code>을 설정한다. 
-        (Hires FIx 할 때 <code>start_at_step</code>은 <code>step</code>의 절반 정도가 적당한 듯. 직접 최적의 <code>denoise, start_at_step</code> 값을 찾아보자)
-   
-        <p align="left">
-          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
-        </p>
-   
-   3. 큐를 돌린다.
-   
-      <div id="wrap">
-          <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.png" alt="" width="400" style="display: inline-block;"></div>
-          <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-      </div>
+    2. 다른 모델로 리파이닝하기 (색감, 텍스쳐 같은걸 변경시킬 수 있다.)
+
+    
+
+  - ### Refiner script로 Hires FIx 하는법
+
+    1. Load Image 💬ED의 <code>upscale_method</code>와 <code>keep_proportions</code>를 이용해 2배로 업스케일.
+
+       (<code>keep_proportions</code>를 2x로 설정하면 <code>width, height</code>를 일일히 입력하지 않아도 자동으로 맞춰준다.)
+
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0035.png" width="400" style="display: inline-block;">
+       </p>
+
+    2. KSampler (Efficient) 💬ED 오른클릭 > Add script > Refiner Script 💬ED 추가하고, <code>steps, denoise, start_at_step</code>을 설정한다.
+
+       (Hires FIx 할 때 <code>start_at_step</code>은 <code>step</code>의 절반 정도가 적당한 듯. 직접 최적의 <code>denoise, start_at_step</code> 값을 찾아보자)
+
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
+       </p>
+
+    3. 큐를 돌린다.
+
+       <div id="wrap">
+           <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.png" alt="" width="400" style="display: inline-block;"></div>
+           <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+       </div>
+
+       
+
 
 
 
 
 ## 💬ED 노드 설명:
+
 <details>
     <summary><b>Efficient Loader 💬ED</b></summary>
 <ul>
