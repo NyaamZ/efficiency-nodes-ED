@@ -21,7 +21,9 @@ new_widgethider_js = "./user_css/widgethider.js"
 read_css_folder = "./user_css/"
 write_css_folder = "../../../python_embeded/Lib/site-packages/comfyui_frontend_package/static/"
 
-
+efficeincy_nodes_py = "../efficiency-nodes-comfyui/efficiency_nodes.py"
+efficeincy_nodes_target = '"ksampler_output_image": (["Images","Plot"],),},'
+efficeincy_nodes_replacement = '"ksampler_output_image": (["Images","Plot"], {"default": "Plot"}),},'
 
 def is_file_exist(filepath):
     if not os.path.isfile(filepath):
@@ -91,6 +93,31 @@ def annotate_wildcard(py_file):
         print(f"File has been modified: {js_file}")
 
 
+
+def replace_py_file(py_file, target_line, replacement_line):
+    if not is_file_exist(py_file):
+        return
+
+    with open(py_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    modified = False
+    new_lines = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped == target_line:
+            indent = line[:line.index(target_line)]
+            new_lines.append(indent + replacement_line+"\n")
+            modified = True
+        else:
+            new_lines.append(line)
+
+    if modified:
+        with open(py_file, 'w', encoding='utf-8') as file:
+            file.writelines(new_lines)
+        print(f"File has been modified: {py_file}")
+
 def widgethider_js_copy():
     shutil.copy2(new_widgethider_js, widgethider_js)
     print(f"File copied: {widgethider_js}")
@@ -125,6 +152,7 @@ try:
     annotate_wildcard(impact_wildcard_py)
     widgethider_js_copy()
     copy_user_css()
+    replace_py_file(efficeincy_nodes_py, efficeincy_nodes_target, efficeincy_nodes_replacement)
     print(f"\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
     
 except Exception as e:

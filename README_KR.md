@@ -252,7 +252,7 @@
            <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
            <div class="txt-wrap"><p>(EXIF 있음)</p></div>
        </div>
-
+   
        
 
   - ### 리저널 프롬프트 - Image 2 Image
@@ -320,7 +320,7 @@
   <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0023.png" width="400" style="display: inline-block;">
   </p>
-
+  
   
 
 
@@ -338,7 +338,9 @@
        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
      </p>
 
-  2. XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
+  2. XY plot의 <code>ksampler_output_image</code>를 반드시 <code>plot</code>으로 할것!!
+
+     XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
 
      XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler
 
@@ -347,7 +349,7 @@
   3. 큐를 돌리면 다음처럼 한눈에 적절한 설정 값을 확인할 수 있다.
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
-
+  
      
 
 
@@ -393,7 +395,7 @@
            <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.png" alt="" width="400" style="display: inline-block;"></div>
            <div class="txt-wrap"><p>(EXIF 있음)</p></div>
        </div>
-
+       
        
 
 
@@ -764,9 +766,9 @@
 ## 알려진 버그
 
 - [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)에 버그가 있음. 그냥 쓰면 Cannot redefine property에러가 발생하는데, 업데이트 후 반드시 <code>start.bat</code>을 실행할 것.
-   
+  
 - <code>🔍 View model info...</code>를 했을 때 [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 다음처럼 모델을 못찾는 버그가 있음.
-   
+  
    <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0041.png" width="400" style="display: inline-block;"></p>
    
     해시 값이 안맞아서 발생하는 문제인데
