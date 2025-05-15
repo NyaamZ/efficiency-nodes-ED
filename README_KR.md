@@ -158,70 +158,73 @@ Efficient Loader 💬ED에서 출력하는 <code>context</code> 링크는 다음
 
 - ## 체크 포인트, 로라, 인베딩 썸네일:
 
+  Efficient Loader 💬ED, LoRA Stacker 💬ED, Embedding Stacker 💬ED 에서 모델을 선택할 때 썸네일이 표시된다.
 
-Efficient Loader 💬ED, LoRA Stacker 💬ED, Embedding Stacker 💬ED 에서 모델을 선택할 때 썸네일이 표시된다.
+   
 
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0006.png" alt="" width="600" style="display: inline-block;"></div>
-    <div class="txt-wrap"><p>(썸네일 스타일)</p></div>
-</div>
+  - 썸네일 스타일
 
+    <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0006.png" alt="" width="600" style="display: inline-block;"></p>
 
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0007.png" alt="" width="600" style="display: inline-block;"></div>
-    <div class="txt-wrap"><p>(트리 스타일)</p></div>
-</div>
+  - 트리 스타일
 
-settings > pysssss > combo++ > Lora/Checkpoint loader display mode 에서 스타일을 선택할 수 있음.
+    <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0007.png" alt="" width="600" style="display: inline-block;"></p>
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0008.png" width="600" style="display: inline-block;">
-</p>
+  - settings > pysssss > combo++ > Lora/Checkpoint loader display mode 에서 스타일을 선택할 수 있음.
 
+    <p align="left">
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0008.png" width="600" style="display: inline-block;">
+    </p>
 
-썸네일은 처음에는 이미지가 없다고 보이지 않는데, 
-Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > <code>🔍 View model info...</code>
+  - 썸네일은 처음에는 이미지가 없다고 보이지 않는데,
+    Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > <code>🔍 View model info...</code>
 
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
 
-빨간 부분 - <code>Use as preview</code>를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 도 있음)
+    빨간 부분 - <code>Use as preview</code>를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 도 있음)
+
+    
 
 
 
 
 - ## 와일드 카드:
 
-와일드 카드는 Get booru Tag 💬ED의 <code>Select to add wildcard</code>를 눌러 쉽게 와일드 카드를 사용할 수 있음. 
+  Efficiency Nodes 💬ED는 와일드 카드를 지원함
 
-와일드 카드 파일은 임팩트 팩의 와일드 카드를 공유함. <code>ComfyUI\custom_nodes\comfyui-impact-pack\wildcards</code>
+   
 
-일반적인 와일드 카드 문법은 모두 사용가능. 하지만, 와일드 카드 안의 와일드 카드, 로라는 사용 불가.
+  - ### 사용법
 
-와일드 카드 인코딩은 Efficient Loader 💬ED에서 처리함. 때문에 와일드카드 사용시 반드시 Get booru Tag 💬ED를 쓸 필요는 없음.
+    - 와일드 카드는 Get booru Tag 💬ED의 `Select to add wildcard`를 눌러 쉽게 와일드 카드를 사용할 수 있음.
 
-주석 기능 #, //, /* */ 를 모두 지원함.
+      <p align="left">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
+      </p>
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0009.png" width="400" style="display: inline-block;">
-</p>
+    - 와일드 카드 파일은 임팩트 팩의 와일드 카드를 공유함. `ComfyUI\custom_nodes\comfyui-impact-pack\wildcards`
+    - 일반적인 와일드 카드 문법은 모두 사용가능. 하지만, 와일드 카드 안의 와일드 카드, 로라는 사용 불가.
+    - 와일드 카드 인코딩은 Efficient Loader 💬ED에서 처리함. 때문에 와일드카드 사용시 반드시 Get booru Tag 💬ED를 쓸 필요는 없음
+    - 주석 기능 #, //, /* */ 를 모두 지원함.
 
+    
 
-순차적 와일드 카드 기능도 있는데,
+  - ### 순차적 와일드 카드
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
-</p>
+    - Get booru Tag 💬ED의 text_b 칸에 다음 처럼 \__와일드카드__#ASC0 이라고 적으면 된다.
 
-Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 이라고 적으면 된다. 
+      <p align="left">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
+      </p>
 
-- #ASC숫자 는 와일드카드를 '숫자에서부터' 하나씩 올라가며 순회하고  (와일드 카드 최대 숫자에 도달하면 멈춤)
-- #DSC숫자 는 와일드카드를 '숫자에서부터' 하나씩 내려오며 순회한다. (0에 도달하면 멈춤)
-  (와일드 카드의 갯수를 정확히 모를테니 #DSC1000 이렇게 대충 적으면 된다.)
-- #FIX숫자 는 고정.
+    - #ASC숫자 는 와일드카드를 '숫자에서부터' 하나씩 올라가며 순회하고  (와일드 카드 최대 숫자에 도달하면 멈춤)
 
-숫자 = 와일드 카드 파일의 카운트
+    - #DSC숫자 는 와일드카드를 '숫자에서부터' 하나씩 내려오며 순회한다. (0에 도달하면 멈춤)
+      (와일드 카드의 갯수를 정확히 모를테니 #DSC1000 이렇게 대충 적으면 된다.)
 
-※순차적 와일드 카드는 Get booru Tag 💬ED로만 가능.
+    - #FIX숫자 는 고정.
+
+    - 순차적 와일드 카드는 Get booru Tag 💬ED로만 가능.
 
 
 
@@ -231,53 +234,46 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 
 리저널 프롬프트 사용시 [**A8R8 ComfyUI Nodes**](https://github.com/ramyma/A8R8_ComfyUI_nodes) 노드 설치가 필요.
 
+- ### 리저널 프롬프트 - Text 2 Image
 
+  1. Regional Stacker 💬ED를 오른쪽 클릭, aspect ratio 에서 가로 세로 입력, <code>Create empty image</code>를 누른다. 누르면 자동으로 Efficient Loader 💬ED에 가로 세로가 입력되고, Regional Script 💬ED에 연결된 Load Image에 빈 이미지가 들어간다.
 
-### 리저널 프롬프트 - Text 2 Image
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0011.png" width="300" style="display: inline-block;">
+     </p>
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0011.png" width="300" style="display: inline-block;">
-</p>
+  1. 다음 처럼 마스크로 영역을 지정한 후, 프롬프트를 작성한다. (로라를 사용하고 싶으면 LoRA Stacker 💬ED를 붙이면 된다)
 
-1. Regional Stacker 💬ED를 오른쪽 클릭, aspect ratio 에서 가로 세로 입력, <code>Create empty image</code>를 누른다. 누르면 자동으로 Efficient Loader 💬ED에 가로 세로가 입력되고, Regional Script 💬ED에 연결된 Load Image에 빈 이미지가 들어간다.
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0012.jpg" width="800" style="display: inline-block;">
+     </p>
 
-2. 다음 처럼 마스킹 한 후, 프롬프트를 작성한다. (각각 로라를 사용하고 싶으면 LoRA Stacker 💬ED를 붙이면 된다-겁나 느려짐)
+  1. 베이스 프롬프트에 다음처럼 적당한 프롬프트를 작성하고 큐 실행.
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0012.png" width="800" style="display: inline-block;">
-</p>
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0013.png" width="700" style="display: inline-block;">
+     </p>
 
+  1. 결과물
 
-
-3. 베이스 프롬프트에 다음처럼 적당한 프롬프트를 작성하고 큐 실행.
-
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0013.png" width="700" style="display: inline-block;">
-</p>
-
-
-
-
-결과물
-
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
-    <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-</div>
+     <div id="wrap">
+         <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
+         <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+     </div>
 
 
 
+- ### 리저널 프롬프트 - Image 2 Image
 
-### 리저널 프롬프트 - Image 2 Image
+  1. [ComfyUI-ImageGallery-ED](https://github.com/NyaamZ/ComfyUI-ImageGallery-ED)가 설치 되어 있다면, 이미지를 더블클릭하면 다음처럼 이미지 갤러리가 열린다.
 
-[ComfyUI-ImageGallery-ED](https://github.com/NyaamZ/ComfyUI-ImageGallery-ED)가 설치 되어 있다면, 이미지를 더블클릭하면 다음처럼 이미지 갤러리가 열린다.
+     <p align="left">
+       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0015.png" width="600" style="display: inline-block;">
+     </p>
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0015.png" width="600" style="display: inline-block;">
-</p>
+    2. 빨간 부분을 클릭하면 Regional Script 💬ED에 연결된 Load Image에 현재 이미지가 들어간다. 
 
-
-빨간 부분을 클릭하면 Regional Script 💬ED에 연결된 Load Image에 현재 이미지가 들어간다. 
+    3. 마스크로 영역 지정, 프롬프트 작성후, 큐
 
 
 
@@ -296,25 +292,19 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 
 - ## Get booru Tag:
 
-단부루나 갤부루에서 괜찮은 이미지를 발견했다면, 이렇게 주소를 복사해서
+   1. 단부루나 갤부루에서 괜찮은 이미지를 발견했다면, 이렇게 주소를 복사해서
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0018.jpg" width="600" style="display: inline-block;">
-</p>
+      <p align="left">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0018.jpg" width="600" style="display: inline-block;">
+      </p>
 
+   2. Get booru Tag 💬ED <code>url</code>에 넣어주면,
 
+      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.png" width="500" style="display: inline-block;"></p>
 
-Get booru Tag 💬ED <code>url</code>에 넣어주면,
+   3. 다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
 
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.png" width="500" style="display: inline-block;"></p>
-
-
-
-다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
-
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
-
-
+       <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
 
 
 
@@ -348,27 +338,20 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 
 그럴 때 최적의 설정 값을 찾기 유용한 것이 xy플롯이다.
 
-
-
 1. KSampler (Efficient) 💬ED 오른 클릭 > add script > XY plot
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
-</p>
-
-
-
+   <p align="left">
+     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
+   </p>
 
 2. XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
-   XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler       
+   XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler
 
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0025.png" width="500" style="display: inline-block;"></p>
-
-
+   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0025.png" width="500" style="display: inline-block;"></p>
 
 3. 큐를 돌리면 다음처럼 한눈에 적절한 설정 값을 확인할 수 있다.
 
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
+    <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
 
 
 
@@ -482,13 +465,14 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 <p></p>
 - Efficient Loader 💬ED에서 Inpaint(MaskDetailer) 모드를 선택하면 에피션트 샘플러 💬ED가 마스크 디테일러 모드로 변경된다.<p></p>
 - Impact Pack의 MaskDetailer를 그대로 통합시킴.<p></p>
-- 인페인트에 정말 탁월하고 화질의 열화가 일어나지 않는다.<br>
+- 인페인트하면서 화질의 열화가 일어나지 않는다. 이미지 퀄리티가 더 낫다.<br>
   (사용법은 기존의 MaskDetailer와 동일하다. 디테일러의 사용법은 <a href="https://arca.live/b/aiart/126870050">여기를</a> 참조)
 <p align="left">
-  <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/09e4dfd2-e1f7-4118-8bb2-2adcdca236d0" width="500">
+  <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/09e4dfd2-e1f7-4118-8bb2-2adcdca236d0" width="400">
 </p>
 - 마스크 디테일러의 <code>drop size, cycle, inpaint model, noise mask feather</code>는 Property Panel에서 설정 할 수 있음<p></p>
 </details>
+
 
 
 <details>
