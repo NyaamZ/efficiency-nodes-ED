@@ -1,6 +1,6 @@
 **[[English]](https://github.com/NyaamZ/efficiency-nodes-ED/blob/main/README.md)**
 
-✨🍬Efficiency Nodes에 기능을 추가하여 사용자 경험을 향상시키는 커스텀 노드. 오리지널 버전은 https://github.com/jags111/efficiency-nodes-comfyui 에서 확인.🍬
+✨🍬Efficiency Nodes에 기능을 추가하여 사용자 경험을 향상시키는 확장팩. 오리지널 버전은 https://github.com/jags111/efficiency-nodes-comfyui 에서 확인.🍬
 
 **Efficiency Nodes 💬ExtendeD (V8)**
 =======
@@ -52,7 +52,7 @@
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0001.jpg" width="600" style="display: inline-block;">
     </p>
 
-  - <code>context</code> 링크를 사용하면 다음처럼 간단하게 만들 수 있다.
+  - <code>context</code> 링크를 사용하면 간단하게 만들 수 있다.
 
     <p align="left">
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0002.png" width="600" style="display: inline-block;">
@@ -180,7 +180,7 @@
 
 - ## 와일드 카드:
 
-  Efficiency Nodes 💬ED는 와일드 카드를 지원함
+  Efficiency Nodes 💬ED는 와일드 카드를 지원함.
 
    
 
@@ -194,7 +194,7 @@
 
     - 와일드 카드 파일은 임팩트 팩의 와일드 카드를 공유함. `ComfyUI\custom_nodes\comfyui-impact-pack\wildcards`
     - 일반적인 와일드 카드 문법은 모두 사용가능. 하지만, 와일드 카드 안의 와일드 카드, 로라는 사용 불가.
-    - 와일드 카드 인코딩은 Efficient Loader 💬ED에서 처리함. 때문에 와일드카드 사용시 반드시 Get booru Tag 💬ED를 쓸 필요는 없음
+    - 와일드 카드 인코딩은 Efficient Loader 💬ED에서 처리함. 때문에 와일드카드 사용시 반드시 Get booru Tag 💬ED를 쓸 필요는 없음.
     - 주석 기능 #, //, /* */ 를 모두 지원함.
 
     
@@ -592,9 +592,10 @@
   <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0038.png" width="500">
   </p>
   - 리저널 프롬프트에 사용하는 노드.<p></p>
-  - Regional Script 💬ED의 <code>url</code>은 Get booru Tag 💬ED <code>url</code>과 같다. 갤부루나 단부루의 태그를 가져올 수 있다.<p></p>
+  - Regional Script 💬ED의 <code>url</code>은 Get booru Tag 💬ED <code>url</code>과 같은 기능을 한다. 갤부루나 단부루의 태그를 가져올 수 있음.<p></p>
   - Regional Script 💬ED의 프롬프트 창은 와일드 카드 입력 가능.<p></p>
 </details>
+
 
 
 
@@ -603,10 +604,10 @@
   <summary><b>Refiner Script 💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0039.png" width="300">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0039.png" width="300">
   </p>
   - KSampler (Efficient) 💬ED노드에 리파이닝 작업을 추가해주는 노드.<p></p>
-  - Load Checkpoint를 붙여 다음처럼 다른 모델로 리파이닝 할 수 있다.<br><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0040.png" width="500"><p></p>
+  - Load Checkpoint를 붙여 다음처럼 다른 모델로 리파이닝 할 수 있다.<br><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0040.png" width="500"><p></p>
   - <code>ignore_batch_size</code> true는 배치 사이즈를 무시하고 한 번만 작업.<p></p>
   - <code>do_refine_only</code> true는 리파이닝만. false는 이미지를 샘플링 한후 리파이닝.<p></p>
 </details>
@@ -730,7 +731,7 @@
 
 
 2. 설치 후 > 리스타트 > Update All > 리스타트 >
-   ComfyUI\custom_nodes\efficiency-nodes-ED\start.bat 실행
+   <code>ComfyUI\custom_nodes\efficiency-nodes-ED\start.bat</code>실행
 
 
 
@@ -750,25 +751,27 @@
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.png" width="250" style="display: inline-block;"></p>
 
-​        KSampler (Efficient) 💬ED로 이미지를 만들면 steps을 기억하고 있다가 Hires Fix 실행 시에 <code>context</code>에 저장하는 노드인데,
+​        KSampler (Efficient) 💬ED로 이미지를 만들면 <code>steps</code>을 기억하고 있다가 Hires Fix 실행 시에 <code>context</code>에 저장하는 노드인데,
 
-​        (FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 <code>context</code>에 steps가 들어 있다면 그걸 우선 꺼내서 사용함. 
-​           steps를 일일이 다시 입력하기 귀찮아서 만든 노드),
+​        (FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 <code>context</code>에 <code>steps</code>가 들어 있다면 그걸 우선 꺼내서 사용함. 
+​           <code>steps</code>를 일일이 다시 입력하기 귀찮아서 만든 노드),
 
-​        불필요하거나 직접 steps를 입력하려면, 이 노드를 바이패스하거나 또는 삭제하고,
-​        Ctx 노드의 steps와 KsamplerED의 steps_int의 연결을 끊으면 됨.
+​        불필요하거나 직접 <code>steps</code>를 입력하려면, 이 노드를 바이패스하거나 또는 삭제하고,
+​        Ctx 노드의 steps와 KsamplerED의 <code>steps_int</code>의 연결을 끊으면 됨.
 
 
 
 ## 알려진 버그
 
+- [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)에 버그가 있음. 그냥 쓰면 Cannot redefine property에러가 발생하는데, 업데이트 후 반드시 <code>start.bat</code>을 실행할 것.
+   
 - <code>🔍 View model info...</code>를 했을 때 [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 다음처럼 모델을 못찾는 버그가 있음.
    
-   <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0041.png" width="400" style="display: inline-block;"></p>
+   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0041.png" width="400" style="display: inline-block;"></p>
    
     해시 값이 안맞아서 발생하는 문제인데
    
-   <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0042.jpg" width="800" style="display: inline-block;"></p>
+   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.jpg" width="800" style="display: inline-block;"></p>
    
    [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 빨갛게 칠해진 부분을 클릭해서 해시 값을 복사한 다음.
    
