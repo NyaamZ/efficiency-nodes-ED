@@ -425,7 +425,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
 <details>
     <summary><b>KSampler (Efficient) 💬ED</b></summary>
 <p></p>
@@ -442,8 +441,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
-
 <details>
     <summary><b>Inpaint(MaskDetailer) 모드</b></summary>
 <p></p>
@@ -457,8 +454,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 - 마스크 디테일러의 drop size, cycle, inpaint model, noise mask feather는 Property Panel에서 설정 할 수 있음<p></p>
 </details>
 
-
-​    
 
 <details>
     <summary><b>Load Image 💬ED</b></summary>
@@ -480,8 +475,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
-
 <details>
 <p></p>
     <summary><b>Save Image 🔔ED</b></summary>
@@ -496,7 +489,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 <p></p>
 <li>종소리를 바꾸고 싶으면 efficiency-nodes-comfyui\js\assets\notify.mp3 를 변경하면 된다.</li>
 </details>
-
 
 
 <details>
@@ -554,7 +546,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
 <details>
   <p></p>
   <summary><b>TIPO Script 💬ED</b></summary>
@@ -568,7 +559,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
 <details>
   <p></p>
   <summary><b>Int Holder 💬ED</b></summary>
@@ -580,7 +570,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 context에 steps가 들어 있다면 그걸 우선 꺼내서 사용함.<p></p>
   - steps를 일일이 다시 입력하기 귀찮아서 만든 노드.<p></p>
 </details>
-
 
 
 <details>
@@ -602,7 +591,6 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 </details>
 
 
-
 <details>
   <p></p>
   <summary><b>MaskDetailer 💬ED</b></summary>
@@ -614,6 +602,8 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   - context를 입력받을 수 있게 수정한 버전.<p></p>
   - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있음.<p></p>
 </details>
+
+
 <details>
   <p></p>
   <summary><b>Detailer (SEGS) 💬ED</b></summary>
@@ -625,6 +615,8 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   - context를 입력받을 수 있게 수정한 버전.<p></p>
   - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있음.<p></p>
 </details>
+
+
 <details>
   <p></p>
   <summary><b>Ultimate SD Upscale 💬ED</b></summary>
@@ -636,6 +628,8 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   - context를 입력받을 수 있게 수정한 버전.<p></p>
   - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, upscale 모델 로더를 통합한 노드.
 </details>
+
+
 <details>
   <p></p>
   <summary><b>SUPIR 💬ED</b></summary>
