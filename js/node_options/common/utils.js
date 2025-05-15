@@ -1,6 +1,56 @@
 import { app } from '../../../../scripts/app.js'
 import { $el } from "../../../../scripts/ui.js";
 
+let origProps = {};
+
+export function findWidgetByName(node, widgetName) {
+    return node.widgets.find(widget => widget.name === widgetName);
+}
+
+const doesInputWithNameExist = (node, name) => {
+    //return node.inputs ? node.inputs.some((input) => input.name === name) : false;
+	return false;
+};
+
+export function updateNodeHeight(node) {node.setSize([node.size[0], node.computeSize()[1]]);}
+
+export function toggleWidget(node, widget, show = false, suffix = "") {
+    if (!widget || doesInputWithNameExist(node, widget.name)) return;
+
+    // Store the original properties of the widget if not already stored
+    if (!origProps[widget.name]) {
+        origProps[widget.name] = { origType: widget.type, origComputeSize: widget.computeSize };
+    }
+
+    const origSize = node.size;
+
+    // Set the widget type and computeSize based on the show flag
+    widget.type = show ? origProps[widget.name].origType : "tschide" + suffix;
+    widget.computeSize = show ? origProps[widget.name].origComputeSize : () => [0, -4];
+
+    // Recursively handle linked widgets if they exist
+    widget.linkedWidgets?.forEach(w => toggleWidget(node, w, ":" + widget.name, show));
+
+    // Calculate the new height for the node based on its computeSize method
+	const height = show ? Math.max(node.computeSize()[1], origSize[1]) : node.size[1];
+	node.setSize([node.size[0], height]);
+}
+
+export function showMessage(short_msg, detail_msg) {
+	try {
+		app.extensionManager.toast.add({
+			severity: short_msg.toLowerCase(),
+			summary: short_msg,
+			detail: detail_msg,
+			life: 3500
+		});
+	}
+	catch {
+		// do nothing
+	}
+}
+
+
 export function addStylesheet(url) {
 	if (url.endsWith(".js")) {
 		url = url.substr(0, url.length - 2) + "css";
@@ -81,10 +131,6 @@ export function addMenuHandler(nodeType, cb) {
         return r;
     };
 	*/
-}
-
-export function findWidgetByName(node, widgetName) {
-    return node.widgets.find(widget => widget.name === widgetName);
 }
 
 // Utility functions

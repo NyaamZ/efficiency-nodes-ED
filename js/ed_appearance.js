@@ -68,7 +68,7 @@ function setNodeColors(node, theme) {
 }
 
 const ext = {
-    name: "efficiency_ED.ed_appearance",
+    name: "ED.appearance",
 
     nodeCreated(node) {
         const nclass = node.comfyClass;

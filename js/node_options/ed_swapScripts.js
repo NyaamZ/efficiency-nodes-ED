@@ -85,7 +85,7 @@ function showSwapMenu(value, options, e, menu, node) {
 
 // Extension Definition
 app.registerExtension({
-    name: "efficiency_ED.ed_SwapScripts",
+    name: "ED.SwapScripts",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (["XY Plot", "Noise Control Script", "HighRes-Fix Script", "Tiled Upscaler Script"].includes(nodeData.name)) {
             addMenuHandler(nodeType, function (_, options) {// Here, we are calling addMenuHandler

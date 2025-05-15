@@ -428,7 +428,7 @@ class LoRA_Stacker_ED:
             }
         }        
 
-        for i in range(1, cls.MAX_LORA_COUNT):
+        for i in range(1, cls.MAX_LORA_COUNT +1):
             inputs["required"][f"lora_name_{i}"] = (["None"] + folder_paths.get_filename_list("loras"),)
             inputs["required"][f"lora_wt_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"model_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
@@ -472,7 +472,7 @@ class LoRA_Stacker_ED:
         names = ["None"] + folder_paths.get_filename_list("loras")
 
         if kwargs['lora_count'] > 0:
-            for i in range(1, cls.MAX_LORA_COUNT):                
+            for i in range(1, cls.MAX_LORA_COUNT +1):                
                 name = kwargs[f"lora_name_{i}"]
                 if not name in names:
                     return_value = f"Lora not found: {name}"
@@ -494,10 +494,10 @@ class Embedding_Stacker_ED:
             }
         }
         
-        for i in range(1, cls.MAX_EMBEDDING_COUNT):
+        for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
             inputs["required"][f"positive_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
             inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
-        for i in range(1, cls.MAX_EMBEDDING_COUNT):
+        for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
             inputs["required"][f"negative_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
             inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
 
@@ -545,7 +545,7 @@ class Embedding_Stacker_ED:
         names = ["None"] + folder_paths.get_filename_list("embeddings")
 
         if kwargs['positive_embeddings_count'] > 0:
-            for i in range(1, cls.MAX_EMBEDDING_COUNT):                
+            for i in range(1, cls.MAX_EMBEDDING_COUNT +1):                
                 name = kwargs[f"positive_embedding_{i}"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
@@ -553,7 +553,7 @@ class Embedding_Stacker_ED:
                     break
                     
         if kwargs['negative_embeddings_count'] > 0:
-            for i in range(1, cls.MAX_EMBEDDING_COUNT):                
+            for i in range(1, cls.MAX_EMBEDDING_COUNT +1):                
                 name = kwargs[f"negative_embedding_{i}"]
                 if not name in names:
                     return_value = f"Embedding not found: {name}"
@@ -913,7 +913,7 @@ class EfficientLoader_ED():
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, ignore clip skip\033[0m")
             is_flux_model = True
         elif clip_skip == 0:
-            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, Ignore clip skip\033[0m")
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, ignore clip skip\033[0m")
             is_flux_model = False
         else:
             clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
@@ -1709,6 +1709,7 @@ class KSampler_ED():
         # RESULT
         set_preview_method(previous_preview_method)
         context = new_context_ed(context, latent=latent_list or latent_image, images=output_images)
+
         return {"ui": result_ui, "result": (context, output_images, steps)}
 
     @staticmethod

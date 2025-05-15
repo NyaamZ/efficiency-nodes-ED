@@ -15,12 +15,26 @@ annotating_js_files = [
             ]
 
 impact_wildcard_py = "../ComfyUI-Impact-Pack/modules/impact/wildcards.py"
+widgethider_js = "../efficiency-nodes-comfyui/js/widgethider.js"
+new_widgethider_js = "./user_css/widgethider.js"
 
 read_css_folder = "./user_css/"
 write_css_folder = "../../../python_embeded/Lib/site-packages/comfyui_frontend_package/static/"
 
+
+
+def is_file_exist(filepath):
+    if not os.path.isfile(filepath):
+        print(f"File does not exist: {filepath}")
+        return False
+    return True
+
 def annotate_file(js_file):
+    if not is_file_exist(js_file):
+        return
+    
     contents = []
+    modified = False
     if os.path.isfile(js_file):
         with open(js_file, 'r', encoding='UTF8') as f:
             contents = f.readlines()
@@ -30,9 +44,18 @@ def annotate_file(js_file):
                     f.write(c)
                 else:
                     f.write("//** "+c)
+                    modified = True
+                    
+    if modified:
+        print(f"File has been modified: {js_file}")
+    
 
 def restore_annotate_file(js_file):
+    if not is_file_exist(js_file):
+        return
+    
     contents = []
+    modified = False
     if os.path.isfile(js_file):
         with open(js_file, 'r', encoding='UTF8') as f:
             contents = f.readlines()
@@ -40,11 +63,19 @@ def restore_annotate_file(js_file):
             for c in contents:
                 if c[:5] == "//** ":
                     f.write(c[5:])
+                    modified = True
                 else:
                     f.write(c)
 
+    if modified:
+        print(f"File has been modified: {js_file}")
+
 def annotate_wildcard(py_file):
+    if not is_file_exist(py_file):
+        return
+    
     contents = []
+    modified = False
     if os.path.isfile(py_file):
         with open(py_file, 'r', encoding='UTF8') as f:
             contents = f.readlines()
@@ -52,16 +83,26 @@ def annotate_wildcard(py_file):
             for c in contents:
                 if 'print(f"CLIP: {str.join('  in c and not "## from ED ##" in c:
                     f.write("## from ED ##" + c)
+                    modified = True
                 else:
                     f.write(c)
+                    
+    if modified:
+        print(f"File has been modified: {js_file}")
+
+
+def widgethider_js_copy():
+    shutil.copy2(new_widgethider_js, widgethider_js)
+    print(f"File copied: {widgethider_js}")
 
 def copy_user_css():
     if os.path.isdir(write_css_folder):
         if os.path.isfile(write_css_folder + "user.css"):
             os.remove(write_css_folder + "user.css")
-        shutil.copy(read_css_folder + "user.css", write_css_folder + "user.css")
+        shutil.copy2(read_css_folder + "user.css", write_css_folder + "user.css")
+        print(f"File copied: {write_css_folder + "user.css"}")
     else:
-        print(f"\nDirectory does not exist - {write_css_folder}")
+        print(f"Directory does not exist - {write_css_folder}")
     
 def restore_user_css():
     if os.path.isdir(write_css_folder):
@@ -72,15 +113,19 @@ def restore_user_css():
         else:
             with open(write_css_folder + "user.css", 'w', encoding='UTF8') as f:
                 f.write("/* Put custom styles here */")
-            
+
+
+
+
 try:
     printout = "copy user.css and disable unnecessary js files"
-    
+    print ("\n")
     for file in annotating_js_files:
         annotate_file(file)
     annotate_wildcard(impact_wildcard_py)
+    widgethider_js_copy()
     copy_user_css()
-    print(f"\n\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
+    print(f"\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
     
 except Exception as e:
     print("\n\n\n[ERROR] efficiency nodes ED: An error occurred while annotating the file.")

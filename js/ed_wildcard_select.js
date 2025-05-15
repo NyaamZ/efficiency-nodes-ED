@@ -4,6 +4,9 @@ import { ComfyDialog, $el } from "../../scripts/ui.js";
 import { ComfyApp } from "../../scripts/app.js";
 import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
 
+import { showMessage, findWidgetByName } from "./node_options/common/utils.js";
+
+
 let wildcards_list = [];
 async function load_wildcards() {
 	let res = await api.fetchApi('/impact/wildcards/list');
@@ -12,20 +15,6 @@ async function load_wildcards() {
 }
 
 load_wildcards();
-
-function show_message(short_msg, detail_msg, node=null) {
-	try {
-		app.extensionManager.toast.add({
-			severity: short_msg.toLowerCase(),
-			summary: short_msg,
-			detail: detail_msg,
-			life: 3500
-		});
-	}
-	catch {
-		// do nothing
-	}
-}
 
 async function uploadImage(filepath, formData) {
     try {
@@ -67,10 +56,6 @@ function isMatchingNode(node, nodeType) {
     }
     return null;
 }
-
-const findWidgetByName = (node, name) => {
-    return node.widgets ? node.widgets.find((w) => w.name === name) : null;
-};
 
 function find_script_load_image(width, height, reg_script="Regional Script 💬ED", load_image="LoadImage") {
 	const script_nodes = app.graph._nodes.filter( (n) => n.type.includes(reg_script));
@@ -163,14 +148,14 @@ async function createEmptyImage(width, height, color="white") {
         ComfyApp.onClipspaceEditorSave();
 
 		find_script_load_image(width, height);
-		show_message("Info", "Created empty image to Regional Script 💬ED")
+		showMessage("Info", "Created empty image to Regional Script 💬ED")
     } catch (error) {
         console.error('Error saving image:', error);
     }
 }
 
 app.registerExtension({
-	name: "GetBooruTag.ED",
+	name: "ED.wildcard_select",
 	nodeCreated(node, app) {
 		if( node.comfyClass == "Get Booru Tag 💬ED" || node.comfyClass == "Regional Script 💬ED" || node.comfyClass == "Context To DetailerPipe") {
 			node._value = "Select the LoRA to add to the text";

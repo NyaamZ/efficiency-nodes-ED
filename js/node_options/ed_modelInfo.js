@@ -354,7 +354,7 @@ const infoHandler = {
 // Utility functions and other parts of your code remain unchanged
 
 app.registerExtension({
-    name: "efficiency_ED.ed_ModelInfo",
+    name: "ED.modelInfo",
     beforeRegisterNodeDef(nodeType) {
         const types = infoHandler[nodeType.comfyClass];
 

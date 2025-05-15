@@ -2,11 +2,11 @@ import {app} from "../../scripts/app.js";
 import {ComfyWidgets} from "../../scripts/widgets.js";
 import { applyTextReplacements } from "../../scripts/utils.js";
 
-import { toggleWidget, findWidgetByName } from "./ed_widgethider.js";
+import { toggleWidget, findWidgetByName } from "./node_options/common/utils.js";
 
 // Set Property
 app.registerExtension({
-    name: "ed.efficientLoaderED",
+    name: "ED.efficientLoaderED",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "Efficient Loader 💬ED") { //|| nodeData.name === "Eff. Loader SDXL 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -36,7 +36,7 @@ app.registerExtension({
 });
 
 app.registerExtension({
-    name: "ed.WildcardEncodeED",
+    name: "ED.WildcardEncodeED",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "Wildcard Encode 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -50,7 +50,7 @@ app.registerExtension({
 });
 
 app.registerExtension({
-    name: "ed.KSamplerED",
+    name: "ED.KSamplerED",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "KSampler (Efficient) 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -94,7 +94,7 @@ app.registerExtension({
 });
 
 app.registerExtension({
-    name: "ed.DetailerED",
+    name: "ED.DetailerED",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "FaceDetailer 💬ED" || nodeData.name === "Detailer (SEGS) 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -109,7 +109,7 @@ app.registerExtension({
 
 let is_playing_sound = false;
 app.registerExtension({
-	name: "Comfy.SaveImageED_Output",
+	name: "ED.SaveImageED",
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
 		if (nodeData.name === "Save Image 🔔ED") {
 			const onNodeCreated = nodeType.prototype.onNodeCreated;

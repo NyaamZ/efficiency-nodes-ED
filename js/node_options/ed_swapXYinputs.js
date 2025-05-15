@@ -83,7 +83,7 @@ function showSwapMenu(value, options, e, menu, node) {
 
 // Extension Definition
 app.registerExtension({
-    name: "efficiency_ED.ed_swapXYinputs",
+    name: "ED.swapXYinputs",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name.startsWith("XY Input:")) {
             addMenuHandler(nodeType, function (_, options) {// Here, we are calling addMenuHandler
