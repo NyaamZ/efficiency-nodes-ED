@@ -698,7 +698,7 @@
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.png" width="250" style="display: inline-block;"></p>
     
-    Sampler (Efficient) 💬ED로 이미지를 만들면 <code>steps</code>을 기억하고 있다가 Hires Fix 실행 시에 <code>context</code>에 저장하는 노드인데,
+    Sampler (Efficient) 💬ED로 이미지를 만들면 <code>steps</code>를 기억하고 있다가 Hires Fix 실행 시에 <code>context</code>에 저장하는 노드인데,
     
     (FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 <code>context</code>에 <code>steps</code>가 들어 있다면 그걸 우선 꺼내서 사용함. <code>steps</code>를 일일이 다시 입력하기 귀찮아서 만든 노드),
     
@@ -709,7 +709,7 @@
 
 ## 알려진 버그
 
-- [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)에 버그가 있음. 그냥 쓰면 Cannot redefine property에러가 발생하는데, 업데이트 후 반드시 <code>start.bat</code>을 실행할 것.
+- [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)에 버그가 있음. 그냥 쓰면 <code>Cannot redefine property</code>에러가 발생하는데, 업데이트 후 반드시 <code>start.bat</code>을 실행할 것.
   
 - <code>🔍 View model info...</code>를 했을 때 [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 다음처럼 모델을 못찾는 버그가 있음.
   
