@@ -5,7 +5,7 @@
 **Efficiency Nodes 💬ExtendeD (V8)**
 =======
 
-　
+<p></p>
 
 ## 워크플로 예제:
 
@@ -32,7 +32,7 @@
 
 
 
-　
+
 
 ## **기본 개요:**
 
@@ -143,7 +143,7 @@
             </table>
     </div>
 
-　
+
 
 - ## 체크 포인트, 로라, 인베딩 썸네일:
 
@@ -175,7 +175,7 @@
 
     
 
-　
+
 
 
 - ## 와일드 카드:
@@ -216,7 +216,7 @@
 
     - 순차적 와일드 카드는 Get booru Tag 💬ED로만 가능.
 
-　
+
 
 - ## 리저널 프롬프트:
 
@@ -747,8 +747,6 @@
 - Ultimate SD Upscale 💬ED - 표시창에는 써져있지만 모델이 없을 때 에러가 뜬다. 모델을 다운, 리프레시 누르고 설정해주면 해결.
   (bbox, sam, upscaler 모델 다운은 매니저 > 모델 메니저 >검색 창에 검색)
 
-  　
-  
 - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED의 steps가 멋대로 고정되는 문제는 이 노드(Int Holder 💬ED) 때문임.
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.png" width="250" style="display: inline-block;"></p>
