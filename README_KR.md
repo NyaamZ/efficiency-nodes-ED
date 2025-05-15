@@ -189,7 +189,7 @@
     - 와일드 카드는 Get booru Tag 💬ED의 `Select to add wildcard`를 눌러 쉽게 와일드 카드를 사용할 수 있음.
 
       <p align="left">
-        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0009.png" width="400" style="display: inline-block;">
       </p>
 
     - 와일드 카드 파일은 임팩트 팩의 와일드 카드를 공유함. `ComfyUI\custom_nodes\comfyui-impact-pack\wildcards`
