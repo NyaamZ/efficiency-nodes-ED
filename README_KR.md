@@ -327,7 +327,7 @@
        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
      </p>
 
-  2. XY plot의 <code>ksampler_output_image</code>를 반드시 <code>plot</code>으로 할것!!
+  2. XY plot의 <code>ksampler_output_image</code>를 반드시 <code>Plot</code>으로 할것!!
 
      XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
 
@@ -693,7 +693,7 @@
 - FaceDetailer 💬ED - 표시창에는 써져있지만 모델이 없을때 에러가 뜬다. 모델을 다운, 리프레시 누르고 설정해주면 해결.
 - Ultimate SD Upscale 💬ED - 표시창에는 써져있지만 모델이 없을 때 에러가 뜬다. 모델을 다운, 리프레시 누르고 설정해주면 해결.
   (bbox, sam, upscaler 모델 다운은 매니저 > 모델 메니저 >검색 창에 검색)
-　
+
 - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED의 steps가 멋대로 고정되는 문제는 이 노드(Int Holder 💬ED) 때문임.
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.png" width="250" style="display: inline-block;"></p>
