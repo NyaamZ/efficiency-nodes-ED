@@ -252,7 +252,7 @@
            <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.png" alt="" width="400" style="display: inline-block;"></div>
            <div class="txt-wrap"><p>(EXIF 있음)</p></div>
        </div>
-      
+        
        
 
   - ### 리저널 프롬프트 - Image 2 Image
@@ -747,6 +747,8 @@
 - Ultimate SD Upscale 💬ED - 표시창에는 써져있지만 모델이 없을 때 에러가 뜬다. 모델을 다운, 리프레시 누르고 설정해주면 해결.
   (bbox, sam, upscaler 모델 다운은 매니저 > 모델 메니저 >검색 창에 검색)
 
+  　
+  
 - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED의 steps가 멋대로 고정되는 문제는 이 노드(Int Holder 💬ED) 때문임.
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.png" width="250" style="display: inline-block;"></p>
@@ -755,7 +757,7 @@
     
     (FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 <code>context</code>에 <code>steps</code>가 들어 있다면 그걸 우선 꺼내서 사용함. <code>steps</code>를 일일이 다시 입력하기 귀찮아서 만든 노드),
     
-    불필요하거나 직접 <code>steps</code>를 입력하려면, 이 노드를 바이패스하거나 또는 삭제하고, Ctx 노드의 <code>steps</code>와 KsamplerED의 <code>steps_int</code>의 연결을 끊으면 됨
+    불필요하거나 직접 <code>steps</code>를 입력하려면, 이 노드를 뮤트(Ctrl+M)하거나 또는 삭제하고, Ctx 노드의 <code>steps</code>와 KsamplerED의 <code>steps_int</code>의 연결을 끊으면 됨
 
 
 

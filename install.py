@@ -147,14 +147,14 @@ def restore_user_css():
 try:
     printout = "copy user.css and disable unnecessary js files"
     print ("\n")
+    widgethider_js_copy()
+    copy_user_css()
     for file in annotating_js_files:
         annotate_file(file)
     annotate_wildcard(impact_wildcard_py)
-    widgethider_js_copy()
-    copy_user_css()
     replace_py_file(efficeincy_nodes_py, efficeincy_nodes_target, efficeincy_nodes_replacement)
     print(f"\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
     
 except Exception as e:
-    print("\n\n\n[ERROR] efficiency nodes ED: An error occurred while annotating the file.")
+    print(f"\n\n\n[ERROR] efficiency nodes ED: An error occurred while annotating the file.\n{e}")
     
