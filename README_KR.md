@@ -51,7 +51,7 @@ Efficiency Nodes 원본과 다르게 💬ED노드는 context 링크를 주고 �
 context 링크는 model, clip, vae, conditioning 등등 수많은 링크 등을 하나로 묶은 링크 다발이라고 생각하면 된다.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0001.jpg" width="600" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0001.jpg" width="600" style="display: inline-block;">
 </p>
 
 워크플로를 만들다 보면 위에 처럼 수많은 링크들로 스파게티처럼 만들어져 어질어질한데, 
@@ -61,14 +61,14 @@ context 링크는 model, clip, vae, conditioning 등등 수많은 링크 등을 
 context 링크를 사용하면 다음처럼 간단하게 만들 수 있다.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0002.png" width="600" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0002.png" width="600" style="display: inline-block;">
 </p>
 
 
 꼭 💬ED노드 사이에만 사용하는 것이 아니라 다른 노드에도 사용할 수 있음.
 
 <div id="wrap">
-    <div class="img-wrap"><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0003.png" alt=""></div>
+    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0003.png" alt=""></div>
     <div class="txt-wrap"><p>(EXIF 있음)</p></div>
 </div>
 
@@ -79,7 +79,7 @@ Efficient Loader 💬ED에서 출력하는 Context 링크는 다음이 포함되
     <table style="text-align: center;">
             <tbody>
                 <tr>
-                    <td rowspan="17" style="width:60%"><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0005.png" width="1200" style="display: inline-block;"></td>
+                    <td rowspan="17" style="width:60%"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0005.png" width="1200" style="display: inline-block;"></td>
                     <th style="background-color:palegreen;">context</th>
                     <td></td>
                 </tr>
@@ -162,27 +162,27 @@ Efficient Loader 💬ED에서 출력하는 Context 링크는 다음이 포함되
 Efficient Loader 💬ED, LoRA Stacker 💬ED, Embedding Stacker 💬ED 에서 모델을 선택할 때 썸네일이 표시된다.
 
 <div id="wrap">
-    <div class="img-wrap"><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0006.png" alt="" width="600" style="display: inline-block;"></div>
+    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0006.png" alt="" width="600" style="display: inline-block;"></div>
     <div class="txt-wrap"><p>(썸네일 스타일)</p></div>
 </div>
 
 
 <div id="wrap">
-    <div class="img-wrap"><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0007.png" alt="" width="600" style="display: inline-block;"></div>
+    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0007.png" alt="" width="600" style="display: inline-block;"></div>
     <div class="txt-wrap"><p>(트리 스타일)</p></div>
 </div>
 
 settings > pysssss > combo++ > Lora/Checkpoint loader display mode 에서 스타일을 선택할 수 있음.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0008.png" width="600" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0008.png" width="600" style="display: inline-block;">
 </p>
 
 
 썸네일은 처음에는 이미지가 없다고 보이지 않는데, 
 Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > 🔍 View model info...
 
- <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0017.png" width="500" style="display: inline-block;"></p>
+ <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.PNG" width="500" style="display: inline-block;"></p>
 
 빨간 부분 - Use as preview를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 도 있음)
 
@@ -202,14 +202,14 @@ Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > 🔍 V
 주석 기능 #, //, /* */ 를 모두 지원함.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0009.png" width="400" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0009.png" width="400" style="display: inline-block;">
 </p>
 
 
 순차적 와일드 카드 기능도 있는데,
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0010.png" width="400" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
 </p>
 
 Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 이라고 적으면 된다. 
@@ -236,31 +236,35 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 ### 리저널 프롬프트 - Text 2 Image
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0011.png" width="300" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0011.PNG" width="300" style="display: inline-block;">
 </p>
+
 1. Regional Stacker 💬ED를 오른쪽 클릭, aspect ratio 에서 가로 세로 입력, Create empty image를 누른다. 누르면 자동으로 Efficient Loader 💬ED에 가로 세로가 입력되고, Regional Script 💬ED에 연결된 Load Image에 빈 이미지가 들어간다.
 
 2. 다음 처럼 마스킹 한 후, 프롬프트를 작성한다. (각각 로라를 사용하고 싶으면 LoRA Stacker 💬ED를 붙이면 된다-겁나 느려짐)
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0012.png" width="800" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0012.PNG" width="800" style="display: inline-block;">
 </p>
+
 
 
 3. 베이스 프롬프트에 다음처럼 적당한 프롬프트를 작성하고 큐 실행.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0013.png" width="700" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0013.PNG" width="700" style="display: inline-block;">
 </p>
+
 
 
 
 결과물
 
 <div id="wrap">
-    <div class="img-wrap"><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0014.png" alt="" width="400" style="display: inline-block;"></div>
+    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0014.PNG" alt="" width="400" style="display: inline-block;"></div>
     <div class="txt-wrap"><p>(EXIF 있음)</p></div>
 </div>
+
 
 
 
@@ -269,8 +273,9 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 [ComfyUI-ImageGallery-ED](https://github.com/NyaamZ/ComfyUI-ImageGallery-ED)가 설치 되어 있다면, 이미지를 더블클릭하면 다음처럼 이미지 갤러리가 열린다.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0015.png" width="600" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0015.PNG" width="600" style="display: inline-block;">
 </p>
+
 
 빨간 부분을 클릭하면 Regional Script 💬ED에 연결된 Load Image에 현재 이미지가 들어간다. 
 
@@ -281,8 +286,9 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 컨트롤 넷 사용은 다음처럼 Efficient Loader 💬ED에 Control Net Stacker를 붙여서 사용하면 된다.
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0016.png" width="800" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0016.PNG" width="800" style="display: inline-block;">
 </p>
+
 컨트롤넷과 리저널 스크립트를 동시에 사용 가능.
 
 
@@ -293,20 +299,20 @@ Get booru Tag 💬ED의 text_b 칸에 위에 처럼 \__와일드카드__#ASC0 �
 단부루나 갤부루에서 괜찮은 이미지를 발견했다면, 이렇게 주소를 복사해서
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0018.jpg" width="600" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0018.jpg" width="600" style="display: inline-block;">
 </p>
 
 
 
 Get booru Tag 💬ED url에 넣어주면,
 
- <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0019.png" width="500" style="display: inline-block;"></p>
+ <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.PNG" width="500" style="display: inline-block;"></p>
 
 
 
 다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
 
- <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0020.png" width="500" style="display: inline-block;"></p>
+ <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.PNG" width="500" style="display: inline-block;"></p>
 
 
 
@@ -327,8 +333,9 @@ Efficient Loader 💬ED에서 seed, cfg, sampler, scheduler를 한 번만 설정
   
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0023.png" width="400" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0023.PNG" width="400" style="display: inline-block;">
 </p>
+
 
 
 
@@ -346,21 +353,22 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 1. KSampler (Efficient) 💬ED 오른 클릭 > add script > XY plot
 
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0024.png" width="500" style="display: inline-block;">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.PNG" width="500" style="display: inline-block;">
 </p>
+
 
 
 
 2. XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
    XY plot 오른 클릭 > Add Y input > XY Input: Sampler/Scheduler       
 
- <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0025.png" width="500" style="display: inline-block;"></p>
+ <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0025.PNG" width="500" style="display: inline-block;"></p>
 
 
 
 3. 큐를 돌리면 다음처럼 한눈에 적절한 설정 값을 확인할 수 있다.
 
- <p><img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0026.jpg" width="700" style="display: inline-block;"></p>
+ <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.jpg" width="700" style="display: inline-block;"></p>
 
 
 
@@ -376,7 +384,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 <ul>
         <p></p>
     <li>대략 Load Checkpoint, CLIP Set Last Layer, Empty Latent Image, Repeat Latent Batch 등을 하나로 묶은 것.<br><i>(단순히 네 가지를 합친 것보다 훨씬 더 다양한 기능)</i><br>
-      <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0021.png" width="250" style="display: inline-block;">
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0021.PNG" width="250" style="display: inline-block;">
       </li>
     <p></p>
     <li>위의 노드 묶음과 달리 클릭 한번으로 Txt2Img, Img2Img, Inpaint 모드 설정이 가능하다.<br><i>(Txt2Img로 설정시 연결된 Ksampler (Efficient) 💬ED의 denoise 값이 자동으로 1로 설정됨.)</i><br>
@@ -424,7 +432,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 - 원래 에피션트 노드에서 context를 입력 받을 수 있게 수정.<p></p>
 - 이미지를 샘플링 후 이미지를 context와 OUTPUT_IMAGE에 출력, steps는 STEPS_INT에 출력한다.<p></p>
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0022.png" width="500">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0022.PNG" width="500">
 </p>
     <p></p>   
     <p></p>
@@ -432,6 +440,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
       - Properties Panel에서 Use tiled VAE decode를 true로 하면 된다.<br>
     </li>
 </details>
+
 
 
 
@@ -455,11 +464,11 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
     <summary><b>Load Image 💬ED</b></summary>
 <p></p>
 <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0026.png" width="400">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.PNG" width="400">
 </p>
 - Load Image와 이미지 업스케일이 가능하며, 프롬프트 텍스트도 출력된다.<p></p>
 <li>이미지 업스케일은 upscale_method에서 업스케일 방식을 선택, width와 height를 입력하면 된다.<br>
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0027.png" width="400"><br>
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0027.PNG" width="400"><br>
 </li>
 <li>keep_proportions 위젯으로 이미지의 비율을 유지한 채 업스케일을 할 수 있다.</li>
 <li>1.5x, 2x, 3x등은 width, height 위젯의 값을 무시하며 비율에 맞게 가로, 세로를 자동으로 조절한다.</li>
@@ -469,6 +478,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b18adb0-5e8e-4cc0-963d-287cb5d19e38" width="700"><br>
   (설치된 노드의 프롬프트만 추출할 수 있으며, 설치되지 않은 노드는 추출하지 못한다.)<br>
 </details>
+
 
 
 
@@ -486,6 +496,8 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 <p></p>
 <li>종소리를 바꾸고 싶으면 efficiency-nodes-comfyui\js\assets\notify.mp3 를 변경하면 된다.</li>
 </details>
+
+
 
 <details>
   <p></p>
@@ -527,16 +539,16 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   <summary><b>Wildcard Encode 💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0028.png" width="400">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0028.PNG" width="400">
   </p>
   - Efficient Loader 💬ED의 <code>Use Latent Rebatch</code>가 True일때 와일드 카드를 처리하는 노드.<br>
   <i>(배치 별로 와일드 카드를 따로 적용하게 하기 위해서 만들었음)</i><br>
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0029.png" width="600">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0029.PNG" width="600">
   <p></p>
   <li>Context노드와 비슷하게 생겻듯이 동일한 기능을 함.</li>
   <p></p>
   <li>Properties Panel에서 <code>Turn on Apply Lora</code>를 True로 하면, 로라 적용을 시점을 늦출 수 있음.<br>
-    <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0030.png" width="400">
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0030.PNG" width="400">
   </li>
   <p></p>
 </details>
@@ -548,7 +560,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   <summary><b>TIPO Script 💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0032.png" width="250">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0032.PNG" width="250">
   </p>
   - TIPO노드를 context를 입력받을 수 있게 수정한 버전.<p></p>
   - 프롬프트를 랜덤하게 뽑아주는 노드이다. 자세한 것은 <a href="https://github.com/KohakuBlueleaf/z-tipo-extension">여기를</a> 참조<p></p>
@@ -562,7 +574,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   <summary><b>Int Holder 💬ED</b></summary>
   <p></p>
   <p align="left">
-  <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0033.png" width="400">
+  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0033.PNG" width="400">
   </p>
   - KSampler (Efficient) 💬ED로 이미지를 만들면 steps을 기억하고 있다가 Hires Fix 실행 시에 context에 저장하는 노드, <p></p>
   - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 context에 steps가 들어 있다면 그걸 우선 꺼내서 사용함.<p></p>
@@ -583,7 +595,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   - KSampler (Efficient) 💬ED와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, 각종 모델 로더를 통합한 노드.<p></p>
   - 디테일러의 사용법은 <a href="https://arca.live/b/aiart/126870050">여기를</a> 참조<p></p>
   <li>아래처럼 wildcard에 프롬프트 텍스트를 입력할 수 있다.<br>
-    <img src="D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0031.png" width="400"><br>
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0031.PNG" width="400"><br>
     <i>(FaceDetailer 💬ED에서 눈을 더 반짝이게 하고 싶다던가 표정을 바꾸고 싶을 때 유용하다.</i><br>
     <i>디테일러 프롬프트에 대한 것은 <a href="https://arca.live/b/aiart/126917339">여기를</a> 참조)</i><br>
   </li>
@@ -632,7 +644,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
   <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
   </p>
   - ComfyUI-SUPIR의 애드온. SUPIR는 High-res Fix에 탁월한 성능을 보여주지만 6개나 되는 노드가 필요한데, 그것을 단 두 개로 줄였다.<p></p>
-  - SUPIR는 특별한 모델이 필요하다. 모델 다운 및 자세한 것은 <a href="https://github.com/kijai/ComfyUI-SUPIR">여기를</a> 참조<p></p>
+  - SUPIR는 전용 모델이 필요하다. 모델 다운 및 자세한 것은 <a href="https://github.com/kijai/ComfyUI-SUPIR">여기를</a> 참조<p></p>
   - 💬ED 샘플러와 마찬가지로 set_seed_cfg_sampler 설정이 있으며, 로더는 upscale + SUPIR 모델 로더와 업스케일러가 통합되어 있음.<p></p>
   - 업스케일은 업스케일 모델로 업스케일 하고 나서 원하는 크기에 맞춰 다운 스케일하고 upscaled image에 출력한다.<p></p>
   - ComfyUI-SUPIR 설치 필요.<p></p>
@@ -687,7 +699,7 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 
 - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED의 steps가 멋대로 고정되는 문제는 이 노드(Int Holder 💬ED) 때문임.
 
-   [![img](D:\ComfyUI_windows_portable\ComfyUI\custom_nodes\efficiency-nodes-ED\html_resource\0034.png)](https://ac-p1.namu.la/20250405sac/ece685170c6facf55ed7ec66ad67691819dd3b9b88d65abce530ff5a5f8178cd.png?expires=1747243651&key=FHR3wj4whSSKnuSNwmktmQ&type=orig)
+   [![img](https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0034.PNG)](https://ac-p1.namu.la/20250405sac/ece685170c6facf55ed7ec66ad67691819dd3b9b88d65abce530ff5a5f8178cd.png?expires=1747243651&key=FHR3wj4whSSKnuSNwmktmQ&type=orig)
 
 ​        KSampler (Efficient) 💬ED로 이미지를 만들면 steps을 기억하고 있다가 Hires Fix 실행 시에 context에 저장하는 노드인데,
 
