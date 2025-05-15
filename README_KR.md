@@ -9,33 +9,27 @@
 
 ## 워크플로 예제:
 
+- ##### 메인 워크플로
 
+  <div id="wrap">
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Main.png" alt=""></div>
+      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+  </div>
 
-###### 메인 워크플로
+- ##### 리저널 워크플로
 
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Main.png" alt=""></div>
-    <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-</div>
+  <div id="wrap">
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png" alt=""></div>
+      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+  </div>
 
+- ##### 플럭스 워크플로
 
+  <div id="wrap">
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_flux.png" alt=""></div>
+      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+  </div>
 
-###### 리저널 워크플로
-
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png" alt=""></div>
-    <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-</div>
-
-
-
-
-###### 플럭스 워크플로
-
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_flux.png" alt=""></div>
-    <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-</div>
 
 
 
@@ -46,110 +40,120 @@
 
 - ## Context:
 
-Efficiency Nodes 원본과 다르게 💬ED노드는 <code>context</code> 링크를 주고 받는다.
+  Efficiency Nodes 원본과 다르게 💬ED노드는 <code>context</code> 링크를 주고 받는다.
+  <code>context</code> 링크는 <code>model, clip, vae, conditioning</code> 등등 수많은 링크 등을 하나로 묶은 링크 다발이라고 생각하면 된다.
 
-<code>context</code> 링크는 <code>model, clip, vae, conditioning</code> 등등 수많은 링크 등을 하나로 묶은 링크 다발이라고 생각하면 된다.
+  
 
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0001.jpg" width="600" style="display: inline-block;">
-</p>
+  - 워크플로를 만들다 보면 다음처럼 수많은 링크들로 스파게티처럼 만들어져 어질어질한데, 
 
-워크플로를 만들다 보면 위에 처럼 수많은 링크들로 스파게티처럼 만들어져 어질어질한데, 
+    <p align="left">
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0001.jpg" width="600" style="display: inline-block;">
+    </p>
+
+  - <code>context</code> 링크를 사용하면 다음처럼 간단하게 만들 수 있다.
+
+    <p align="left">
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0002.png" width="600" style="display: inline-block;">
+    </p>
+
+  - 꼭 💬ED노드 사이에만 사용하는 것이 아니라 다른 노드에도 사용할 수 있음.
+
+    <div id="wrap">
+        <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0003.png" alt=""></div>
+        <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+    </div>
+
+  - Efficient Loader 💬ED에서 출력하는 <code>context</code> 링크는 다음이 포함되어 있다.
+
+    <div id="table">
+        <table style="text-align: center;">
+                <tbody>
+                    <tr>
+                        <td rowspan="17" style="width:60%"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0005.png" width="1200" style="display: inline-block;"></td>
+                        <th style="background-color:palegreen;">context</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:MediumPurple;">model</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gold;">clip</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:HotPink;">vae</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:LightPink;">positive</th>
+                        <td>conditioning</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:LightPink;">negative</th>
+                        <td>conditioning</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Plum;">latent</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:LightSkyBlue;">image</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">seed</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">step_refiner</th>
+                        <td>대신 batch_size가 들어있음</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">cfg</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">ckpt_name</th>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">clip_width</th>
+                        <td>image width</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">clip_height</th>
+                        <td>image height</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">text_pos_g</th>
+                        <td>positive prompt</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">text_neg_g</th>
+                        <td>negative prompt</td>
+                    </tr>
+                    <tr>
+                        <th style="background-color:Gray;">mask</th>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
 
 
 
-<code>context</code> 링크를 사용하면 다음처럼 간단하게 만들 수 있다.
-
-<p align="left">
-  <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0002.png" width="600" style="display: inline-block;">
-</p>
 
 
-꼭 💬ED노드 사이에만 사용하는 것이 아니라 다른 노드에도 사용할 수 있음.
-
-<div id="wrap">
-    <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0003.png" alt=""></div>
-    <div class="txt-wrap"><p>(EXIF 있음)</p></div>
-</div>
 
 
-Efficient Loader 💬ED에서 출력하는 <code>context</code> 링크는 다음이 포함되어 있다.
 
-<div id="table">
-    <table style="text-align: center;">
-            <tbody>
-                <tr>
-                    <td rowspan="17" style="width:60%"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0005.png" width="1200" style="display: inline-block;"></td>
-                    <th style="background-color:palegreen;">context</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:MediumPurple;">model</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gold;">clip</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:HotPink;">vae</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:LightPink;">positive</th>
-                    <td>conditioning</td>
-                </tr>
-                <tr>
-                    <th style="background-color:LightPink;">negative</th>
-                    <td>conditioning</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Plum;">latent</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:LightSkyBlue;">image</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">seed</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">step_refiner</th>
-                    <td>대신 batch_size가 들어있음</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">cfg</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">ckpt_name</th>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">clip_width</th>
-                    <td>image width</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">clip_height</th>
-                    <td>image height</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">text_pos_g</th>
-                    <td>positive prompt</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">text_neg_g</th>
-                    <td>negative prompt</td>
-                </tr>
-                <tr>
-                    <th style="background-color:Gray;">mask</th>
-                    <td></td>
-                </tr>
-            </tbody>
-        </table>
-</div>
+
+
+
+
+
 
 
 
@@ -181,7 +185,7 @@ Efficient Loader 💬ED에서 출력하는 <code>context</code> 링크는 다음
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
 
-    빨간 부분 - <code>Use as preview</code>를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 도 있음)
+    빨간 부분 - <code>Use as preview</code>를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 있음)
 
     
 
