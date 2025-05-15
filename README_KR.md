@@ -388,38 +388,27 @@ AI로 그림을 뽑다보면 이런 생각이 들때가 있다. 더 그림을 �
 
 - ### Refiner script로 Hires FIx 하는법
 
-   1. Load Image 💬ED의 upscale_method와 keep_proportion을 이용해 2배로 업스케일 해준다. 
-
+   1. Load Image 💬ED의 <code>upscale_method</code>와 <code>keep_proportions</code>를 이용해 2배로 업스케일. 
+      (<code>keep_proportions</code>를 2x로 설정하면 <code>width, height</code>를 일일히 입력하지 않아도 자동으로 맞춰준다.)
+   
       <p align="left">
-        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0035.PNG" width="600" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0035.PNG" width="400" style="display: inline-block;">
       </p>
-
-     2. 
-
+   
+     2. KSampler (Efficient) 💬ED 오른클릭 > Add script > Refiner Script 💬ED 추가
+        <code>steps, denoise, start_at_step</code>을 설정한다. 
+        (Hires FIx 할 때 <code>start_at_step</code>은 <code>step</code>의 절반 정도가 적당한 듯. 직접 최적의 <code>denoise, start_at_step</code> 값을 찾아보자)
+   
         <p align="left">
           <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.PNG" width="600" style="display: inline-block;">
         </p>
-
-   3. 
-
- .
-
-
-
-
-Get booru Tag 💬ED <code>url</code>에 넣어주면,
-
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.PNG" width="500" style="display: inline-block;"></p>
-
-
-
-다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
-
- <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.PNG" width="500" style="display: inline-block;"></p>
-
-
-
-
+   
+   3. 큐를 돌린다.
+   
+      <div id="wrap">
+          <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.PNG" alt="" width="400" style="display: inline-block;"></div>
+          <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+      </div>
 
 
 
