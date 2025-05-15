@@ -86,7 +86,7 @@ const loadImageList = async (type) => {
 };
 
 app.registerExtension({
-	name: "ED.betterCombos",
+	name: "ED.BetterCombos",
 	init() {
 		$el("style", {
 			textContent: `

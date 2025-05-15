@@ -136,7 +136,7 @@ function showAddScriptMenu(_, options, e, menu, node) {
 
 // Extension Definition
 app.registerExtension({
-    name: "ED.addScripts",
+    name: "ED.AddScripts",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (connectionMap[nodeData.name]) {
             addMenuHandler(nodeType, function (_, options) {// Here, we are calling addMenuHandler

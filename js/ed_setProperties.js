@@ -4,11 +4,14 @@ import { applyTextReplacements } from "../../scripts/utils.js";
 
 import { toggleWidget, findWidgetByName } from "./node_options/common/utils.js";
 
-// Set Property
+let is_playing_sound = false;
+// Set Properties
 app.registerExtension({
-    name: "ED.efficientLoaderED",
+    name: "ED.SetProperties",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "Efficient Loader 💬ED") { //|| nodeData.name === "Eff. Loader SDXL 💬ED") {
+
+        // Efficient Loader 💬ED
+		if (nodeData.name === "Efficient Loader 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
 
             nodeType.prototype.onNodeCreated = function () {
@@ -32,26 +35,8 @@ app.registerExtension({
                 return result;
             };
         }
-    },
-});
-
-app.registerExtension({
-    name: "ED.WildcardEncodeED",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeData.name === "Wildcard Encode 💬ED") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function () {
-                const result = onNodeCreated?.apply(this, arguments);
-				this.setProperty("Turn on Apply Lora", false);
-                return result;
-            };
-        }
-    },
-});
-
-app.registerExtension({
-    name: "ED.KSamplerED",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+		
+		// KSampler (Efficient) 💬ED
         if (nodeData.name === "KSampler (Efficient) 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
             nodeType.prototype.onNodeCreated = function () {
@@ -90,12 +75,18 @@ app.registerExtension({
                 return result;
             };
         }
-    },
-});
-
-app.registerExtension({
-    name: "ED.DetailerED",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+		
+		// Wildcard Encode 💬ED
+        if (nodeData.name === "Wildcard Encode 💬ED") {
+            const onNodeCreated = nodeType.prototype.onNodeCreated;
+            nodeType.prototype.onNodeCreated = function () {
+                const result = onNodeCreated?.apply(this, arguments);
+				this.setProperty("Turn on Apply Lora", false);
+                return result;
+            };
+        }
+		
+		// FaceDetailer 💬ED, Detailer (SEGS) 💬ED
         if (nodeData.name === "FaceDetailer 💬ED" || nodeData.name === "Detailer (SEGS) 💬ED") {
             const onNodeCreated = nodeType.prototype.onNodeCreated;
             nodeType.prototype.onNodeCreated = function () {
@@ -104,18 +95,13 @@ app.registerExtension({
                 return result;
             };
         }
-    },
-});
-
-let is_playing_sound = false;
-app.registerExtension({
-	name: "ED.SaveImageED",
-	async beforeRegisterNodeDef(nodeType, nodeData, app) {
+		
+		// Save Image 🔔ED
 		if (nodeData.name === "Save Image 🔔ED") {
 			const onNodeCreated = nodeType.prototype.onNodeCreated;
 			// When the SaveImage node is created we want to override the serialization of the output name widget to run our S&R
 			nodeType.prototype.onNodeCreated = function () {
-				const r = onNodeCreated ? onNodeCreated.apply(this, arguments) : undefined;
+				const result = onNodeCreated ? onNodeCreated.apply(this, arguments) : undefined;
 
 				const widget = this.widgets.find((w) => w.name === "filename_prefix");
 				widget.serializeValue = () => {
@@ -136,8 +122,7 @@ app.registerExtension({
 						audio.play();
 						setTimeout(() => {is_playing_sound = false;}, 3000);
 					}
-				};
-				
+				};				
  				this.onPropertyChanged = (property, value) => {
 					if (property == "Play sound"){
 						if (value == true)
@@ -145,10 +130,12 @@ app.registerExtension({
 						else
 							this.title = this.title.replace('🔔', '🔕');
 					}
-				};
-				
-				return r;
+				};				
+				return result;
 			};
-		}
-	},
+		}		
+		
+    },
 });
+
+

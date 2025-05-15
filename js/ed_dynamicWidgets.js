@@ -468,7 +468,7 @@ function handleEmbeddingStacker(node, widget) {
 }
 
 app.registerExtension({
-    name: "ED.dynamicWidgets",
+    name: "ED.DynamicWidgets",
     nodeCreated(node) {
 		if (!NODE_WIDGET_HANDLERS[node.comfyClass]) return;
 		

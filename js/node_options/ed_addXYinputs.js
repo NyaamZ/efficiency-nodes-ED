@@ -69,7 +69,7 @@ function showAddXYInputMenu(type, e, menu, node) {
 }
 
 app.registerExtension({
-    name: "ED.addXYinputs",
+    name: "ED.AddXYinputs",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "XY Plot") {
             addMenuHandler(nodeType, function (_, options) {// Here, we are calling addMenuHandler

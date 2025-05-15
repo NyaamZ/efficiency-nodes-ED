@@ -155,7 +155,7 @@ async function createEmptyImage(width, height, color="white") {
 }
 
 app.registerExtension({
-	name: "ED.wildcard_select",
+	name: "ED.WildcardSelect",
 	nodeCreated(node, app) {
 		if( node.comfyClass == "Get Booru Tag 💬ED" || node.comfyClass == "Regional Script 💬ED" || node.comfyClass == "Context To DetailerPipe") {
 			node._value = "Select the LoRA to add to the text";

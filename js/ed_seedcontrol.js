@@ -205,7 +205,7 @@ function showSeedBehaviorMenu(value, options, e, menu, node) {
 
 // Extension Definition
 app.registerExtension({
-    name: "ED.seedcontrol",
+    name: "ED.SeedControl",
     async beforeRegisterNodeDef(nodeType, nodeData, _app) {
         if (NODE_WIDGET_MAP[nodeData.name]) {
             addMenuHandler(nodeType, function (_, options) {// Here, we are calling addMenuHandler

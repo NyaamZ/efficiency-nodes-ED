@@ -53,7 +53,7 @@ const generateResolutionMenu = node => Object.entries(RESOLUTIONS).map(([key, re
 }));
 
 app.registerExtension({
-    name: "ED.setResolution",
+    name: "ED.SetResolution",
     beforeRegisterNodeDef(nodeType) {
         if (["Efficient Loader 💬ED", "Regional Stacker 💬ED", "Regional Processor 💬ED"].some(cls => nodeType.comfyClass.includes(cls))) {
             const originalMenuOptions = nodeType.prototype.getExtraMenuOptions;
