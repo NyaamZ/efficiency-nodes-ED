@@ -195,24 +195,24 @@
     - 와일드 카드 파일은 임팩트 팩의 와일드 카드를 공유함. `ComfyUI\custom_nodes\comfyui-impact-pack\wildcards`
     - 일반적인 와일드 카드 문법은 모두 사용가능. 하지만, 와일드 카드 안의 와일드 카드, 로라는 사용 불가.
     - 와일드 카드 인코딩은 Efficient Loader 💬ED에서 처리함. 때문에 와일드카드 사용시 반드시 Get booru Tag 💬ED를 쓸 필요는 없음.
-    - 주석 기능 #, //, /* */ 를 모두 지원함.
+    - 주석 기능 `#` , `//`, `/* */` 를 모두 지원함.
 
     
 
   - ### 순차적 와일드 카드
 
-    - Get booru Tag 💬ED의 text_b 칸에 다음 처럼 \__와일드카드__#ASC0 이라고 적으면 된다.
+    - Get booru Tag 💬ED의 `text_b` 칸에 다음 처럼 `__와일드카드__#ASC0` 이라고 적으면 된다.
 
       <p align="left">
         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0010.png" width="400" style="display: inline-block;">
       </p>
 
-    - #ASC숫자 는 와일드카드를 '숫자에서부터' 하나씩 올라가며 순회하고  (와일드 카드 최대 숫자에 도달하면 멈춤)
+    - `#ASC숫자`는 와일드카드를 '숫자에서부터' 하나씩 올라가며 순회하고  (와일드 카드 최대 숫자에 도달하면 멈춤)
 
-    - #DSC숫자 는 와일드카드를 '숫자에서부터' 하나씩 내려오며 순회한다. (0에 도달하면 멈춤)
-      (와일드 카드의 갯수를 정확히 모를테니 #DSC1000 이렇게 대충 적으면 된다.)
+    - `#DSC숫자`는 와일드카드를 '숫자에서부터' 하나씩 내려오며 순회한다. (0에 도달하면 멈춤)
+      (와일드 카드의 갯수를 정확히 모를테니 `#DSC1000` 이렇게 대충 적으면 된다.)
 
-    - #FIX숫자 는 고정.
+    - `#FIX숫자`는 고정.
 
     - 순차적 와일드 카드는 Get booru Tag 💬ED로만 가능.
 
@@ -293,7 +293,7 @@
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0019.png" width="500" style="display: inline-block;"></p>
 
-  3. 다음 처럼 실시간으로 태그를 추출해준다. (/* */는 주석임)
+  3. 다음 처럼 실시간으로 태그를 추출해준다. (`/* */`는 주석임)
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
 
@@ -327,7 +327,7 @@
        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0024.png" width="500" style="display: inline-block;">
      </p>
 
-  2. XY plot의 <code>ksampler_output_image</code>를 반드시 <code>Plot</code>으로 할것!!
+  2. XY plot의 <code>ksampler_output_image</code>를 <code>Plot</code>으로 할것!!
 
      XY plot 오른 클릭 > Add X input > XY Input: Sampler/Scheduler
 
@@ -393,7 +393,7 @@
       <summary><b>Efficient Loader 💬ED</b></summary>
   <ul>
           <p></p>
-      <li>대략 Load Checkpoint, CLIP Set Last Layer, Empty Latent Image, Repeat Latent Batch 등을 하나로 묶은 것.<br><i>(단순히 네 가지를 합친 것보다 훨씬 더 다양한 기능)</i><br>
+      <li>대략 Load Checkpoint, CLIP Set Last Layer, Empty Latent Image, Repeat Latent Batch 등을 하나로 묶은 것.<br><i>(단순히 네 가지를 합친 것보다 훨씬 더 다양한 기능을 가지고 있다.)</i><br>
         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0021.png" width="250" style="display: inline-block;">
         </li>
       <p></p>
