@@ -635,15 +635,15 @@
 ## **Installation:**
 1. In Manager > Custom Node Manager > Search, install the following:
 
-   [**ComfyUI Impact Pack**](https://github.com/ltdrdata/ComfyUI-Impact-Pack)
+   [**ComfyUI Impact Pack**](https://github.com/ltdrdata/ComfyUI-Impact-Pack)  (Optional)
 
-   [**ComfyUI Impact Subpack**](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)
+   [**ComfyUI Impact Subpack**](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)  (Optional)
 
    [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (Absolutely Required!)
 
-   [**ComfyUI_UltimateSDUpscale**](https://github.com/ssitu/ComfyUI_UltimateSDUpscale)
+   [**ComfyUI_UltimateSDUpscale**](https://github.com/ssitu/ComfyUI_UltimateSDUpscale)  (Optional)
 
-   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)
+   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)  (Optional)
 
    [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)  (Absolutely Required!)
 
