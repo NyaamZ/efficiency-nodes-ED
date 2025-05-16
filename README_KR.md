@@ -52,7 +52,7 @@
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0001.jpg" width="600" style="display: inline-block;">
     </p>
 
-  - <code>context</code> 링크를 사용하면 간단하게 만들 수 있다.
+  - <code>context</code>링크를 사용하면 간단하게 만들 수 있다.
 
     <p align="left">
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0002.png" width="600" style="display: inline-block;">
