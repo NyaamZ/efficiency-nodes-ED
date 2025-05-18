@@ -2017,6 +2017,9 @@ class FaceDetailer_ED():
         segm_detector_opt = ED_Util.ultra_detector_model(segm_detector_opt, "segm")
         sam_model_opt = ED_Util.load_sam_model(sam_model_opt, sam_mode)                
         
+        # GITS
+        scheduler = "GITS[coeff=1.2]" if scheduler == "GITS" else scheduler
+        
         if 'FaceDetailer' not in NODES:
             ED_Util.try_install_custom_node('ComfyUI Impact Pack', 'https://github.com/ltdrdata/ComfyUI-Impact-Pack')
 
@@ -2101,6 +2104,9 @@ class MaskDetailer_ED():
             feather, crop_factor, drop_size, refiner_ratio, batch_size, cycle, 
             detailer_hook, inpaint_model, noise_mask_feather,
             bbox_fill=False, contour_fill=True, scheduler_func_opt=None):
+        
+        # GITS
+        scheduler = "GITS[coeff=1.2]" if scheduler == "GITS" else scheduler
         
         basic_pipe = (model, clip, vae, positive, negative)
         
@@ -2245,6 +2251,9 @@ class DetailerForEach_ED():
                 PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "scheduler", "type": "text", "data": scheduler})
         elif set_seed_cfg_sampler =="from node to ctx":
             context = new_context_ed(context, seed=seed, cfg=cfg, sampler=sampler_name, scheduler=scheduler)
+
+        # GITS
+        scheduler = "GITS[coeff=1.2]" if scheduler == "GITS" else scheduler
 
         if 'DetailerForEachDebug' not in NODES:
             ED_Util.try_install_custom_node('ComfyUI Impact Pack', 'https://github.com/ltdrdata/ComfyUI-Impact-Pack')

@@ -14,16 +14,37 @@ annotating_js_files = [
             "../efficiency-nodes-comfyui/js/node_options/common/modelInfoDialog.js",
             ]
 
-impact_wildcard_py = "../ComfyUI-Impact-Pack/modules/impact/wildcards.py"
 widgethider_js = "../efficiency-nodes-comfyui/js/widgethider.js"
 new_widgethider_js = "./user_css/widgethider.js"
 
 read_css_folder = "./user_css/"
 write_css_folder = "../../../python_embeded/Lib/site-packages/comfyui_frontend_package/static/"
 
-efficeincy_nodes_py = "../efficiency-nodes-comfyui/efficiency_nodes.py"
-efficeincy_nodes_target = '"ksampler_output_image": (["Images","Plot"],),},'
-efficeincy_nodes_replacement = '"ksampler_output_image": (["Images","Plot"], {"default": "Plot"}),},'
+replace_dict = {"efficeincy_nodes_py": {
+                                        "file": "../efficiency-nodes-comfyui/efficiency_nodes.py",
+                                        "target": '"ksampler_output_image": (["Images","Plot"],),},',
+                                        "replacement": '"ksampler_output_image": (["Images","Plot"], {"default": "Plot"}),},',},
+                            "impact_wildcard_py": {
+                                        "file": "../ComfyUI-Impact-Pack/modules/impact/wildcards.py",
+                                        "target": "print(f\"CLIP: {str.join(' + ', pass3_str)}\")",
+                                        "replacement": "# print (f\"CLIP: {str.join(' + ', pass3_str)}\")",},
+                            # "impact_sampling_py_A": {
+                                        # "file": "../ComfyUI-Impact-Pack/modules/impact/impact_sampling.py",
+                                        # "target": "elif scheduler.startswith('GITS[coeff='):",
+                                        # "replacement": "elif scheduler.startswith('GITS'):",},
+                            # "impact_sampling_py_B": {
+                                        # "file": "../ComfyUI-Impact-Pack/modules/impact/impact_sampling.py",
+                                        # "target": "sigmas = nodes.NODE_CLASS_MAPPINGS['GITSScheduler']().get_sigmas(float(scheduler[11:-1]), steps, denoise=1.0)[0]",
+                                        # "replacement": "sigmas = nodes.NODE_CLASS_MAPPINGS['GITSScheduler']().get_sigmas(1.20, steps, denoise=1.0)[0]",},
+                          }
+
+
+def replaceFromDict(replace_dict):
+    for key in replace_dict:
+        file_path = replace_dict[key]["file"]
+        target_line = replace_dict[key]["target"]
+        replacement_line = replace_dict[key]["replacement"]
+        replaceLineFromFile (file_path, target_line, replacement_line)
 
 def is_file_exist(filepath):
     if not os.path.isfile(filepath):
@@ -72,33 +93,12 @@ def restore_annotate_file(js_file):
     if modified:
         print(f"File has been modified: {js_file}")
 
-def annotate_wildcard(py_file):
-    if not is_file_exist(py_file):
-        return
-    
-    contents = []
-    modified = False
-    if os.path.isfile(py_file):
-        with open(py_file, 'r', encoding='UTF8') as f:
-            contents = f.readlines()
-        with open(py_file, 'w', encoding='UTF8') as f:
-            for c in contents:
-                if 'print(f"CLIP: {str.join('  in c and not "## from ED ##" in c:
-                    f.write("## from ED ##" + c)
-                    modified = True
-                else:
-                    f.write(c)
-                    
-    if modified:
-        print(f"File has been modified: {js_file}")
 
-
-
-def replace_py_file(py_file, target_line, replacement_line):
-    if not is_file_exist(py_file):
+def replaceLineFromFile(file_path, target_line, replacement_line):
+    if not is_file_exist(file_path):
         return
 
-    with open(py_file, 'r', encoding='utf-8') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
     modified = False
@@ -114,9 +114,9 @@ def replace_py_file(py_file, target_line, replacement_line):
             new_lines.append(line)
 
     if modified:
-        with open(py_file, 'w', encoding='utf-8') as file:
+        with open(file_path, 'w', encoding='utf-8') as file:
             file.writelines(new_lines)
-        print(f"File has been modified: {py_file}")
+        print(f"File has been modified: {file_path}")
 
 def widgethider_js_copy():
     shutil.copy2(new_widgethider_js, widgethider_js)
@@ -147,12 +147,13 @@ def restore_user_css():
 try:
     printout = "copy user.css and disable unnecessary js files"
     print ("\n")
+
     widgethider_js_copy()
     copy_user_css()
     for file in annotating_js_files:
         annotate_file(file)
-    annotate_wildcard(impact_wildcard_py)
-    replace_py_file(efficeincy_nodes_py, efficeincy_nodes_target, efficeincy_nodes_replacement)
+    replaceFromDict(replace_dict)
+
     print(f"\n\nEfficiency Nodes ED: Attempting to {printout} success!\n\n")
     
 except Exception as e:
