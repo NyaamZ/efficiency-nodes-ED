@@ -299,6 +299,18 @@
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
 
+  4. From 0.8.5, a new widget called <code>Group tags by category</code> has been added to the Get booru Tag 💬ED. When there are too many tags like the example below, it can become overwhelming.
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
+
+  5. Clicking it will group the tags by category.
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0043.png" width="500" style="display: inline-block;"></p>
+
+  6. The inputs `text_a` and `text_c` are simply combined and output as `text`.
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="500" style="display: inline-block;"></p>
+
 　
 
 - ## Set_seed_cfg_sampler:
@@ -375,8 +387,16 @@
        <p align="left">
          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
        </p>
-  
-    3. Run the queue.
+
+    3. From 0.8.5, you can attach the LoRA Stacker 💬ED to the Refiner Script 💬ED.
+
+       (This is an additional LoRA used during refining. If a different model is loaded, only this LoRA will be used. For example, if the character becomes distorted or the proportions look off after Hires Fix, using a LoRA like [this one](https://civitai.com/models/1461427) can help improve the result.)
+
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="600" style="display: inline-block;">
+       </p>
+
+    4. Run the queue.
   
        <div id="wrap">
            <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.png" alt="" width="400" style="display: inline-block;"></div>

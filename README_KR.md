@@ -297,6 +297,18 @@
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
 
+  4. 0.8.5 부터 Get booru Tag 💬ED에 <code>Group tags by category</code>위젯이 새로 생겼다. 아래처럼 태그가 너무 많아 정신이 없을때, 
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
+
+  5. 클릭하면 카테고리별로 정렬이 된다.
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0043.png" width="500" style="display: inline-block;"></p>
+
+  6. `text_a`, `text_c`의 입력은 그것들을 단순히 합쳐 `text`로 출력한다.
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="500" style="display: inline-block;"></p>
+
 　
 
 - ## Set_seed_cfg_sampler:
@@ -376,7 +388,15 @@
          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
        </p>
 
-    3. 큐를 돌린다.
+    3. 0.8.5 버전 부터 Refiner Script 💬ED에  LoRA Stacker 💬ED를 붙일 수 있다. 
+
+       (리파이닝을 할 때 추가적으로 쓰는 로라이다(다른 모델을 로딩했을 경우에는 이 로라만 사용함). 예를 들어 Hires Fix 할 때 인물이 뒤틀리거나 비율이 이상해지면, [이 로라](https://civitai.com/models/1461427)를 사용하면 결과가 좋아질 수 있다.)
+
+       <p align="left">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="600" style="display: inline-block;">
+       </p>
+
+    4. 큐를 돌린다.
 
        <div id="wrap">
            <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0037.png" alt="" width="400" style="display: inline-block;"></div>
