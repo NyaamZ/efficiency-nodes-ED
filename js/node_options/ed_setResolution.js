@@ -19,6 +19,7 @@ const RESOLUTIONS = {
         { ratio: "12:19", width: 768, height: 1216, shape: "portrait" },
         { ratio: "4:7", width: 768, height: 1344, shape: "◆portrait" },
         { ratio: "13:19", width: 832, height: 1216, shape: "◆portrait" },
+        { ratio: "2:1", width: 585, height: 1266, shape: "portrait" },
         { ratio: "9:16", width: 720, height: 1280, shape: "portrait" },
         { ratio: "9:16", width: 756, height: 1344, shape: "portrait" },
         { ratio: "5:12", width: 640, height: 1536, shape: "◆portrait" },

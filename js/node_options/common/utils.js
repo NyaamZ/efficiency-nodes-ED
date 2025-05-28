@@ -3,6 +3,20 @@ import { $el } from "../../../../scripts/ui.js";
 
 let origProps = {};
 
+export async function fetchJson(fileAddress) {
+  try {
+	const response = await fetch(fileAddress);
+	if (!response.ok) {
+	  throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	const data = await response.json();
+	return data;
+  } catch (error) {
+	console.error('JSON 파일을 불러오는 중 오류 발생:', error);
+  }
+}
+
+
 export function findWidgetByName(node, widgetName) {
     return node.widgets.find(widget => widget.name === widgetName);
 }

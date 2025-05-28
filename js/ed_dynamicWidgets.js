@@ -4,7 +4,7 @@ import { ComfyDialog, $el } from "../../scripts/ui.js";
 import { ComfyApp } from "../../scripts/app.js";
 import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
 
-import { toggleWidget, findWidgetByName, updateNodeHeight, showMessage } from "./node_options/common/utils.js";
+import { toggleWidget, findWidgetByName, updateNodeHeight, showMessage, fetchJson } from "./node_options/common/utils.js";
 
 let wildcards_list = [];
 
@@ -359,18 +359,25 @@ async function handleGetBooruTag(node, widget) {
 		str = str.replaceAll("&#039;", "'");
 		str = str.replaceAll("&lt;", "<");
 		str = str.replaceAll("&gt;", ">");
+		str = str.replaceAll(/\(/g, "\\(");
+		str = str.replaceAll(/\)/g, "\\)");
 		return str;
 	}
-	
-	if (!(widget.value.includes('danbooru') || widget.value.includes('gelbooru'))) return;
 
-	let tagsWidget
-	if (node.comfyClass == "Get Booru Tag 💬ED") 
-		tagsWidget = findWidgetByName(node, "text_b");
-	if (node.comfyClass == "Regional Script 💬ED")
-		tagsWidget = findWidgetByName(node, "prompt");
-	
-	const proxy = 'https://corsproxy.io/?';
+	function updateTagsAndNotify(tags, booruSite, widget) {
+		if (!tags) return showError('ERROR: Tags not found in JSON file.');
+		if (typeof tags !== 'string') return showError('ERROR: Tags are not string.');
+
+		setTags(tags);
+		const capitalizedSite = capitalizeFirstLetter(booruSite);
+		widget.value = widget.value.replaceAll(booruSite, capitalizedSite);
+
+		showMessage("Success", `${capitalizedSite} tags are successfully loaded`);
+	}
+
+	function capitalizeFirstLetter(text) {
+		return text.charAt(0).toUpperCase() + text.slice(1);
+	}
 
     // 태그 설정 함수
     function setTags(tags) {
@@ -378,70 +385,113 @@ async function handleGetBooruTag(node, widget) {
         tagsWidget.value = tag_data;
     }
     // 에러 표시
-    function showError(error) {
-        tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
-		showMessage("Error", error.replaceAll("ERROR: ", ""));
+    function showError(error, showTag=false) {
+        if (showTag) tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
+		showMessage("Error", error);
     }
 
     // 에러 처리 및 데이터 요청 함수
     async function fetchData(url) {
         try {
+			console.log(`Fetching from: ${url}`)
             const req = await fetch(url);
             if (!req.ok) throw new Error(`HTTP Error! Status Code: ${req.status}`);
             return await req.json();
         } catch (error) {
-            showError(error);
+            showError(error, true);
             return null;
         }
     }
 
-    if (widget.value.includes('danbooru')) {
-        const baseDanbooruUrl = "https://danbooru.donmai.us/";
-        const match = /posts\/(\d+)/.exec(widget.value);
+	function getDanbooruTags(data) {
+		if (!data) return null;
+		let tags = "";
+		if (data.tag_string_artist) tags += "/*artist*/" + data.tag_string_artist + " \n";
+		if (data.tag_string_character) tags += "/*character*/" + data.tag_string_character + " \n";
+		if (data.tag_string_copyright) tags += "/*copyright*/" + data.tag_string_copyright + " \n";
+		tags += data.tag_string_general || "";
+		return tags;
+	}
 
-        if (match) {
-            const url = baseDanbooruUrl + match[0] + '.json';
-            const data = await fetchData(url);
-            if (data) {
-				let tags = ""
-                if (data.tag_string_artist) tags += "/*artist*/" + data.tag_string_artist + " \n";
-				if (data.tag_string_character) tags += "/*character*/" + data.tag_string_character + " \n";
-				if (data.tag_string_copyright) tags += "/*copyright*/" + data.tag_string_copyright + " \n";
-				if (data.tag_string_general) { 
-					tags += "\n" + data.tag_string_general;
-				} else {
-					showError('ERROR: Tags was not found in JSON file.');
-				}
-				setTags(tags);
-				widget.value = widget.value.replaceAll("danbooru", "Danbooru");
-				console.log('Tags loading success :\n' + url );
-				showMessage("Success", 'Danbooru tags are successfully loaded');
-            } else {
-				showError('ERROR: Tags was not found in JSON file.');
-			}
-        } else {
-            showError('ERROR: ID was not found in Danbooru URL.');
-        }
-    }
-    else if (widget.value.includes('gelbooru')) {
-        const baseGelbooruUrl = "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&pid=38&";
-        const match = /id=(\d+)/.exec(widget.value);
+	const booruDict = {
+		danbooru: {
+			type: "danbooru",
+			base_url: "https://danbooru.donmai.us/posts/",
+			func: (data) => getDanbooruTags(data), },
+		aibooru: {
+			type: "danbooru",
+			base_url: "https://aibooru.online/posts/",
+			func: (data) => getDanbooruTags(data), },
+		gelbooru: {
+			type: "gelbooru",
+			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",
+			func: (data) => data?.post?.[0]?.tags, },
+		safebooru: {
+			type: "gelbooru",
+			base_url: "https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&id=",
+			func: (data) => data?.[0]?.tags, },
+		xbooru: {
+			type: "gelbooru",
+			base_url: "https://xbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",
+			func: (data) => data?.[0]?.tags, },
+		konachan: {
+			type: "moebooru",
+			base_url: "https://konachan.net/post.json?tags=id:",
+			func: (data) => data?.[0]?.tags, },
+		yande: {
+			type: "moebooru",
+			base_url: "https://yande.re/post.json?tags=id:",
+			func: (data) => data?.[0]?.tags, },
+	};
 
-        if (match) {
-			const url = proxy + baseGelbooruUrl + match[0];
-            const data = await fetchData(url);
-            if (data && data.post && data.post[0]) {
-                setTags(data.post[0].tags);
-				widget.value = widget.value.replaceAll("gelbooru", "Gelbooru");
-				console.log('Tags loading success :\n' + url );
-				showMessage("Success", 'Gelbooru tags are successfully loaded');
-            } else {
-				showError('ERROR: Tags was not found in JSON file.');
-			}
-        } else {
-            showError('ERROR: ID was not found in Gelbooru URL.');
-        }
-    }	
+	if (!widget.value || widget.value === "None" || /[A-Z]/.test(widget.value.slice(0, 10))) return;
+
+	let tagsWidget
+	if (node.comfyClass == "Get Booru Tag 💬ED") 
+		tagsWidget = findWidgetByName(node, "text_b");
+	if (node.comfyClass == "Regional Script 💬ED")
+		tagsWidget = findWidgetByName(node, "prompt");
+
+	let booru_name = Object.keys(booruDict).find(key => widget.value.includes(key));
+	if (!booru_name) return showError('ERROR: No matching booru found.');
+
+	const { type, base_url, func } = booruDict[booru_name];
+	const proxy = 'https://corsproxy.io/?';
+
+	// danbooru
+	if (type === "danbooru") {
+		const match = /posts\/(\d+)/.exec(widget.value);
+		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
+
+		const url = base_url + match[1] + '.json';
+		const data = await fetchData(url);
+		const tags = func(data);
+		
+		updateTagsAndNotify(tags, booru_name, widget);
+	
+	// gelbooru
+	} else if (type === "gelbooru") {
+		const match = /id=(\d+)/.exec(widget.value);
+		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
+
+		const url = proxy + base_url + match[1];
+		const data = await fetchData(url);
+		const tags = func(data);
+
+		updateTagsAndNotify(tags, booru_name, widget);
+	
+	// moebooru
+	} else if (type === "moebooru") {
+		const match = /\/show\/(\d+)/.exec(widget.value);
+		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
+
+		const url = proxy + base_url + match[1];
+		const data = await fetchData(url);
+		const tags = func(data);
+
+		updateTagsAndNotify(tags, booru_name, widget);
+	}	
+	
 }
 
 // LoadImage ED Handlers
@@ -481,6 +531,265 @@ function handleEmbeddingStacker(node, widget) {
 	const posORneg = widget.name.substr(0, 3);
 	handleVisibility(node, widget, "Embedding Stacker 💬ED_"+ posORneg);
 	updateNodeHeight(node);
+}
+
+// 태그를 카테고리별로 나누는 함수 //////////////////////////////////////////////////////////////////////
+let tag_category;
+let tag_category_v2;
+let tags_by_category = {
+	"general" : [],
+	"artist" : [],
+	"copyright" : [],
+	"character" : [],
+	"meta" : []
+}
+let category_priority;
+
+function categorizeValue(widget) {
+
+	function parsePromptAttention(text) {
+		const attnSyntax = /\\\(|\\\)|\\\[|\\]|\\\\|\\|\(|\[|:\s*([+-]?[\d.]+)\s*\)|\)|\]|[^\\()[\]:]+|:/g;
+		const reBreak = /\s*\bBREAK\b\s*/g;
+
+		const result = [];
+		const roundBrackets = [];
+		const squareBrackets = [];
+
+		const roundBracketMultiplier = 1.1;
+		const squareBracketMultiplier = 1 / 1.1;
+
+		function multiplyRange(start, multiplier) {
+			for (let i = start; i < result.length; i++) {
+				result[i][1] *= multiplier;
+			}
+		}
+
+		let match;
+		while ((match = attnSyntax.exec(text)) !== null) {
+			const token = match[0];
+			const weight = match[1];
+
+			if (token.startsWith("\\")) {
+				result.push([token.slice(1), 1.0]);
+			} else if (token === "(") {
+				roundBrackets.push(result.length);
+			} else if (token === "[") {
+				squareBrackets.push(result.length);
+			} else if (weight !== undefined && roundBrackets.length > 0) {
+				multiplyRange(roundBrackets.pop(), parseFloat(weight));
+			} else if (token === ")" && roundBrackets.length > 0) {
+				multiplyRange(roundBrackets.pop(), roundBracketMultiplier);
+			} else if (token === "]" && squareBrackets.length > 0) {
+				multiplyRange(squareBrackets.pop(), squareBracketMultiplier);
+			} else {
+				const parts = token.split(reBreak);
+				for (let i = 0; i < parts.length; i++) {
+					if (i > 0) {
+						result.push(["BREAK", -1]);
+					}
+					result.push([parts[i], 1.0]);
+				}
+			}
+		}
+
+		for (const pos of roundBrackets) {
+			multiplyRange(pos, roundBracketMultiplier);
+		}
+
+		for (const pos of squareBrackets) {
+			multiplyRange(pos, squareBracketMultiplier);
+		}
+
+		if (result.length === 0) {
+			result.push(["", 1.0]);
+		}
+
+		// Merge consecutive entries with same weight
+		let i = 0;
+		while (i + 1 < result.length) {
+			if (result[i][1] === result[i + 1][1]) {
+				result[i][0] += result[i + 1][0];
+				result.splice(i + 1, 1);
+			} else {
+				i++;
+			}
+		}
+
+		return result;
+	}
+	
+	function removeComment(input) {
+	  return input
+		// 블록 주석 제거 (/* ... */)
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		// 줄별로 나눈 후
+		.split('\n')
+		.map(line => {
+		  // 라인 주석 제거 (// 또는 # 이후 부분 제거)
+		  return line.replace(/\/\/.*$/g, '').replace(/#.*$/g, '');
+		})
+	}
+	
+	function parseTagWeightArray(inputArray) {
+	  return inputArray.flatMap(([tags, weight]) => {
+		// 소수점 세 자리로 반올림
+		const roundedWeight = Math.round(weight * 1000) / 1000;
+		  
+		if (typeof tags === 'string') {
+		  return tags
+			.split(',')
+			.map(tag => tag.trim())
+			.filter(tag => tag.length > 0) // 빈 문자열 제거
+			.map(tag => [tag, roundedWeight]);
+		} else {
+		  return [[tags, roundedWeight]];
+		}
+	  });
+	}
+	
+	function categorizeTags(inputTagsWithWeight, categoryMaps, priorityList) {
+	  const result = {};
+
+		// 태그가 속한 가장 높은 우선순위의 카테고리를 찾는 함수
+		function getTopCategory(tag, categoryMaps) {
+		  for (const map of categoryMaps) {
+			let categories = map[tag] || [];
+
+			// 특수 조건에 따른 카테고리 재정의
+			if ((categories.includes("gender") || categories.includes("girl")) && tag.includes("girl")) {
+			  categories = ["female"];
+			} else if (tag.endsWith("_girl")) {
+			  categories = ["female"];
+			} else if (categories.includes("gender") && tag.includes("boy")) {
+			  categories = ["male"];
+			} else if (tag.endsWith("_boy")) {
+			  categories = ["male"];
+			} else if (tag.endsWith("_focus")) {
+			  categories = ["camera"];
+			} else if (categories.includes("hair_style") || categories.includes("hair_color")) {
+			  categories = ["hair"];
+			} else if (categories.includes("eye") || categories.includes("eyes") || categories.includes("face") || tag.endsWith("_ears")) {
+			  categories = ["face"];
+			} else if (tag.endsWith("hat") || categories.includes("hat")) {
+			  categories = ["headwear"];
+			} else if (categories.includes("expression") || categories.includes("emotion")) {
+			  categories = ["expression & emotion"];
+			} else if (categories.includes("accessory") || categories.includes("hair_accessory") || categories.includes("jewelry") || tag.endsWith("_earring") || tag.endsWith("halo") || tag.endsWith("_ornament")) {
+			  categories = ["accessory"];
+			} else if (categories.includes("armor") || tag.endsWith("_clothes") || tag.endsWith("_shorts")|| tag.endsWith("_shoes")|| tag.endsWith("_boots")) {
+			  categories = ["clothing"];
+			} else if (categories.includes("relationship")) {
+			  categories = ["person"];
+			} else if (categories.includes("body_modification") || tag.endsWith("_wings") || tag.endsWith("_tail")) {
+			  categories.unshift("body");
+			} else if (categories.includes("pose") || categories.includes("action") || categories.includes("touch") || categories.includes("touching") || tag.startsWith("holding_")) {
+			  categories = ["pose & action"];
+			} else if (tag.includes("pubic_hair") || categories.includes("sensitive")) {
+			  categories = ["sensitive"];
+			} else if (categories.includes("props") || categories.includes("item") || tag.startsWith("unworn_")) {
+			  categories = ["object"];
+			} else if (tag.includes("place") || categories.includes("location")) {
+			  categories = ["place & location"];
+			} else if (categories.includes("architecture")) {
+			  categories.unshift("background");
+			}
+			
+			if (Array.isArray(categories) && categories.length > 0) {
+			  // 우선순위 기준으로 정렬
+			  const sorted = [...categories].sort((a, b) => {
+				const ai = priorityList.indexOf(a);
+				const bi = priorityList.indexOf(b);
+				return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+			  });
+
+			  // "state"는 body로 대체
+			  if (sorted[0] === "state" || sorted[0] === "status") return "body";
+
+			  return sorted[0];
+			}
+		  }
+
+		  return null;
+		}
+
+	  // 사전 정의된 메타 정보로부터 카테고리를 찾는 함수
+	  function findTagFromCategory(tag) {
+		for (const category of ["meta", "copyright", "character", "artist"]) {
+		  if (tags_by_category[category]?.includes(tag)) {
+			return category;
+		  }
+		}
+		return null;
+	  }
+
+	  // 결과 객체에 카테고리 배열이 없으면 생성 후 반환
+	  const getOrCreateCategoryArray = (category) => {
+		if (!result[category]) result[category] = [];
+		return result[category];
+	  };
+
+	  // 입력된 태그들을 순회하며 적절한 카테고리에 분류
+	  inputTagsWithWeight.forEach(([tag, weight]) => {
+		const topCategory = getTopCategory(tag, categoryMaps);
+
+		if (topCategory) {
+		  getOrCreateCategoryArray(topCategory).push([tag, weight]);
+		} else {
+		  const fallbackCategory = findTagFromCategory(tag) || "*unclassified*";
+		  getOrCreateCategoryArray(fallbackCategory).push([tag, weight]);
+		}
+	  });
+
+	  return result;
+	}
+	
+	function writeSortedCategorizedTags(categorizedTags, category_priority) {
+	  const sortedEntries = Object.entries(categorizedTags).sort(([a], [b]) => {
+		if (a === "*unclassified*") return 1; // *unclassified*는 항상 뒤로
+		if (b === "*unclassified*") return -1;
+
+		const indexA = category_priority.indexOf(a);
+		const indexB = category_priority.indexOf(b);
+
+		const inA = indexA !== -1;
+		const inB = indexB !== -1;
+
+		if (inA && inB) return indexA - indexB;
+		if (inA) return -1;
+		if (inB) return 1;
+		return a.localeCompare(b); // 우선순위에 없는 항목은 알파벳 순
+	  });
+	  
+	  let outputText = "";
+	  sortedEntries.forEach(([category, tags]) => {
+		category = (category == "artist") ? "artist:" : category;
+		outputText += `//${category}` + "\n";
+
+		const formattedTags = tags.map(([tag, weight]) => {
+		  // 괄호 이스케이프 처리
+		  const escapedTag = tag.replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+		  if (weight == 1) return escapedTag;
+		  else if (weight == 1.1) return `(${escapedTag})`;
+		  else if (weight == 1.21) return `((${escapedTag}))`;
+		  else if (weight == 1.331) return `(((${escapedTag})))`;
+		  else return `(${escapedTag}:${weight})`;
+		});
+
+		outputText += formattedTags.join(", ") + ",\n\n";
+	  });
+	  return outputText;
+	}
+
+	if (!widget.value) return showMessage("Error", "No tags in text box");
+	if (!tag_category || !tag_category_v2 || !category_priority) return showMessage("Error", "JSON files were not loaded");
+
+	const tags = parseTagWeightArray(parsePromptAttention(removeComment(widget.value)));	
+	const c_tag = categorizeTags(tags, [tag_category, tag_category_v2], category_priority);
+	const result_txt = writeSortedCategorizedTags(c_tag, category_priority);
+	if (result_txt) {
+		widget.value = result_txt;
+		showMessage("Info", "Tags have been successfully categorized.")
+	}
 }
 
 async function createEmptyImage(width, height, color="white") {
@@ -612,120 +921,96 @@ async function createEmptyImage(width, height, color="white") {
     }
 }
 
-function getBooruTagRegionalScript(node){
+function getBooruTagRegionalScript(node) {
+	const CLASS_CONFIG = {
+		"Get Booru Tag 💬ED":    { tbox_id: 1, combo_id: 1, has_lora: false, has_group_tag:true},
+		"Regional Script 💬ED":   { tbox_id: 4, combo_id: 4, has_lora: false, has_group_tag:false},
+		"Context To DetailerPipe":{ tbox_id: 0, combo_id: 1, has_lora: true, has_group_tag:false}
+	};
 
-	if( node.comfyClass == "Get Booru Tag 💬ED" || node.comfyClass == "Regional Script 💬ED" || node.comfyClass == "Context To DetailerPipe") {
-		node._value = "Select the LoRA to add to the text";
-		node._wvalue = "Select the Wildcard to add to the text";
-
-		var tbox_id = 2;
-		var combo_id = 3;
-		var has_lora = false;
-		
-		switch(node.comfyClass){
-			case "Get Booru Tag 💬ED":
-				tbox_id = 1;
-				combo_id = 1;
-				has_lora = false;
-				break;
-
-			case "Regional Script 💬ED":
-				tbox_id = 4;
-				combo_id = 4;
-				has_lora = false;
-				break;
-
-			case "Context To DetailerPipe":
-				tbox_id = 0;
-				combo_id = 1;
-				has_lora = true;
-				break;
-		}
-		
-		node.widgets[combo_id+1].callback = (value, canvas, node, pos, e) => {
-			if(node.widgets[tbox_id].value != ''){
-				node.widgets[tbox_id].value = node.widgets[tbox_id].value.replace(/,\s*$/, '');
-				node.widgets[tbox_id].value += ', ';
-			}
-			node.widgets[tbox_id].value += node._wildcard_value + ",";
-		}
-
-		Object.defineProperty(node.widgets[combo_id+1], "value", {
-			set: (value) => {
-				if (value !== "Select the Wildcard to add to the text")
-					node._wildcard_value = value;
-			},
-			get: () => { return "Select the Wildcard to add to the text"; }
-		});
-
-		Object.defineProperty(node.widgets[combo_id+1].options, "values", {
-			set: (x) => {},
-			get: () => {
-				return wildcards_list;
-			}
-		});
-
-		if(has_lora) {
-			node.widgets[combo_id].callback = (value, canvas, node, pos, e) => {
+	function applyComboBehavior(comboWidget, tboxWidget, isWildcard = true, lora = false) {
+		comboWidget.callback = (value, canvas, node, pos, e) => {
+			if (isWildcard) {
+				if (tboxWidget.value !== '') {
+					tboxWidget.value = tboxWidget.value.replace(/,\s*$/, '') + ', ';
+				}
+				tboxWidget.value += node._wildcard_value + ",";
+			} else if (lora) {
 				let lora_name = node._value;
-				if(lora_name.endsWith('.safetensors')) {
+				if (lora_name.endsWith('.safetensors')) {
 					lora_name = lora_name.slice(0, -12);
 				}
-
-				node.widgets[tbox_id].value += `<lora:${lora_name}>`;
-				if(node.widgets_values) {
-					node.widgets_values[tbox_id] = node.widgets[tbox_id].value;
+				tboxWidget.value += `<lora:${lora_name}>`;
+				if (node.widgets_values) {
+					node.widgets_values[config.tbox_id] = tboxWidget.value;
 				}
 			}
-
-			Object.defineProperty(node.widgets[combo_id], "value", {
-				set: (value) => {
-						if (value !== "Select the LoRA to add to the text")
-							node._value = value;
-					},
-
-				get: () => { return "Select the LoRA to add to the text"; }
-			});
-		}
-
-		// Preventing validation errors from occurring in any situation.
-		if(has_lora) {
-			node.widgets[combo_id].serializeValue = () => { return "Select the LoRA to add to the text"; }
-		}
-		node.widgets[combo_id+1].serializeValue = () => { return "Select the Wildcard to add to the text"; }
+		};
 	}
-	
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
-	if( node.comfyClass == "Regional Stacker 💬ED" || node.comfyClass == "Regional Processor 💬ED") {
-		node._wvalue = "Create empty image";			
 
-		const empty_image_widget = node.widgets[3];
-		const width_widget = node.widgets[1];
-		const height_widget = node.widgets[2];
-		
-		empty_image_widget.callback = (value, canvas, node, pos, e) => {
-			createEmptyImage(width_widget.value, height_widget.value);
+	function defineComboValue(widget, defaultText, propName) {
+		Object.defineProperty(widget, "value", {
+			set: (value) => {
+				if (value !== defaultText)
+					node[propName] = value;
+			},
+			get: () => defaultText
+		});
+	}
+
+	function defineComboOptions(widget, optionsGetter) {
+		Object.defineProperty(widget.options, "values", {
+			set: (_) => {},
+			get: optionsGetter
+		});
+	}
+
+	// For the first group of nodes
+	if (CLASS_CONFIG[node.comfyClass]) {
+		const config = CLASS_CONFIG[node.comfyClass];
+		node._value = "Select the LoRA to add to the text";
+
+		const tboxWidget = node.widgets[config.tbox_id];
+		const wildcardCombo = node.widgets[config.combo_id + 1];
+
+		// Wildcard combo behavior
+		applyComboBehavior(wildcardCombo, tboxWidget, true);
+		defineComboValue(wildcardCombo, "Select the Wildcard to add to the text", "_wildcard_value");
+		defineComboOptions(wildcardCombo, () => wildcards_list);
+		wildcardCombo.serializeValue = () => "Select the Wildcard to add to the text";
+
+		// Optional: Group tag feature
+		if (config.has_group_tag) {
+			const groupCombo = node.widgets[config.combo_id + 2];
+			groupCombo.callback = () => categorizeValue(tboxWidget);
+			defineComboOptions(groupCombo, () => ["[Group tags by category]"]);
+			defineComboValue(groupCombo, "Group tags by category", "_value");
 		}
 
-		Object.defineProperty(empty_image_widget, "value", {
-			set: (value) => {
-				if (value !== "Create empty image")
-					node._wildcard_value = value;
-			},
-			get: () => { return "Create empty image"; }
-		});
+		// Optional: LoRA handling
+		if (config.has_lora) {
+			const loraCombo = node.widgets[config.combo_id];
+			applyComboBehavior(loraCombo, tboxWidget, false, true);
+			defineComboValue(loraCombo, "Select the LoRA to add to the text", "_value");
+			loraCombo.serializeValue = () => "Select the LoRA to add to the text";
+		}
+	}
 
-		Object.defineProperty(empty_image_widget.options, "values", {
-			set: (x) => {},
-			get: () => {
-				return ["Create empty image."];
-			}
-		});
+	// For Regional Stacker / Processor
+	if (node.comfyClass === "Regional Stacker 💬ED" || node.comfyClass === "Regional Processor 💬ED") {
+		const emptyImageWidget = node.widgets[3];
+		const widthWidget = node.widgets[1];
+		const heightWidget = node.widgets[2];
 
-		empty_image_widget.serializeValue = () => { return "Create empty image"; }
+		emptyImageWidget.callback = () => {
+			createEmptyImage(widthWidget.value, heightWidget.value);
+		};
+
+		defineComboValue(emptyImageWidget, "Create empty image", "_wildcard_value");
+		defineComboOptions(emptyImageWidget, () => ["[Create empty image]"]);
+		emptyImageWidget.serializeValue = () => "Create empty image";
 	}
 }
-
 
 app.registerExtension({
     name: "ED.DynamicWidgets",
@@ -757,6 +1042,14 @@ app.registerExtension({
 		}
     },
 	async setup() {
+		tag_category = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category.json')
+		tag_category_v2 = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category_v2.json')
+		category_priority = await fetchJson('./extensions/efficiency-nodes-ED/json/categoryPriority.json')
+		tags_by_category.artist = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/artist.json')
+		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json')
+		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json')
+		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json')
+		
         dynamicWidgets_initialized = true;
     },
 });

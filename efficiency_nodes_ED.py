@@ -190,7 +190,7 @@ class ED_Util:
             return recursive_load_lora(lora_params[1:], lora_model, lora_clip, folder_paths, lora_count)
         
         if show_node:
-            print(f"\033[36m{show_node} - Lora load(Not use Cashe):\033[0m")
+            print(f"\033[36m{show_node} - Lora load(Not use cashe):\033[0m")
         print(f"Lora:")
         lora_count = 0
         
@@ -644,7 +644,7 @@ class WildcardEncode_ED:
             
             if not positive:
                 pos_prompt = wildcard_ED.process(pos_prompt, seed, count)
-                positive = BNK_EncoderWrapper.imp_encode(pos_prompt, clip, clip_encoder)          
+                positive = BNK_EncoderWrapper.imp_encode(pos_prompt, clip, clip_encoder)
         
         if lora_stack:
             model, clip = ED_Util.apply_load_lora(lora_stack, model, clip, "Wildcard Encode ED")
@@ -719,8 +719,8 @@ class EfficientLoader_ED():
         lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner = Embedding_Stacker_ED.embedding_process(lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner)     
 
         # GET PROPERTIES #  
-        properties = self.get_properties(extra_pnginfo, my_unique_id, prompt)
-       
+        properties = self.get_properties(extra_pnginfo, my_unique_id, prompt)       
+
         # Model, clip, vae, lora_params 
         model, clip, vae, lora_stack, lora_params, is_flux_model = \
             self.load_model_clip_vae(properties, ckpt_name, vae_name, clip_skip,lora_stack, model_opt, clip_opt, prompt, my_unique_id)       
@@ -813,7 +813,6 @@ class EfficientLoader_ED():
     @staticmethod
     def get_properties(extra_pnginfo, my_unique_id, prompt):
         properties = {
-            "this_sync": True,
             "tiled_vae_encode": False,
             "use_latent_rebatch": True,
             "use_apply_lora": False,
@@ -824,24 +823,26 @@ class EfficientLoader_ED():
         
         if extra_pnginfo and "workflow" in extra_pnginfo:
             workflow = extra_pnginfo["workflow"]
-            # nodes, links = workflow_to_map(workflow)
+
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     properties['tiled_vae_encode'] = node["properties"]["Use tiled VAE encode"]
                     if properties['use_latent_rebatch']:
                         properties['use_latent_rebatch'] = node["properties"]["Use Latent Rebatch"]
-                    # properties['this_sync'] = node["properties"]["Synchronize widget with image size"]
                     properties['token_normalization'] = node["properties"]["Token normalization"]
                     properties['weight_interpretation'] = node["properties"]["Weight interpretation"]
+
                 if node["type"] == "Wildcard Encode 💬ED" and node["mode"] == 0:
                     properties['wildcard_node_exist'] = True
                     if not properties['use_apply_lora']:
                         if node["properties"]["Turn on Apply Lora"] == True:
                             print(f"\033[36mWildcard Encode ED: Turn on Apply Lora, loading Lora is pending.\033[0m")
                             properties['use_apply_lora'] = True
+
                 if node["type"] == "KSampler (Efficient) 💬ED":
                     if node["mode"] != 0:
                         properties['use_latent_rebatch'] = False
+
                 if node["type"] == "Refiner Script 💬ED" and node["mode"] == 0:
                     if ED_Util.get_widget_value(prompt, node, "ignore_batch_size") == True:
                         properties['use_latent_rebatch'] = False
@@ -1071,7 +1072,13 @@ class LoadImage_ED(nodes.LoadImage):
             #negative = prompt_dicts.get(negative_id.strip(), "")
 
         elif 'exif' in info:
-            text = info['exif'].decode("utf-16-be")
+            try:
+                text = info['exif'].decode('utf-16')  # 자동으로 LE/BE 판단
+            except UnicodeDecodeError:
+                try:
+                    text = info['exif'].decode('utf-8')  # 백업 디코딩
+                except UnicodeDecodeError:
+                    text = "There is no prompt information within the image."
             
             # 영어 알파벳이 처음 등장하는 위치 찾기
             match = re.search(r'[a-zA-Z]', text)
@@ -1176,7 +1183,7 @@ class Refiner_Script_ED:
                 "optional": {"refiner_model_opt": ("MODEL",),
                             "refiner_clip_opt": ("CLIP",),
                             "refiner_vae_opt": ("VAE",),
-                            #"script": ("SCRIPT",),
+                            "lora_stack": ("LORA_STACK",),
                             },
                 "hidden": {"my_unique_id": "UNIQUE_ID",},}
     RETURN_TYPES = ("SCRIPT",)
@@ -1184,8 +1191,8 @@ class Refiner_Script_ED:
     FUNCTION = "refiner_script_ed"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, script=None, my_unique_id=None):
-        script = script or {}
+    def refiner_script_ed(self, set_seed_cfg_sampler, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only, refiner_model_opt=None, refiner_clip_opt=None, refiner_vae_opt=None, lora_stack=None, my_unique_id=None):
+        script = {}
         
         if refiner_model_opt:
             if refiner_clip_opt is None or refiner_vae_opt is None:
@@ -1194,7 +1201,7 @@ class Refiner_Script_ED:
         if set_seed_cfg_sampler == "from context":
             seed = None
         
-        refiner_script = (refiner_model_opt, refiner_clip_opt, refiner_vae_opt, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, do_refine_only)
+        refiner_script = (refiner_model_opt, refiner_clip_opt, refiner_vae_opt, add_noise, seed, steps, cfg, sampler_name, scheduler, denoise, start_at_step, end_at_step, ignore_batch_size, lora_stack, do_refine_only)
             #print(f"\033[38;5;173mRefiner Script ED: Refiner script loading. steps:{steps}, start step:{start_at_step}, end step:{end_at_step}\033[0m")
         script["refiner_script"] = refiner_script
         
@@ -1480,6 +1487,7 @@ class GetBooruTag_ED():
                 #"text_c": ("STRING", {"multiline": True, "dynamicPrompts": False}),
                 "text_c": ("STRING", {"forceInput": True}),
                 "Select to add Wildcard": (["Select the Wildcard to add to the text"], ),
+                "Group tags by category": (["Group tags by category"], ),
             },
             "hidden": {"my_unique_id": "UNIQUE_ID",},
         }
@@ -1788,21 +1796,29 @@ class KSampler_ED():
     def apply_refiner_script(context, refiner_script, latent_image, preview_method, is_tiled, return_with_leftover_noise=None):
 
         if refiner_script:
-            refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, _ = refiner_script
-            
+            refiner_model, refiner_clip, refiner_vae, refiner_add_noise, refiner_seed, refiner_steps, refiner_cfg, refiner_sampler_name, refiner_scheduler, refiner_denoise, refiner_start_at_step, refiner_end_at_step, refiner_ignore_batch_size, lora_stack, _ = refiner_script
+
             # Unpack context
-            _, model, clip, vae, positive, negative, seed, cfg, sampler, scheduler, positive_prompt, negative_prompt = \
-            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "text_neg_g"])
+            _, model, clip, vae, positive, negative, seed, cfg, sampler, scheduler, positive_prompt, negative_prompt, clip_encoder = \
+            context_2_tuple_ed(context, ["model", "clip", "vae", "positive", "negative", "seed", "cfg", "sampler", "scheduler", "text_pos_g", "text_neg_g", "clip_encoder"])
             
             if not refiner_model:
                 refiner_model = model
                 refiner_clip = clip
                 refiner_vae = vae
+                
+                if lora_stack:
+                    model, clip = ED_Util.apply_load_lora(lora_stack, refiner_model, refiner_clip, "KSampler (Efficient) ED [Refiner Script]")
+                
                 refiner_positive = positive
-                refiner_negative = negative            
-            else:
-                refiner_positive = nodes.CLIPTextEncode().encode(refiner_clip, positive_prompt)[0]
-                refiner_negative = nodes.CLIPTextEncode().encode(refiner_clip, negative_prompt)[0]
+                refiner_negative = negative
+
+            else:                
+                if lora_stack:
+                    model, clip = ED_Util.apply_load_lora(lora_stack, refiner_model, refiner_clip, "KSampler (Efficient) ED [Refiner Script]")
+                
+                refiner_positive = BNK_EncoderWrapper.imp_encode(positive_prompt, refiner_clip, clip_encoder)
+                refiner_negative = BNK_EncoderWrapper.imp_encode(negative_prompt, refiner_clip, clip_encoder)
             
             if not refiner_seed:
                 refiner_seed = seed
@@ -1813,7 +1829,7 @@ class KSampler_ED():
             if refiner_ignore_batch_size:
                 latent_image = nodes.LatentFromBatch().frombatch(latent_image, 0, 1)[0]
             
-            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m running refiner script. start step:{refiner_start_at_step}, steps:{refiner_steps}, cfg:{refiner_cfg}, seed:{refiner_seed}\033[0m")
+            print(f"\r{message('KSampler (Efficient) ED:')}\033[38;5;173m running refiner script. start step:{refiner_start_at_step}, steps:{refiner_steps}, cfg:{refiner_cfg}\033[0m")
             
             set_preview_method(preview_method)
             latent_image = nodes.KSamplerAdvanced().sample(refiner_model, refiner_add_noise, refiner_seed, refiner_steps, 
