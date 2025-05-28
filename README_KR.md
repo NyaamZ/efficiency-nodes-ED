@@ -296,17 +296,35 @@
   3. 다음 처럼 실시간으로 태그를 추출해준다. (`/* */`는 주석임)
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
-
+     지원하는 부루 사이트:
+  
+     - [danbooru](https://danbooru.donmai.us)
+  
+     - [gelbooru](https://gelbooru.com)
+  
+     - [aibooru](https://aibooru.online)
+  
+     - [safebooru](https://safebooru.org)
+  
+     - [xbooru](https://xbooru.com)
+  
+     - [konachan.net](https://konachan.net) (konachan.com X)
+  
+     - [yande.re](https://yande.re)
+	   
+       
+  
+  
   4. 0.8.5 부터 Get booru Tag 💬ED에 <code>Group tags by category</code>위젯이 새로 생겼다. 아래처럼 태그가 너무 많아 정신이 없을때, 
-
+  
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
-
+  
   5. 클릭하면 카테고리별로 정렬이 된다.
-
+  
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0043.png" width="500" style="display: inline-block;"></p>
-
+  
   6. `text_a`, `text_c`의 입력은 그것들을 단순히 합쳐 `text`로 출력한다.
-
+  
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="500" style="display: inline-block;"></p>
 
 　

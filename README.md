@@ -298,7 +298,25 @@
   3. Tags are extracted in real-time (comments are marked with `/* */`):
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0020.png" width="500" style="display: inline-block;"></p>
-
+     Supported booru site:
+  
+     - [danbooru](https://danbooru.donmai.us)
+  
+     - [gelbooru](https://gelbooru.com)
+  
+     - [aibooru](https://aibooru.online)
+  
+     - [safebooru](https://safebooru.org)
+  
+     - [xbooru](https://xbooru.com)
+  
+     - [konachan.net](https://konachan.net) (konachan.com X)
+  
+     - [yande.re](https://yande.re)
+	   
+       
+  
+  
   4. From 0.8.5, a new widget called <code>Group tags by category</code> has been added to the Get booru Tag 💬ED. When there are too many tags like the example below, it can become overwhelming.
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
