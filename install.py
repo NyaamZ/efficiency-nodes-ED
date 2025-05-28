@@ -254,15 +254,15 @@ try:
 except Exception as e:
     print(f"\n\n\n[ERROR] efficiency nodes ED: An error occurred while replace python codes.\n{e}")
 
-user_choice = get_user_choice()
+# user_choice = get_user_choice()
 
-if user_choice == 'y':
-    copyFileFromDict(replace_icon_dict)
-    create_shortcut_with_vbs()
-elif user_choice == 'n':
-    print("ok.")
-elif user_choice == 'r':
-    copyFileFromDict(restore_icon_dict)
+# if user_choice == 'y':
+    # copyFileFromDict(replace_icon_dict)
+    # create_shortcut_with_vbs()
+# elif user_choice == 'n':
+    # print("ok.")
+# elif user_choice == 'r':
+    # copyFileFromDict(restore_icon_dict)
 
 print(f"\n\nEfficiency Nodes ED: {printout} is complete.\n\n")
     
