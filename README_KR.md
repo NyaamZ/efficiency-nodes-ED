@@ -393,7 +393,7 @@
        (리파이닝을 할 때 추가적으로 쓰는 로라이다(다른 모델을 로딩했을 경우에는 이 로라만 사용함). 예를 들어 Hires Fix 할 때 인물이 뒤틀리거나 비율이 이상해지면, [이 로라](https://civitai.com/models/1461427)를 사용하면 결과가 좋아질 수 있다.)
 
        <p align="left">
-         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="600" style="display: inline-block;">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0045.png" width="600" style="display: inline-block;">
        </p>
 
     4. 큐를 돌린다.

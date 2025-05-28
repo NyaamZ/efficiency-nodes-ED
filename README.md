@@ -393,7 +393,7 @@
        (This is an additional LoRA used during refining. If a different model is loaded, only this LoRA will be used. For example, if the character becomes distorted or the proportions look off after Hires Fix, using a LoRA like [this one](https://civitai.com/models/1461427) can help improve the result.)
 
        <p align="left">
-         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0044.png" width="600" style="display: inline-block;">
+         <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0045.png" width="600" style="display: inline-block;">
        </p>
 
     4. Run the queue.
