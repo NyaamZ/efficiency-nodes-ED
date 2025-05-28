@@ -1,5 +1,6 @@
 import os
 import shutil
+import sys
 # import win32com.client
 
 annotating_js_files = [
@@ -229,7 +230,7 @@ Shortcut.Save
 
 def get_user_choice():
     while True:
-        choice = input("\n\n\n>>Would you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n     (ComfyUI의 파비콘을 바꾸고 바탕화면에 바뀐 아이콘의 바로가기를 만들겠습니까?) y/n /r(restore/복구)").strip().lower()
+        choice = input("\n\n\n>>Would you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n     (y를 선택하면 ComfyUI의 웹 파비콘을 여우귀 소녀로 바꾸고 바탕화면에 같은 아이콘의 바로가기를 만듭니다.)\n\n>>y/n /r(restore/복구)").strip().lower()
         if choice in ['y', 'n', 'r']:
             return choice
         else:
@@ -254,15 +255,16 @@ try:
 except Exception as e:
     print(f"\n\n\n[ERROR] efficiency nodes ED: An error occurred while replace python codes.\n{e}")
 
-# user_choice = get_user_choice()
+if len(sys.argv) > 1 and sys.argv[1] == "run_from_batch":
+    user_choice = get_user_choice()
 
-# if user_choice == 'y':
-    # copyFileFromDict(replace_icon_dict)
-    # create_shortcut_with_vbs()
-# elif user_choice == 'n':
-    # print("ok.")
-# elif user_choice == 'r':
-    # copyFileFromDict(restore_icon_dict)
+    if user_choice == 'y':
+        copyFileFromDict(replace_icon_dict)
+        create_shortcut_with_vbs()
+    elif user_choice == 'n':
+        print("ok.")
+    elif user_choice == 'r':
+        copyFileFromDict(restore_icon_dict)
 
 print(f"\n\nEfficiency Nodes ED: {printout} is complete.\n\n")
     
