@@ -435,7 +435,8 @@ class LoRA_Stacker_ED:
             inputs["required"][f"clip_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})        
 
         inputs["optional"] = {
-            "lora_stack": ("LORA_STACK",)
+            "lora_stack": ("LORA_STACK",),
+            "Clear LoRAs": (["Clear LoRAs"], ),
         }
         return inputs
 
@@ -502,7 +503,8 @@ class Embedding_Stacker_ED:
             inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
 
         inputs["optional"] = {
-            "lora_stack": ("LORA_STACK",)
+            "lora_stack": ("LORA_STACK",),
+            "Clear embeddings": (["Clear embeddings"], ),
         }
         return inputs
 
@@ -693,8 +695,8 @@ class EfficientLoader_ED():
                 }
         return inputs
 
-    RETURN_TYPES = ("RGTHREE_CONTEXT", "MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
-    RETURN_NAMES = ("CONTEXT", "MODEL", "POSITIVE", "NEGATIVE", "LATENT", "VAE", "CLIP", "DEPENDENCIES",)
+    RETURN_TYPES = ("RGTHREE_CONTEXT", "MODEL", "CONDITIONING", "CONDITIONING", "LATENT", "IMAGE", "CLIP", "DEPENDENCIES",)
+    RETURN_NAMES = ("CONTEXT", "MODEL", "POSITIVE", "NEGATIVE", "LATENT", "IMAGE", "CLIP", "DEPENDENCIES",)
     OUTPUT_IS_LIST = (False, False, False, False, True, False, False, False,)
     FUNCTION = "efficientloader_ed"
     CATEGORY = "Efficiency Nodes/Loaders"
@@ -795,7 +797,7 @@ class EfficientLoader_ED():
         context = new_context_ed(None, model=model, clip=clip, vae=vae, positive=positive_encoded, negative=negative_encoded, 
                 latent=samples_latent, images=pixels, seed=seed, step_refiner=batch_size, cfg=cfg, ckpt_name=ckpt_name, sampler=sampler_name, scheduler=scheduler, clip_width=image_width, clip_height=image_height, text_pos_g=positive_prompt, text_neg_g=negative_prompt, mask=mask, lora_stack=lora_stack, clip_encoder=clip_encoder)
 
-        return (context, model, positive_encoded, negative_encoded, latent_list, vae, clip, dependencies,)
+        return (context, model, positive_encoded, negative_encoded, latent_list, pixels, clip, dependencies,)
 
     @classmethod
     def VALIDATE_INPUTS(cls, **kwargs):

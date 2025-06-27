@@ -1,7 +1,7 @@
 import os
 import shutil
 import sys
-# import win32com.client
+import json
 
 annotating_js_files = [
             "../efficiency-nodes-comfyui/js/node_options/addLinks.js",
@@ -20,12 +20,7 @@ annotating_js_files = [
 copy_dict = {"user.css": {
                                         "file": "./html_resource/user.css",
                                         "target": "../../../python_embeded/Lib/site-packages/comfyui_frontend_package/static/user.css",
-                                        "check": "no",},
-                    "widgethider.js": {
-                                        "file": "./html_resource/widgethider.js",
-                                        "target": "../efficiency-nodes-comfyui/js/widgethider.js",
-                                        "check": "yes",}
-
+                                        "check": "no",}
                     }
 
 
@@ -63,7 +58,7 @@ restore_icon_dict = {
                     }
 
 short_cut_icon = "./html_resource/ComfyUI.ico"
-
+gelbooruApikey_json = "./js/json/gelbooruApiKey.json"
 
 def is_file_exist(filepath):
     if not os.path.isfile(filepath):
@@ -230,11 +225,30 @@ Shortcut.Save
 
 def get_user_choice():
     while True:
-        choice = input("\n\n\n>>Would you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n     (y를 선택하면 ComfyUI의 웹 파비콘을 여우귀 소녀로 바꾸고 바탕화면에 같은 아이콘의 바로가기를 만듭니다.)\n\n>>y/n /r(restore/복구)").strip().lower()
+        choice = input("\n\n\n>>Would you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n     (y를 선택하면 ComfyUI의 웹 파비콘을 여우귀 소녀로 바꾸고 바탕화면에 같은 아이콘의 바로가기를 만듭니다.)\n\n>>y/n/r(restore/복구)").strip().lower()
         if choice in ['y', 'n', 'r']:
             return choice
         else:
             print("Invalid input. Please enter 'y', 'n', or 'r'.")
+
+def save_api_code_to_json():
+    # 전체 API 코드 입력 받기
+    api_code = input(">>").strip()
+
+    if "api_key=" not in api_code or "user_id=" not in api_code:
+        print("Wrong api key!!")
+        return
+
+    # 리스트로 감싸기
+    data = [api_code]
+
+    # JSON 파일로 저장
+    with open(gelbooruApikey_json, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    print(f"\n{gelbooruApikey_json} 파일이 변경되었습니다.")
+
+
 
 ###################    Main
 
@@ -256,6 +270,15 @@ except Exception as e:
     print(f"\n\n\n[ERROR] efficiency nodes ED: An error occurred while replace python codes.\n{e}")
 
 if len(sys.argv) > 1 and sys.argv[1] == "run_from_batch":
+    print("\n\n!!To extract tags from Gelbooru using Get Booru Tag ED, an API key is required.")
+    print("You can copy your API key from gelbooru.com by going to My Account > Options > API Access Credentials at the very bottom")
+    print(f"Input Gelbooru API Key(&api_key=...&user_id=... )")
+    print(f"\n!!Get Booru Tag ED에서 Gelbooru 태그를 추출하기 위해서는 Gelbooru api key가 필요합니다.")
+    print(f"gelbooru.com 에서 My account > options > 맨 마지막 줄 API Access Credentials에서 api key를 복사할 수 있습니다.")
+    print(f"(Gelbooru 로그인 필요, Gelbooru 태그 추출을 사용하지 않는다면 엔터를 눌러 스킵하세요.)")
+    print(f"Gelbooru API Key 입력(&api_key=...&user_id=... 형식)")
+    save_api_code_to_json()
+    
     user_choice = get_user_choice()
 
     if user_choice == 'y':

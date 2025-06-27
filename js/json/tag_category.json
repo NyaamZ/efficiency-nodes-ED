@@ -2037,7 +2037,7 @@
 "earphones": ["accessory", "wear_on_head", "electronic_device"],
 "futon": ["home", "furniture", "bedding"],
 "winter": ["season", "weather"],
-"interspecies": ["fantasy", "species"],
+"interspecies": ["fantasy", "species", "person"],
 "star_hat_ornament": ["accessory", "wear_on_head", "hat_decoration"],
 "cross-section": ["view", "art_style"],
 "body_writing": ["body", "decoration"],

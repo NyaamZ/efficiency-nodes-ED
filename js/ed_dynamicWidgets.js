@@ -350,7 +350,9 @@ function handleReginalScript_ED(node, widget) {
 }
 
 // Get Booru Tag ED Handlers
+let gelApiKey = "";
 async function handleGetBooruTag(node, widget) {
+
 	function htmlUnescape (string) {
 		let str = string;
 		str = str.replaceAll("&amp;", "&");
@@ -381,8 +383,10 @@ async function handleGetBooruTag(node, widget) {
 
     // 태그 설정 함수
     function setTags(tags) {
-		let tag_data = htmlUnescape(tags.replaceAll(' ', ', ') + ",");
-        tagsWidget.value = tag_data;
+		if (tagsWidget) {
+			let tag_data = htmlUnescape(tags.replaceAll(' ', ', ') + ",");
+			tagsWidget.value = tag_data;
+		}		
     }
     // 에러 표시
     function showError(error, showTag=false) {
@@ -424,7 +428,7 @@ async function handleGetBooruTag(node, widget) {
 			func: (data) => getDanbooruTags(data), },
 		gelbooru: {
 			type: "gelbooru",
-			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",
+			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1" + gelApiKey + "&id=",
 			func: (data) => data?.post?.[0]?.tags, },
 		safebooru: {
 			type: "gelbooru",
@@ -678,14 +682,16 @@ function categorizeValue(widget) {
 			  categories = ["accessory"];
 			} else if (categories.includes("armor") || tag.endsWith("_clothes") || tag.endsWith("_shorts")|| tag.endsWith("_shoes")|| tag.endsWith("_boots")) {
 			  categories = ["clothing"];
-			} else if (categories.includes("relationship")) {
-			  categories = ["person"];
 			} else if (categories.includes("body_modification") || tag.endsWith("_wings") || tag.endsWith("_tail")) {
 			  categories.unshift("body");
-			} else if (categories.includes("pose") || categories.includes("action") || categories.includes("touch") || categories.includes("touching") || tag.startsWith("holding_")) {
-			  categories = ["pose & action"];
 			} else if (tag.includes("pubic_hair") || categories.includes("sensitive")) {
 			  categories = ["sensitive"];
+			} else if (categories.includes("pose") || categories.includes("action") || categories.includes("touch") || categories.includes("touching") || tag.startsWith("holding_")) {
+			  categories = ["pose & action"];
+			} else if (categories.includes("relationship")) {
+			  categories = ["person"];
+			} else if (categories.includes("people")) {
+			  categories.unshift("person");
 			} else if (categories.includes("props") || categories.includes("item") || tag.startsWith("unworn_")) {
 			  categories = ["object"];
 			} else if (tag.includes("place") || categories.includes("location")) {
@@ -921,6 +927,31 @@ async function createEmptyImage(width, height, color="white") {
     }
 }
 
+function clearWidgets(node) {
+	const baseWidgetMap = {
+		"LoRA Stacker 💬ED": ["lora_name", "model_str", "clip_str", "lora_wt"],
+		"Embedding Stacker 💬ED": ["positive_embedding", "positive_emphasis", "negative_embedding", "negative_emphasis"]
+	};
+
+	const widgetNames = baseWidgetMap[node.comfyClass];
+	if (!widgetNames) return;
+
+	for (let i = 1; i <= 9; i++) {
+		for (let widgetName of widgetNames) {
+			const fullName = `${widgetName}_${i}`;
+			const widget = findWidgetByName(node, fullName);
+			if (!widget) continue;
+
+			if (widgetName === "lora_name" || widgetName === "positive_embedding" || widgetName === "negative_embedding") {
+				widget.value = "None";
+			} else {
+				widget.value = 1;
+			}
+		}
+	}
+}
+
+
 function getBooruTagRegionalScript(node) {
 	const CLASS_CONFIG = {
 		"Get Booru Tag 💬ED":    { tbox_id: 1, combo_id: 1, has_lora: false, has_group_tag:true},
@@ -1010,6 +1041,32 @@ function getBooruTagRegionalScript(node) {
 		defineComboOptions(emptyImageWidget, () => ["[Create empty image]"]);
 		emptyImageWidget.serializeValue = () => "Create empty image";
 	}
+	
+	// For LoRA Stacker 💬ED
+	if (node.comfyClass === "LoRA Stacker 💬ED") {
+		const clearLorasWidget = findWidgetByName(node, "Clear LoRAs");
+
+		clearLorasWidget.callback = () => {
+			clearWidgets(node);
+		};
+
+		defineComboValue(clearLorasWidget, "Clear LoRAs", "_wildcard_value");
+		defineComboOptions(clearLorasWidget, () => ["[Clear LoRAs]"]);
+		clearLorasWidget.serializeValue = () => "Clear LoRAs";
+	}
+	
+	// For Embedding Stacker 💬ED
+	if (node.comfyClass === "Embedding Stacker 💬ED") {
+		const clearEmbeddingWidget = findWidgetByName(node, "Clear embeddings");
+
+		clearEmbeddingWidget.callback = () => {
+			clearWidgets(node);
+		};
+
+		defineComboValue(clearEmbeddingWidget, "Clear embeddings", "_wildcard_value");
+		defineComboOptions(clearEmbeddingWidget, () => ["[Clear embeddings]"]);
+		clearEmbeddingWidget.serializeValue = () => "Clear embeddings";
+	}
 }
 
 app.registerExtension({
@@ -1042,13 +1099,14 @@ app.registerExtension({
 		}
     },
 	async setup() {
-		tag_category = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category.json')
-		tag_category_v2 = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category_v2.json')
-		category_priority = await fetchJson('./extensions/efficiency-nodes-ED/json/categoryPriority.json')
-		tags_by_category.artist = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/artist.json')
-		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json')
-		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json')
-		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json')
+		tag_category = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category.json');
+		tag_category_v2 = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category_v2.json');
+		category_priority = await fetchJson('./extensions/efficiency-nodes-ED/json/categoryPriority.json');
+		tags_by_category.artist = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/artist.json');
+		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json');
+		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json');
+		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json');
+		gelApiKey = await fetchJson('./extensions/efficiency-nodes-ED/json/gelbooruApiKey.json');
 		
         dynamicWidgets_initialized = true;
     },
