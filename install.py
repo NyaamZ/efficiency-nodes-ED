@@ -2,6 +2,8 @@ import os
 import shutil
 import sys
 import json
+import csv
+import re
 
 annotating_js_files = [
             "../efficiency-nodes-comfyui/js/node_options/addLinks.js",
@@ -58,7 +60,6 @@ restore_icon_dict = {
                     }
 
 short_cut_icon = "./html_resource/ComfyUI.ico"
-gelbooruApikey_json = "./js/json/gelbooruApiKey.json"
 
 def is_file_exist(filepath):
     if not os.path.isfile(filepath):
@@ -232,8 +233,13 @@ def get_user_choice():
             print("Invalid input. Please enter 'y', 'n', or 'r'.")
 
 def save_api_code_to_json():
+    gelbooruApikey_json = "./js/json/gelbooruApiKey.json"
     # 전체 API 코드 입력 받기
     api_code = input(">>").strip()
+    
+    if api_code == "z":        
+        autocomplete_csv_to_json()
+        quit()
 
     if "api_key=" not in api_code or "user_id=" not in api_code:
         print("Wrong api key!!")
@@ -250,8 +256,138 @@ def save_api_code_to_json():
 
 
 
-###################    Main
+def autocomplete_csv_to_json():
+    def translate_category(category):        
+        ## Meta - 이미지 정보
+        if "이미지 정보" in category:
+            return "meta"
+        
+        ## Source - 출처 및 작가
+        if "작품" in category:
+            return "copyright"
+        if "캐릭터" in category:
+            return "character"
+        if "아티스트" in category:
+            return "artist"
+            
+        ## Art & Composition - 아트 및 연출:
+        if "표현 기호" in category:
+            return "symbolic representation"
+        if "아트 및 연출" in category:
+            return "camera & composition"
 
+        ## NSFW - 성인용:
+        if "성적 요소 → 성적 신체 부위" in category:
+            return "sensitive"
+        if "성적 행위" in category:
+            return "sexual acts & poses"
+        if "성적 자세" in category:
+            return "sexual acts & poses"
+        if "성적 패션 및 노출" in category:
+            return "sexual - other"
+        if "성인용품" in category:
+            return "sexual - other"
+        if "분비물" in category:
+            return "sensitive"
+        if "성적 요소 → 상태 및 감정" in category:
+            return "sexual acts & poses"
+        if "성적 요소 → 기타" in category:
+            return "sexual - other"
+
+        ## Character - 인물:
+        if "인원수 및 관계" in category:
+            return "person"
+        if "신체적 특징" in category:
+            return "body"
+        if "신체 부위" in category:
+            return "body"
+        if "종족 및 특성" in category:
+            return "species & traits"
+        if "상태 및 감정" in category:
+            return "state & emotion"
+
+        ## Pose - 자세:
+        if "자세" in category:
+            return "pose"
+
+        ## Action - 행동:
+        if "행동" in category:
+            return "action"
+
+        ## Fashion - 패션:
+        if "헤어" in category:
+            return "hair"
+        if "액세서리" in category:
+            return "accessory"
+        if "의상" in category:
+            return "clothing"
+        if "속옷 및 양말류" in category:
+            return "clothing"
+        if "신발" in category:
+            return "clothing"        
+        if "치장 및 상태" in category:
+            return "appearance"
+
+        ## Object - 사물:
+        if "무기" in category:
+            return "object - weapon"
+
+        if "사물" in category:
+            return "object"
+
+        ## Background - 배경:
+        if "배경" in category:
+            return "background"
+
+        ## Concepts & Themes - 개념 및 테마:
+        if "동물" in category:
+            return "animals"
+        if "개념 및 테마" in category:
+            return "concepts & themes"
+
+        ## Other - 기타:
+        return "other"
+        
+    # 파일 경로
+    csv_file = './html_resource/autocomplete.csv'
+    json_file = './js/json/tag_category.json'
+
+    # 결과 저장 딕셔너리
+    result = {}
+
+    with open(csv_file, newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) < 4:
+                continue  # 잘못된 줄 스킵
+            tag = row[0].strip()
+            # \를 \\로 교체,"를 \"로 교체
+            tag = tag.replace('\\', r'\\')   
+            tag = tag.replace('"', r'\"')
+            description = row[3].strip()
+
+            # 대괄호 안에 있는 카테고리 추출
+            match = re.search(r'\[([^\]]+)\]', description)
+            if match:
+                category = match.group(1)
+                category = translate_category(category)
+                result[tag] = [category]
+
+    print(f"\n\n\n>>{csv_file}를 {json_file}으로 변환합니다.\n\n")
+    
+    # JSON 저장
+    with open(json_file, 'w', encoding='utf-8') as f:
+        f.write('{\n')
+        for i, (key, value) in enumerate(result.items()):
+            comma = ',' if i < len(result) - 1 else ''
+            line = f'  "{key}": {json.dumps(value, ensure_ascii=False)}{comma}\n'
+            f.write(line)
+        f.write('}')
+
+    print("변환 완료:", json_file)
+
+
+###################    Main
 printout = "Copy of files and disabling of unnecessary JS files"
 print ("\n")
 

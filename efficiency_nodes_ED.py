@@ -453,11 +453,11 @@ class LoRA_Stacker_ED:
             # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
             if input_mode == "simple":
                 weights = [kwargs.get(f"lora_wt_{i}") for i in range(1, lora_count + 1)]
-                loras = [(lora_name, lora_weight, lora_weight) for lora_name, lora_weight in zip(loras, weights) if lora_name != "None"]
+                loras = [(lora_name, lora_weight, lora_weight) for lora_name, lora_weight in zip(loras, weights) if lora_name != "None" and lora_weight != 0]
             else:
                 model_strs = [kwargs.get(f"model_str_{i}") for i in range(1, lora_count + 1)]
                 clip_strs = [kwargs.get(f"clip_str_{i}") for i in range(1, lora_count + 1)]
-                loras = [(lora_name, model_str, clip_str) for lora_name, model_str, clip_str in zip(loras, model_strs, clip_strs) if lora_name != "None"]
+                loras = [(lora_name, model_str, clip_str) for lora_name, model_str, clip_str in zip(loras, model_strs, clip_strs) if lora_name != "None" and model_str != 0]
         else:
             loras = []
         
@@ -520,7 +520,7 @@ class Embedding_Stacker_ED:
             pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
             # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
             pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
-            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None"]
+            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None" and pos_emp != 0]
         else:
             pos_embs = []
         
@@ -530,7 +530,7 @@ class Embedding_Stacker_ED:
             neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
             # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
             neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
-            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None"]
+            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None" and neg_emp != 0]
         else:
             neg_embs = []
         
@@ -1631,8 +1631,7 @@ class KSampler_ED():
                     "cfg": ("FLOAT", {"default": 7.0, "min": 0.0, "max": 100.0}),
                     "sampler_name": (comfy.samplers.KSampler.SAMPLERS,),
                     "scheduler": (SCHEDULERS,),
-                    "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                    "preview_method": (["auto", "latent2rgb", "taesd", "vae_decoded_only", "none"],),
+                    "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),                    
                     },
                 "optional": {
                     "guide_size": ("FLOAT", {"default": 512, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 8}),
@@ -1644,6 +1643,7 @@ class KSampler_ED():
                     "positive_opt": ("CONDITIONING",),
                     "script": ("SCRIPT",),                    
                     #"detailer_hook": ("DETAILER_HOOK",),
+                    "preview_method": (["auto", "latent2rgb", "taesd", "vae_decoded_only", "none"],),
                     },
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "my_unique_id": "UNIQUE_ID",},}
 
@@ -1653,9 +1653,9 @@ class KSampler_ED():
     FUNCTION = "sample_ed"
     CATEGORY = "Efficiency Nodes/Sampling"
 
-    def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, denoise, preview_method, 
+    def sample_ed(self, context, set_seed_cfg_sampler, seed, steps, cfg, sampler_name, scheduler, denoise,  
                   guide_size=512, guide_size_for=True, max_size=1216, feather=15, crop_factor=3,
-                  positive_opt=None, script=None, 
+                  positive_opt=None, script=None, preview_method="auto",
                   prompt=None, extra_pnginfo=None, my_unique_id=None):        
 
         # Unpack context

@@ -52,7 +52,7 @@ app.registerExtension({
 					const adjustment  = this.size[1];
 					this.properties["MaskDetailer mode"] = value;
 					
-					toggleWidget(this, findWidgetByName(this, 'preview_method'), !value);
+					//toggleWidget(this, findWidgetByName(this, 'preview_method'), !value);
 					toggleWidget(this, findWidgetByName(this, 'guide_size'), value);
 					toggleWidget(this, findWidgetByName(this, 'guide_size_for'), value);
 					toggleWidget(this, findWidgetByName(this, 'max_size'), value);

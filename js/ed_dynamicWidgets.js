@@ -390,7 +390,7 @@ async function handleGetBooruTag(node, widget) {
     }
     // 에러 표시
     function showError(error, showTag=false) {
-        if (showTag) tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
+        // if (showTag) tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
 		showMessage("Error", error);
     }
 
@@ -539,7 +539,7 @@ function handleEmbeddingStacker(node, widget) {
 
 // 태그를 카테고리별로 나누는 함수 //////////////////////////////////////////////////////////////////////
 let tag_category;
-let tag_category_v2;
+let tag_category2;
 let tags_by_category = {
 	"general" : [],
 	"artist" : [],
@@ -659,8 +659,8 @@ function categorizeValue(widget) {
 		  for (const map of categoryMaps) {
 			let categories = map[tag] || [];
 
-			// 특수 조건에 따른 카테고리 재정의
-			if ((categories.includes("gender") || categories.includes("girl")) && tag.includes("girl")) {
+			// 특수 조건에 따른 카테고리 재정의			
+			/* if ((categories.includes("gender") || categories.includes("girl")) && tag.includes("girl")) {
 			  categories = ["female"];
 			} else if (tag.endsWith("_girl")) {
 			  categories = ["female"];
@@ -698,7 +698,7 @@ function categorizeValue(widget) {
 			  categories = ["place & location"];
 			} else if (categories.includes("architecture")) {
 			  categories.unshift("background");
-			}
+			} */
 			
 			if (Array.isArray(categories) && categories.length > 0) {
 			  // 우선순위 기준으로 정렬
@@ -707,9 +707,6 @@ function categorizeValue(widget) {
 				const bi = priorityList.indexOf(b);
 				return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
 			  });
-
-			  // "state"는 body로 대체
-			  if (sorted[0] === "state" || sorted[0] === "status") return "body";
 
 			  return sorted[0];
 			}
@@ -750,12 +747,13 @@ function categorizeValue(widget) {
 	}
 	
 	function writeSortedCategorizedTags(categorizedTags, category_priority) {
+	  const categoryArray = Object.keys(category_priority);
 	  const sortedEntries = Object.entries(categorizedTags).sort(([a], [b]) => {
 		if (a === "*unclassified*") return 1; // *unclassified*는 항상 뒤로
 		if (b === "*unclassified*") return -1;
 
-		const indexA = category_priority.indexOf(a);
-		const indexB = category_priority.indexOf(b);
+		const indexA = categoryArray.indexOf(a);
+		const indexB = categoryArray.indexOf(b);
 
 		const inA = indexA !== -1;
 		const inB = indexB !== -1;
@@ -767,8 +765,10 @@ function categorizeValue(widget) {
 	  });
 	  
 	  let outputText = "";
+	  const localeSetting = app.ui.settings.getSettingValue("Comfy.Locale");
 	  sortedEntries.forEach(([category, tags]) => {
-		category = (category == "artist") ? "artist:" : category;
+		if (localeSetting === "ko") category = (category_priority[category]) ? category_priority[category] : category;
+		category = (category === "artist") ? "artist:" : category;
 		outputText += `//${category}` + "\n";
 
 		const formattedTags = tags.map(([tag, weight]) => {
@@ -787,10 +787,10 @@ function categorizeValue(widget) {
 	}
 
 	if (!widget.value) return showMessage("Error", "No tags in text box");
-	if (!tag_category || !tag_category_v2 || !category_priority) return showMessage("Error", "JSON files were not loaded");
+	if (!tag_category || !category_priority) return showMessage("Error", "JSON files were not loaded");
 
 	const tags = parseTagWeightArray(parsePromptAttention(removeComment(widget.value)));	
-	const c_tag = categorizeTags(tags, [tag_category, tag_category_v2], category_priority);
+	const c_tag = categorizeTags(tags, [tag_category, tag_category2], category_priority);
 	const result_txt = writeSortedCategorizedTags(c_tag, category_priority);
 	if (result_txt) {
 		widget.value = result_txt;
@@ -949,6 +949,7 @@ function clearWidgets(node) {
 			}
 		}
 	}
+	showMessage("Info", node.comfyClass + " has been cleared.")
 }
 
 
@@ -1099,14 +1100,15 @@ app.registerExtension({
 		}
     },
 	async setup() {
-		tag_category = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category.json');
-		tag_category_v2 = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category_v2.json');
-		category_priority = await fetchJson('./extensions/efficiency-nodes-ED/json/categoryPriority.json');
-		tags_by_category.artist = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/artist.json');
-		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json');
-		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json');
-		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json');
-		gelApiKey = await fetchJson('./extensions/efficiency-nodes-ED/json/gelbooruApiKey.json');
+		const date = Date.now();
+		tag_category = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category.json?v=' + date);
+		tag_category2 = await fetchJson('./extensions/efficiency-nodes-ED/json/tag_category2.json?v=' + date);
+		category_priority = await fetchJson('./extensions/efficiency-nodes-ED/json/categoryPriority.json?v=' + date);
+		tags_by_category.artist = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/artist.json?v=' + date);
+		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json?v=' + date);
+		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json?v=' + date);
+		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json?v=' + date);
+		gelApiKey = await fetchJson('./extensions/efficiency-nodes-ED/json/gelbooruApiKey.json?v=' + date);
 		
         dynamicWidgets_initialized = true;
     },
