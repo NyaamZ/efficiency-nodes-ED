@@ -284,6 +284,10 @@ export async function showLoadingDialog(data) {
     await wait(64);
     messageAnimContainer.style.marginTop = `-${messageAnimContainer.offsetHeight}px`;
     await wait(64);
+
+    // transition 적용 전에 강제로 reflow (안정적으로 보여주기)
+    void messageAnimContainer.offsetWidth;
+
     messageAnimContainer.classList.add("-show");
     if (data.timeout) {
         await wait(data.timeout);

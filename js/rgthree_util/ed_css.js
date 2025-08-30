@@ -74,7 +74,11 @@ var styles = `
   font-family: Arial, sans-serif;
   font-size: 14px;
   font-weight: bold;
+
   background-image: url(/extensions/efficiency-nodes-ED/assets/nowloading.gif);
+  background-repeat: no-repeat;
+  background-position: center;
+
   width: 300px;   /* GIF 가로 크기 */
   height: 300px;  /* GIF 세로 크기 */
   background-size: contain; /* 비율 유지해서 맞춤 */
@@ -130,9 +134,5 @@ const styleSheet = document.createElement("style");
 styleSheet.textContent = styles;
 document.head.appendChild(styleSheet);
 
-const preloadImg_nowloading1 = new Image();
-const preloadImg_nowloading2 = new Image();
-preloadImg_nowloading1.src = "/extensions/efficiency-nodes-ED/assets/nowloading.gif";
-preloadImg_nowloading2.src = "/extensions/efficiency-nodes-ED/assets/tap-waiting.gif";
 
 
