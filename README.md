@@ -19,15 +19,22 @@
 - ##### Regional Workflow
 
   <div id="wrap">
-      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png" alt=""></div>
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Regional.png" alt=""></div>
       <div class="txt-wrap"><p>(EXIF included)</p></div>
   </div>
 
 - ##### Flux Workflow
 
   <div id="wrap">
-      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_flux.png" alt=""></div>
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Flux.png" alt=""></div>
       <div class="txt-wrap"><p>(EXIF included)</p></div>
+  </div>
+
+- ##### Qwen Workflow
+
+  <div id="wrap">
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Qwen.png" alt=""></div>
+      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
   </div>
 
 
@@ -159,7 +166,7 @@
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0007.png" alt="" width="600" style="display: inline-block;"></p>
 
-  - You can select the style in: Settings > pysssss > Combo++ > Lora/Checkpoint Loader Display Mode
+  - In settings > Appearance > Thumbnails > 💬ED Thumbnails display mode, you can choose the style
 
     <p align="left">
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0008.png" width="600" style="display: inline-block;">
@@ -167,12 +174,18 @@
 
   - Thumbnails may not appear initially. To enable them:
 
-    Right-click on Efficient Loader 💬ED or LoRA Stacker 💬ED >  <code>🔍 View model info...</code>
+    Click ℹ️ in the widget of the Efficient Loader 💬ED or LoRA Stacker 💬ED node.
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0046.png" width="500" style="display: inline-block;"></p>
+
+    after <code>fetch info from civitai</code> click,
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
 
-    Click `Use as preview` in the red section to save it. (You can also manually specify the filename as `MODEL NAME.jpg` or `.png`)
+    Click the <code>Use as preview</code> button at the bottom to save it. (You can also directly specify the MODEL FILENAME with .jpg or .png)
 
+     <p></p>
+	 
+  - If settings > pyssss > ModelInfo > Model Info - Image Preview Max NSFW Level is set to PG or PG13, it is considered that pyssss’ Model Info is not used. When <code>fetch info from civitai</code> is clicked, the SHA and TXT files will be deleted.
     
 
 　
@@ -317,7 +330,7 @@
        
   
   
-  4. From 0.8.5, a new widget called <code>Group tags by category</code> has been added to the Get booru Tag 💬ED. When there are too many tags like the example below, it can become overwhelming.
+  4. When there are too many tags and it feels overwhelming, you can use the <code>Group tags by category</code> widget in the Get booru Tag 💬ED node.
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
 
@@ -406,7 +419,7 @@
          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
        </p>
 
-    3. From 0.8.5, you can attach the LoRA Stacker 💬ED to the Refiner Script 💬ED.
+    3. You can attach the LoRA Stacker 💬ED to the Refiner Script 💬ED.
 
        (This is an additional LoRA used during refining. If a different model is loaded, only this LoRA will be used. For example, if the character becomes distorted or the proportions look off after Hires Fix, using a LoRA like [this one](https://civitai.com/models/1461427) can help improve the result.)
 
@@ -436,19 +449,20 @@
         </li>
       <p></p>
       <li>Switch between <code>Txt2Img</code>, <code>Img2Img</code>, and <code>Inpaint</code> with one click.<br><i>(<code>Txt2Img</code> mode auto-sets denoise=1 in connected KSampler (Efficient) 💬ED.)</i><br>
-        <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/0f8549b8-cbe0-4662-b922-df21545e2d8f" width="250" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0047.png" width="250" style="display: inline-block;">
         </li>
       <p></p>
       <li><code>Inpaint(MaskDetailer)</code> mode:  Uses Impact Pack’s MaskDetailer for better quality (avoids degradation)<br>
-        <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b04b764-f995-4350-b897-e42041686a2d" width="250" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0048.png" width="250" style="display: inline-block;">
         </li>
       <li>Saves seed, cfg, sampler, and scheduler to <code>context</code> for reuse in other nodes.</li>
+      <li>Click ℹ️ on the checkpoint to view the model information. (Run <code>fetch info from civitai</code> first.)
+        <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0053.png" width="250" style="display: inline-block;"><br>
+          <i>(When running <code>fetch info from civitai</code>, large models may load slowly the first time while searching for the hash value. It is recommended to click "<code>Use as preview</code>" once during the initial run.)</i><br></p>
+      </li>																																													 
       <p></p>
       <li>Right-click menu:<br>
-          <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/47995eca-94fb-4e52-b77b-2a53e9f292d0" width="150" style="display: inline-block;">
-          <p> <code>🔍 View model info...</code> Displays model's info.<br>          
-            <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/f7cf378c-cd8a-49cb-9389-5681caacf130" width="250" style="display: inline-block;"><br>
-            <i>(It is recommended to click <code>Use as preview</code> the first time.)</i><br></p>
+          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0049.png" width="150" style="display: inline-block;">
           <p> <code>📐 Aspect Ratio...</code> Auto-fills <code>image_width</code>/<code>image_height</code> with preset ratios (◆ = recommended).<br>
             <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/f92fdd33-ddcb-4b42-904c-4c67a52e4aa0" width="250" style="display: inline-block;"><br></p>
       </li>
@@ -471,6 +485,7 @@
   <details>
       <summary><b>KSampler (Efficient) 💬ED</b></summary>
   <p></p>
+  <ul>
   - Modified to accept <code>context</code> input. Outputs sampled images to <code>CONTEXT</code> and <code>OUTPUT_IMAGE</code>; <code>steps</code> to <code>STEPS_INT</code>.<p></p>
   <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0022.png" width="500">
@@ -480,9 +495,11 @@
       <li>Tiled VAE Decode<br>
         - Enable <code>Use tiled VAE decode</code> in Properties Panel for large images<br>
       </li>
+  </ul>
   </details>
   <details>
       <summary><b>Inpaint(MaskDetailer) Mode</b></summary>
+  <ul>
   <p></p>
   - When you select Inpaint (MaskDetailer) mode in Efficient Loader 💬ED, the Efficient Sampler 💬ED switches to Mask Detailer mode.<p></p>
   - Integrates Impact Pack’s MaskDetailer for good quality.<p></p>
@@ -490,9 +507,11 @@
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/09e4dfd2-e1f7-4118-8bb2-2adcdca236d0" width="400">
   </p>
   - Can configure <code>drop size, cycle, inpaint model, noise mask feather</code> in Properties Panel.<p></p>
+  </ul>
   </details>
   <details>
       <summary><b>Load Image 💬ED</b></summary>
+  <ul>
   <p></p>
   <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.png" width="400">
@@ -507,10 +526,12 @@
   <p></p>
   - When the queue runs, the prompt and seed are displayed as shown below.<br>
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b18adb0-5e8e-4cc0-963d-287cb5d19e38" width="700"><br>
+   </ul>	   
   </details>
   <details>
   <p></p>
       <summary><b>Save Image 🔔ED</b></summary>
+  <ul>
   <p></p>
   <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/8e730793-1c61-4152-90a7-343de68d16a6" width="300">
@@ -521,13 +542,15 @@
   </li>
   <p></p>
   <li>To change the notification sound, replace the file at <code>efficiency-nodes-comfyui\js\assets\notify.mp3</code>.</li>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>LoRA Stacker 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
-    <img src="https://github.com/user-attachments/assets/a8b132f3-65d5-4bc9-a44d-566b1e9a4b33" width="300">
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0051.png" width="300">
     </p>
     - Loads up to 9 LoRAs simultaneously.<p></p>
     <p></p>
@@ -535,25 +558,34 @@
       <img src="https://github.com/user-attachments/assets/2e98c870-1d8f-407d-83da-953c6ab13e87" width="300"><br>
     </li>
     <p></p>
-    <li><code>🔍 View model info...</code> displays trained trigger words.<br>
-      <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/fe112563-4189-4d7e-aa41-72b8030fa69a" width="400">
+    <li>Click the toggle button to turn individual LoRAs on or off.<br>
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0054.png" width="300"><br>
     </li>
+    <p></p>
+    <li>Click ℹ️ in the LoRA widget to conveniently find trigger words (Trained Words) as shown below.<br>	
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0050.png" width="400">
+    </li>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Embedding Stacker 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/66ca8ba4-f6e9-4881-ba8f-e737d8609515" width="400">
     </p>
     - As a simple feature, Efficient Loader 💬ED appends embedding strings to the end of both positive and negative prompts.<br>
     <li>Works only with Efficient Loader 💬ED.</li><br>
-    <li>You can view Embedding info by clicking <code>🔍 View model info...</code>.</li><br>
     <p></p>
+    <li>Just like the LoRA Stacker, click ℹ️ in the selection window to view information.</li><br>
+    <p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Wildcard Encode 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0028.png" width="400">
@@ -568,10 +600,12 @@
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0030.png" width="400">
     </li>
     <p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>TIPO Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0032.png" width="250">
@@ -579,10 +613,12 @@
     - A modified version of the TIPO node that can accept <code>context</code> as an input.<p></p>
     - This is a node that randomly creates prompts. For more details, refer to <a href="https://github.com/KohakuBlueleaf/z-tipo-extension">this link</a>.<p></p>
     - To use this, you need to install z-tipo-extension.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Regional Stacker 💬ED, Regional Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0038.png" width="500">
@@ -590,10 +626,12 @@
     - Nodes used for regional prompts.<p></p>
     - The <code>url</code> in Regional Script 💬ED functions the same as the <code>url</code> in Get booru Tag 💬ED. It can get tags from Gelbooru or Danbooru.<p></p>
     - Regional Script 💬ED supports wildcard input.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Refiner Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0039.png" width="300">
@@ -602,10 +640,12 @@
     - By attaching a Load Checkpoint node, you can perform refining with a different model as shown below.<br><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0040.png" width="500"><p></p>
     - Setting <code>ignore_batch_size</code> to true means the operation runs only once, ignoring <code>ibatch_size</code>.<p></p>
     - <code>do_refine_only</code> set to true means only refining is done; set to false means the image is sampled first, then refined.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Int Holder 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0033.png" width="400">
@@ -613,6 +653,7 @@
     - A node that remembers the <code>steps</code> used when generating an image with KSampler (Efficient) 💬ED and stores it in <code>context</code> when running Hires Fix.<p></p>
     - If <code>steps</code> exists in <code>context</code>, FaceDetailer 💬ED and Ultimate SD Upscale 💬ED will prioritize using it.<p></p>
     - A node created to avoid the hassle of entering <code>steps</code> manually each time.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
@@ -623,40 +664,48 @@
     </p>
     - FaceDetailer addon from Impact pack.<p></p>
     - A modified version that can accept <code>context</code> as input.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>MaskDetailer 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/87bbd155-8b06-423d-b8e8-04a8f55b223d" width="250">
     </p>
     - MaskDetailer addon from Impact pack.<p></p>
     - A modified version that can accept <code>context</code> as input.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Detailer (SEGS) 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/c538b972-0e14-4b53-861d-ed0f78da0248" width="250">
     </p>
     - Detailer (SEGS) addon from Impact pack.<p></p>
     - A modified version that can accept <code>context</code> as input.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Ultimate SD Upscale 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/34fc20e4-8577-4716-9197-f63a31a6a31f" width="200">
     </p>
     - Ultimate SD Upscale addon.<p></p>
     - A modified version that can accept <code>context</code> as input.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>SUPIR 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
@@ -666,6 +715,7 @@
     - Installation of <a href="https://github.com/kijai/ComfyUI-SUPIR">ComfyUI-SUPIR</a> is required.<p></p>
     - Example video<p></p>
   <video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>Example video </video> 
+  </ul>
   </details>
 
 　
@@ -677,11 +727,11 @@
 
    [**ComfyUI Impact Subpack**](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)  (Optional)
 
-   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (Absolutely Required!)
+   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (Optional)
 
    [**ComfyUI_UltimateSDUpscale**](https://github.com/ssitu/ComfyUI_UltimateSDUpscale)  (Optional)
 
-   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)  (Optional)
+   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)  (Absolutely Required!)
 
    [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)  (Absolutely Required!)
 
@@ -715,18 +765,5 @@
 　
 
 ## Known bug
-
-- There is a bug in [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui). If used as is, it causes a <code>Cannot redefine property</code> error. After updating, be sure to run <code>start.bat</code> to fix this.
-  
-- There is a bug where clicking <code>🔍 View model info...</code> fails to find the model on civitai.com as shown below.
-  
-   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0041.png" width="400" style="display: inline-block;"></p>
-   
-    This issue happens because the hash value doesn't match.
-   
-   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.jpg" width="800" style="display: inline-block;"></p>
-   
-   On [civitai.com](https://unsafelink.com/https://civitai.com/), click the highlighted red area to copy the hash value.
-   
-   Open <code>ComfyUI\models\checkpoints\MODEL_NAME.sha256</code> with a text editor and overwrite its contents with the copied hash value.
+...
 

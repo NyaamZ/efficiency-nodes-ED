@@ -19,7 +19,7 @@
 - ##### 리저널 워크플로
 
   <div id="wrap">
-      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_regional.png" alt=""></div>
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Regional.png" alt=""></div>
       <div class="txt-wrap"><p>(EXIF 있음)</p></div>
   </div>
 
@@ -182,8 +182,11 @@
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
 
-    아랫부분의 - <code>Use as preview</code> 버튼을 눌러주면 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 있음)
+    아랫부분의 - <code>Use as preview</code> 버튼을 눌러주면 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 있음)<p></p>
 
+     <p></p>
+	 
+  - settings > pyssss > ModelInfo > Model Info - Image Preview Max NSFW Level 이 PG 또는 PG13으로 되어 있는 경우, pysssss의 model info를  사용하지 않는다고 간주하고, <code>fetch info from civitai</code>를 클릭시 SHA파일과 TXT파일을 삭제한다.
     
 
 　
@@ -485,6 +488,7 @@
   </details>
   <details>
       <summary><b>KSampler (Efficient) 💬ED</b></summary>
+  <ul>
           <p></p>
   - 원래 에피션트 노드에 <code>context</code>를 입력 받을 수 있게 수정한 노드.<p></p>
   - 이미지를 샘플링 후 이미지를 <code>CONTEXT</code>와 <code>OUTPUT_IMAGE</code>에 출력, <code>steps</code>는 <code>STEPS_INT</code>에 출력한다.<p></p>
@@ -496,6 +500,7 @@
       <li>VAE decode 설정<br>
         - Properties Panel에서 <code>Use tiled VAE decode</code>를 true로 하면 된다.<br>
       </li>
+  </ul>
   </details>
   <details>
       <summary><b>Inpaint(MaskDetailer) 모드</b></summary>
@@ -580,10 +585,11 @@
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/66ca8ba4-f6e9-4881-ba8f-e737d8609515" width="400">
     </p>
     - 임베딩 일일이 치는거 스펠링도 기억안나고 짜증나서 하나 만들었다.<br>
-    <i>(기능은 단순하게 Efficient Loader 💬ED의 positive, negative 프롬프트 마지막에 임베딩 문자열을 추가해준다.</i><br>
-    <i> Efficient Loader 💬ED만 작동함.)</i><br>
+    <li>기능은 단순하게 Efficient Loader 💬ED의 positive, negative 프롬프트 마지막에 임베딩 문자열을 추가해준다.</li><br>
+    <li> Efficient Loader 💬ED만 작동함.</li><br>
     <p></p>
-    - 로라 스태커와 동일하게 선택 창의 ℹ️를 클릭해 정보를 볼 수 있다.<p></p>
+    <li>로라 스태커와 동일하게 선택 창의 ℹ️를 클릭해 정보를 볼 수 있다.</li><br>
+    <p></p>
   </ul>
   </details>
   <details>
