@@ -587,6 +587,7 @@
     - 임베딩 일일이 치는거 스펠링도 기억안나고 짜증나서 하나 만들었다.<br><br>
     <p></p>
     <li>기능은 단순하게 Efficient Loader 💬ED의 positive, negative 프롬프트 마지막에 임베딩 문자열을 추가해준다.</li><br>
+    <p></p>
     <li> Efficient Loader 💬ED만 작동함.</li><br>
     <p></p>
     <li>로라 스태커와 동일하게 선택 창의 ℹ️를 클릭해 정보를 볼 수 있다.</li><br>
