@@ -294,7 +294,7 @@ function categorizeValue(widget) {
 			"gray_", "grey_", "cyan_", "lime_", "magenta_", "white_", "black_", "beige_",
 			"teal_", "navy_", "maroon_", "olive_", "silver_", "gold_", "violet_", "indigo_",
 			"turquoise_", "peach_", "salmon_", "chocolate_", "khaki_", "lavender_",
-			"small", "large", "tiny"
+			"tiny", "small", "large", "huge", "gigantic"
 		];
 
 		// 정규식으로 접두사 제거 (시작 부분)
