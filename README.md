@@ -34,7 +34,7 @@
 
   <div id="wrap">
       <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Qwen.png" alt=""></div>
-      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+      <div class="txt-wrap"><p>(EXIF included)</p></div>
   </div>
 
 
