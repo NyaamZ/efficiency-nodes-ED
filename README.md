@@ -577,9 +577,9 @@
     </p>
     - As a simple feature, Efficient Loader 💬ED appends embedding strings to the end of both positive and negative prompts.<br><br>
     <p></p>
-    <li>Works only with Efficient Loader 💬ED.</li><br>
+    <li>Works only with Efficient Loader 💬ED.</li>
     <p></p>
-    <li>Just like the LoRA Stacker, click ℹ️ in the selection window to view information.</li><br>
+    <li>Just like the LoRA Stacker, click ℹ️ in the selection window to view information.</li>
     <p></p>
   </ul>
   </details>
