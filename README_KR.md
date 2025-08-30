@@ -584,7 +584,8 @@
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/66ca8ba4-f6e9-4881-ba8f-e737d8609515" width="400">
     </p>
-    - 임베딩 일일이 치는거 스펠링도 기억안나고 짜증나서 하나 만들었다.<br>
+    - 임베딩 일일이 치는거 스펠링도 기억안나고 짜증나서 하나 만들었다.<br><br>
+    <p></p>
     <li>기능은 단순하게 Efficient Loader 💬ED의 positive, negative 프롬프트 마지막에 임베딩 문자열을 추가해준다.</li><br>
     <li> Efficient Loader 💬ED만 작동함.</li><br>
     <p></p>

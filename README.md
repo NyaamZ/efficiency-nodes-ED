@@ -575,7 +575,8 @@
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/66ca8ba4-f6e9-4881-ba8f-e737d8609515" width="400">
     </p>
-    - As a simple feature, Efficient Loader 💬ED appends embedding strings to the end of both positive and negative prompts.<br>
+    - As a simple feature, Efficient Loader 💬ED appends embedding strings to the end of both positive and negative prompts.<br><br>
+    <p></p>
     <li>Works only with Efficient Loader 💬ED.</li><br>
     <p></p>
     <li>Just like the LoRA Stacker, click ℹ️ in the selection window to view information.</li><br>
