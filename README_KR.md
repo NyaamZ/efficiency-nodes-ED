@@ -23,10 +23,17 @@
       <div class="txt-wrap"><p>(EXIF 있음)</p></div>
   </div>
 
-- ##### 플럭스 워크플로
+- ##### Flux 워크플로
 
   <div id="wrap">
-      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_flux.png" alt=""></div>
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Flux.png" alt=""></div>
+      <div class="txt-wrap"><p>(EXIF 있음)</p></div>
+  </div>
+
+- ##### Qwen 워크플로
+
+  <div id="wrap">
+      <div class="img-wrap"><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/workflows/workflow_Qwen.png" alt=""></div>
       <div class="txt-wrap"><p>(EXIF 있음)</p></div>
   </div>
 
@@ -159,7 +166,7 @@
 
     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0007.png" alt="" width="600" style="display: inline-block;"></p>
 
-  - settings > pysssss > combo++ > Lora/Checkpoint loader display mode 에서 스타일을 선택할 수 있음.
+  - settings > Appearance > Thumbnails > 💬ED Thumbnails display mode 에서 스타일을 선택할 수 있음.
 
     <p align="left">
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0008.png" width="600" style="display: inline-block;">
@@ -167,11 +174,15 @@
 
   - 썸네일은 처음에는 이미지가 없다고 보이지 않는데,
 
-    Efficient Loader 💬ED나 LoRA Stacker 💬ED 등 에서 오른 클릭 > <code>🔍 View model info...</code>
+    Efficient Loader 💬ED나 LoRA Stacker 💬ED 노드의 위젯 창에서 ℹ️ 클릭
+
+     <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0046.png" width="500" style="display: inline-block;"></p>
+
+    <code>fetch info from civitai</code>를 클릭 후,
 
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0017.png" width="500" style="display: inline-block;"></p>
 
-    빨간 부분 - <code>Use as preview</code>를 눌러줘야 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 있음)
+    아랫부분의 - <code>Use as preview</code> 버튼을 눌러주면 저장된다. (직접 모델 파일명.jpg 또는 png로 지정해줄 수 있음)
 
     
 
@@ -315,7 +326,7 @@
        
   
   
-  4. 0.8.5 부터 Get booru Tag 💬ED에 <code>Group tags by category</code>위젯이 새로 생겼다. 아래처럼 태그가 너무 많아 정신이 없을때, 
+  4. 아래처럼 태그가 너무 많아 정신이 없을때, Get booru Tag 💬ED에서 <code>Group tags by category</code>위젯을 사용할 수 있다.  
   
      <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.png" width="500" style="display: inline-block;"></p>
   
@@ -406,7 +417,7 @@
          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0036.png" width="600" style="display: inline-block;">
        </p>
 
-    3. 0.8.5 버전 부터 Refiner Script 💬ED에  LoRA Stacker 💬ED를 붙일 수 있다. 
+    3. Refiner Script 💬ED에  LoRA Stacker 💬ED를 붙일 수 있다. 
 
        (리파이닝을 할 때 추가적으로 쓰는 로라이다(다른 모델을 로딩했을 경우에는 이 로라만 사용함). 예를 들어 Hires Fix 할 때 인물이 뒤틀리거나 비율이 이상해지면, [이 로라](https://civitai.com/models/1461427)를 사용하면 결과가 좋아질 수 있다.)
 
@@ -436,20 +447,21 @@
         </li>
       <p></p>
       <li>위의 노드 묶음과 달리 클릭 한번으로 <code>Txt2Img</code>, <code>Img2Img</code>, <code>Inpaint</code> 모드 설정이 가능하다.<br><i>(<code>Txt2Img</code>로 설정시 연결된 Ksampler (Efficient) 💬ED의 <code>denoise</code> 값이 자동으로 1로 설정됨.)</i><br>
-        <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/0f8549b8-cbe0-4662-b922-df21545e2d8f" width="250" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0047.png" width="250" style="display: inline-block;">
         </li>
       <p></p>
-      <li><code>Inpaint(MaskDetailer)</code> 모드 추가.<br><i>(그냥 Inpaint를 사용하면 점점 화질이 열화되는데 Impact Pack의 MaskDetailer를 차용해 보다 나은 이미지 품질이 가능함.</i><br>
+      <li><code>Inpaint(MaskDetailer)</code> 모드<br><i>(그냥 Inpaint를 사용하면 점점 화질이 열화되는데 Impact Pack의 MaskDetailer를 차용해 보다 나은 이미지 품질이 가능함.</i><br>
         <i>자세한 것은 <code>Inpaint(MaskDetailer)</code>에서 설명.)</i><br>
-        <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b04b764-f995-4350-b897-e42041686a2d" width="250" style="display: inline-block;">
+        <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0048.png" width="250" style="display: inline-block;">
         </li>
       <li>seed, cfg, sampler, scheduler를 설정하고 <code>context</code>에 저장. 후에 Ksampler (Efficient) 💬ED등에서 그 설정값을 이용할 수 있다.</li>
+      <li>체크 포인트의 ℹ️ 클릭하면 모델의 정보를 볼 수 있다. (처음에는 <code>fetch info from civitai</code> 실행.)
+        <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0053.png" width="250" style="display: inline-block;"><br>
+          <i>(<code>fetch info from civitai</code>를 실행하면 크기가 큰 모델은 해쉬값을 찾느라 '첫' 로딩이 느리다. 처음 한번은 "<code>Use as preview</code>"를 눌러 주는걸 권장.)</i><br></p>
+      </li>
       <p></p>
       <li>오른 클릭의 드롭다운 메뉴<br>
-          <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/47995eca-94fb-4e52-b77b-2a53e9f292d0" width="150" style="display: inline-block;">
-          <p> <code>🔍 View model info...</code>는 모델의 정보를 표시한다.<br>          
-            <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/f7cf378c-cd8a-49cb-9389-5681caacf130" width="250" style="display: inline-block;"><br>
-            <i>(<code>🔍 View model info...</code>는 크기가 큰 모델은 해쉬값을 찾느라 '첫' 로딩이 느리다. 처음 한번은 "<code>Use as preview</code>"를 눌러 주는걸 권장.)</i><br></p>
+          <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0049.png" width="150" style="display: inline-block;">
           <p> <code>📐 Aspect Ratio...</code>는 <code>image_width</code>와 <code>image_height</code>에 선택한 값을 입력한다.<br>
             <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/f92fdd33-ddcb-4b42-904c-4c67a52e4aa0" width="250" style="display: inline-block;"><br>
             <i>(<code>Txt2Img</code> 모드로 이미지를 만들 때 편리하다. ◆ 표시는 추천 해상도)</i><br></p>
@@ -473,7 +485,7 @@
   </details>
   <details>
       <summary><b>KSampler (Efficient) 💬ED</b></summary>
-  <p></p>
+          <p></p>
   - 원래 에피션트 노드에 <code>context</code>를 입력 받을 수 있게 수정한 노드.<p></p>
   - 이미지를 샘플링 후 이미지를 <code>CONTEXT</code>와 <code>OUTPUT_IMAGE</code>에 출력, <code>steps</code>는 <code>STEPS_INT</code>에 출력한다.<p></p>
   <p align="left">
@@ -487,6 +499,7 @@
   </details>
   <details>
       <summary><b>Inpaint(MaskDetailer) 모드</b></summary>
+  <ul>
   <p></p>
   - Efficient Loader 💬ED에서 Inpaint(MaskDetailer) 모드를 선택하면 에피션트 샘플러 💬ED가 마스크 디테일러 모드로 변경된다.<p></p>
   - Impact Pack의 MaskDetailer를 그대로 통합시킴.<p></p>
@@ -496,9 +509,11 @@
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/09e4dfd2-e1f7-4118-8bb2-2adcdca236d0" width="400">
   </p>
   - 마스크 디테일러의 <code>drop size, cycle, inpaint model, noise mask feather</code>는 Property Panel에서 설정 할 수 있음<p></p>
+  </ul>
   </details>
   <details>
       <summary><b>Load Image 💬ED</b></summary>
+  <ul>
   <p></p>
   <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0026.png" width="400">
@@ -514,10 +529,12 @@
   - 큐를 돌리면 아래처럼 프롬프트, seed가 표시된다. <br>
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/5b18adb0-5e8e-4cc0-963d-287cb5d19e38" width="700"><br>
     (설치된 노드의 프롬프트만 추출할 수 있으며, 설치되지 않은 노드는 추출하지 못한다.)<br>
+  </ul>
   </details>
   <details>
   <p></p>
       <summary><b>Save Image 🔔ED</b></summary>
+  <ul>
   <p></p>
   <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/8e730793-1c61-4152-90a7-343de68d16a6" width="300">
@@ -528,13 +545,15 @@
   </li>
   <p></p>
   <li>종소리를 바꾸고 싶으면 <code>efficiency-nodes-comfyui\js\assets\notify.mp3</code> 를 변경하면 된다.</li>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>LoRA Stacker 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
-    <img src="https://github.com/user-attachments/assets/a8b132f3-65d5-4bc9-a44d-566b1e9a4b33" width="300">
+    <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0051.png" width="300">
     </p>
     - 최대 9개까지의 로라를 한번에 로딩할 수있는 노드이다.<p></p>
     <p></p>
@@ -543,13 +562,19 @@
       <i>폴더와 로라가 함께 있을땐 유형 별로 정렬이 안되는데 그땐 폴더 이름 맨 앞에 <code>-</code>를 붙여주면 정렬이 된다.)</i><br>
     </li>
     <p></p>
-    <li><code>🔍 View model info...</code>는 아래처럼 트리거 워드(Trained words)를 찾는데 편리하다.<br>
-      <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/fe112563-4189-4d7e-aa41-72b8030fa69a" width="400">
+    <li>토글 버튼을 클릭해서 개별 로라를 끄거나 켤 수 있다.<br>
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0054.png" width="300"><br>
     </li>
+    <p></p>
+    <li>로라 선택 창의 ℹ️를 클릭해 아래처럼 편리하게 트리거 워드(Trained words)를 찾을 수 있다.<br>
+      <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0050.png" width="400">
+    </li>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Embedding Stacker 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/66ca8ba4-f6e9-4881-ba8f-e737d8609515" width="400">
@@ -558,11 +583,13 @@
     <i>(기능은 단순하게 Efficient Loader 💬ED의 positive, negative 프롬프트 마지막에 임베딩 문자열을 추가해준다.</i><br>
     <i> Efficient Loader 💬ED만 작동함.)</i><br>
     <p></p>
-    - 로라 스태커와 동일하게 <code>🔍 View model info...</code>로 정보를 볼 수 있다.<p></p>
+    - 로라 스태커와 동일하게 선택 창의 ℹ️를 클릭해 정보를 볼 수 있다.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Wildcard Encode 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0028.png" width="400">
@@ -577,10 +604,12 @@
       <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0030.png" width="400">
     </li>
     <p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>TIPO Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0032.png" width="250">
@@ -588,10 +617,12 @@
     - TIPO노드에 <code>context</code>를 입력받을 수 있게 수정한 버전.<p></p>
     - 프롬프트를 랜덤하게 뽑아주는 노드이다. 자세한 것은 <a href="https://github.com/KohakuBlueleaf/z-tipo-extension">여기를</a> 참조<p></p>
     - 사용을 위해선 z-tipo-extension 설치가 필요하다.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Regional Stacker 💬ED, Regional Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0038.png" width="500">
@@ -599,10 +630,12 @@
     - 리저널 프롬프트에 사용하는 노드.<p></p>
     - Regional Script 💬ED의 <code>url</code>은 Get booru Tag 💬ED <code>url</code>과 같은 기능을 한다. 갤부루나 단부루의 태그를 가져올 수 있음.<p></p>
     - Regional Script 💬ED의 프롬프트 창은 와일드 카드 입력 가능.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Refiner Script 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0039.png" width="300">
@@ -611,10 +644,12 @@
     - Load Checkpoint를 붙여 다음처럼 다른 모델로 리파이닝 할 수 있다.<br><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0040.png" width="500"><p></p>
     - <code>ignore_batch_size</code> true는 배치 사이즈를 무시하고 한 번만 작업.<p></p>
     - <code>do_refine_only</code> true는 리파이닝만. false는 이미지를 샘플링 한후 리파이닝.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Int Holder 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0033.png" width="400">
@@ -622,10 +657,12 @@
     - KSampler (Efficient) 💬ED로 이미지를 만들면 <code>steps</code>을 기억하고 있다가 Hires Fix 실행 시에 <code>context</code>에 저장하는 노드, <p></p>
     - FaceDetailer 💬ED, Ultimate SD Upscale 💬ED는 <code>context</code>에 <code>steps</code>가 들어 있다면 그걸 우선 꺼내서 사용함.<p></p>
     - <code>steps</code>를 일일이 다시 입력하기 귀찮아서 만든 노드.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>FaceDetailer 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/3c79367f-e2f7-4f3c-bffe-48be9a6627c9" width="250">
@@ -639,10 +676,12 @@
       <i>(FaceDetailer 💬ED에서 눈을 더 반짝이게 하고 싶다던가 표정을 바꾸고 싶을 때 유용하다.</i><br>
       <i>디테일러 프롬프트에 대한 것은 <a href="https://arca.live/b/aiart/126917339">여기를</a> 참조)</i><br>
     </li>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>MaskDetailer 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/87bbd155-8b06-423d-b8e8-04a8f55b223d" width="250">
@@ -650,10 +689,12 @@
     - Impact pack의 MaskDetailer 애드온.<p></p>
     - <code>context</code>를 입력받을 수 있게 수정한 버전.<p></p>
     - KSampler (Efficient) 💬ED와 마찬가지로 <code>set_seed_cfg_sampler</code> 설정이 있음.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Detailer (SEGS) 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/c538b972-0e14-4b53-861d-ed0f78da0248" width="250">
@@ -661,10 +702,12 @@
     - Impact pack의 Detailer (SEGS) 애드온.<p></p>
     - <code>context</code>를 입력받을 수 있게 수정한 버전.<p></p>
     - KSampler (Efficient) 💬ED와 마찬가지로 <code>set_seed_cfg_sampler</code> 설정이 있음.<p></p>
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>Ultimate SD Upscale 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/34fc20e4-8577-4716-9197-f63a31a6a31f" width="200">
@@ -672,10 +715,12 @@
     - Ultimate SD Upscale의 애드온.<p></p>
     - <code>context</code>를 입력받을 수 있게 수정한 버전.<p></p>
     - KSampler (Efficient) 💬ED와 마찬가지로 <code>set_seed_cfg_sampler</code> 설정이 있으며, upscale 모델 로더를 통합한 노드.
+  </ul>
   </details>
   <details>
     <p></p>
     <summary><b>SUPIR 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/user-attachments/assets/ef20c2cf-e0fa-4505-a432-50a97d0cb7f4" width="400">
@@ -686,7 +731,8 @@
     - 업스케일은 업스케일 모델로 업스케일 하고 나서 원하는 크기에 맞춰 다운 스케일하고 upscaled image에 출력한다.<p></p>
     - <a href="https://github.com/kijai/ComfyUI-SUPIR">ComfyUI-SUPIR</a>  설치 필요.<p></p>
     - 예시 동영상<p></p>
-  <video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video> 
+  <video  src="https://github.com/kijai/ComfyUI-SUPIR/assets/40791699/5cae2a24-d425-462c-b89d-df7dcf01595c"  controls>예시 동영상  </video>
+  </ul>
   </details>
 
 　
@@ -698,11 +744,11 @@
 
    [**ComfyUI Impact Subpack**](https://github.com/ltdrdata/ComfyUI-Impact-Subpack)
 
-   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)  (반드시 필요!)
+   [**ComfyUI-Custom-Scripts**](https://github.com/pythongosssss/ComfyUI-Custom-Scripts)
 
    [**ComfyUI_UltimateSDUpscale**](https://github.com/ssitu/ComfyUI_UltimateSDUpscale)
 
-   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)
+   [**rgthree-comfy**](https://github.com/rgthree/rgthree-comfy)                     (반드시 필요!)
 
    [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)  (반드시 필요!)
 
@@ -746,18 +792,4 @@
 　
 
 ## 알려진 버그
-
-- [**efficiency-nodes-comfyui**](https://github.com/jags111/efficiency-nodes-comfyui)에 버그가 있음. 그냥 쓰면 <code>Cannot redefine property</code>에러가 발생하는데, 업데이트 후 반드시 <code>start.bat</code>을 실행할 것.
-  
-- <code>🔍 View model info...</code>를 했을 때 [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 다음처럼 모델을 못찾는 버그가 있음.
-  
-   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0041.png" width="400" style="display: inline-block;"></p>
-   
-    해시 값이 안맞아서 발생하는 문제인데
-   
-   <p><img src="https://raw.githubusercontent.com/NyaamZ/efficiency-nodes-ED/refs/heads/main/html_resource/0042.jpg" width="800" style="display: inline-block;"></p>
-   
-   [civitai.com](https://unsafelink.com/https://civitai.com/) 에서 빨갛게 칠해진 부분을 클릭해서 해시 값을 복사한 다음.
-   
-   <code>ComfyUI\models\checkpoints\모델명.sha256</code> 을 메모장으로 열어서 복사한 값을 덮어쓰면 됨.
-
+...

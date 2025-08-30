@@ -1,0 +1,185 @@
+## 이미지의 구성 (Image Composition)
+- 이미지의 다양한 기법, 소재, 구도등을 표현하는 태그들이 이 분류에 포함됩니다
+### 품질 및 해상도 (Quality & Resolution) meta
+- 이미지의 해상도, 품질, 파일 형식 관련 태그가 이 분류에 포함됩니다 (예: highres, absurdres, lowres, jpeg artifacts)
+### 출처 표시 (Source Marking) meta
+- 아티스트나 출처를 알 수 있는 표시에 붙이는 태그가 이 분류에 포함됩니다. (예: artist name, twitter logo, signature, watermark)
+### 이미지 형식 (Image Format) meta
+- 이미지의 형식이나 구성을 나타내는 태그가 이 분류에 포함됩니다 (예: comic, 4koma)
+### 아트 스타일 (Art Style) meta
+- 그림 스타일이나 테마를 나타내는 태그가 이 분류에 포함됩니다. (예: sketch, pixel art)
+### 색상 및 톤 (Color & Tone) meta
+- 특정 톤이나, 전체적인 이미지의 색상 및 색감을 나타내는 태그가 이 분류에 포함됩니다. (예: black theme, monochrome, sepia)
+### 구도 및 앵글 (Composition & Angle) camera & composition
+- 카메라의 앵글, 구도, 캐릭터가 보이는 정도 등을 나타내는 태그가 이 분류에 포함됩니다 (예: from above, cowboy shot, upper body)
+### 포커스 (Focus) camera & composition
+- 이미지 내 특정 대상에 대한 초점을 나타내는 태그가 이 분류에 포함됩니다 (예: solo focus, focus on hands, out of focus)
+### 카메라 및 렌더링 기법 (Camera & Rendering Techniques) camera & composition
+- 렌더링이나 후처리에 사용된 시각 효과에 사용하는 태그가 이 분류에 포함됩니다 (예: bokeh, blur, lens flare, motion blur)
+### 표현 기호 (Symbolic Representation) symbolic representation
+- 만화적, 상징적 표현를 나타내는 태그가 이 분류에 포함됩니다 (예: speech bubble, heart, sweatdrop)
+### 작중 효과 및 요소 (In-World Effects & Elements) effect
+- 마법, 특수능력, 전기등 특정 요소로 인해 발생한 시각적 효과를 표현하는 태그가 이 분류에 포함됩니다 (예: magic circle, aura)
+
+## 출처 및 작가 (Source and Artist)
+- 이미지의 원작, 등장 캐릭터, 작가 등 저작권과 관련된것을 설명하는 태그가 이 분류에 포함됩니다.
+### 작품 (Series) copyright
+- 캐릭터가 등장하는 작품명이 이 분류에 포함됩니다 (예: genshin impact, pokemon)
+### 캐릭터 (Character) character
+- 특정 캐릭터의 이름이 이 분류에 포함됩니다 (예: hatsune miku, agatsuma zenitsu)
+### 아티스트 (Artist) artist
+- 해당 이미지를 그린 아티스트의 이름(필명)이 이 분류에 포함됩니다
+
+## 인물 (Character)
+- 이미지에 등장하는 인물의 인원수, 외형적, 내재적 특징등 인물에 관련된 태그가 이 분류에 포함됩니다.
+### 인원수 및 관계 (Headcount & Relationship) person
+- 인물의 수나 인물간의 관계성이 이 분류에 포함됩니다. (예: solo, 2girls, couple)
+### 신체적 특징 (Physical Traits) body
+- 인물의 체형이나 신체 나이를 표현하는 태그가 이 분류에 포함됩니다 (예: petite, mature male)
+### 신체 부위 (Body Parts) body
+- 인물의 특정 부위의 크기 혹은 그 자체를 가르키는 태그가 이 분류에 포함됩니다. (예: large breasts, breasts, armpits)
+### 신체 상태 및 변형 (Body State & Modification) body
+- 인물이 미용을 위해, 혹은 기타 상황으로 인해 신체에 변화가 생긴경우 이 분류에 포함됩니다 (예: makeup, tattoo, scar, piercing)
+### 헤어스타일 및 색상 (Hairstyle & Color) hair
+- 인물의 헤어스타일, 머리색등을 나타내는 태그가 이 분류에 포함됩니다. (예: black hair, twintails)
+### 눈 특징 (Eye Traits) face
+- 눈색, 눈동자의 모양등 눈과 관련된 태그가 이 분류에 포함됩니다. (예: blue eyes, heterochromia, heart-shaped pupils)
+### 종족 및 특성 (Species & Traits) species & traits
+- 인간이 아니거나, 현실에 없는 종족과 특성이 이 분류에 포함됩니다 (예: elf, cat ears, demon wings, halo, cyborg)
+### 상태 및 감정 (State & Emotion) state & emotion
+- 인물의 감정이나 지속적인 신체 상태가 이 분류에 포함됩니다 (예: smiling, crying, sleeping, tired, blushing)
+
+## 복장 및 악세서리(Clothing and Accessories)
+- 복장 및 악세서리를 나타내는 태그들이 이 분류에 포함됩니다.
+- 입고 있거나 착용하고 있는 경우로 한정 합니다, 입고 있지 않는경우 물체에 넣어야 합니다.
+### 머리 장식 및 머리 장비 (Headwear and Headgear) accessory
+- 머리에 착용하는것이 이 분류에 포함됩니다 (예: hat, crown, hair ribbon)
+### 셔츠 및 상의 (Shirts and Topwear) clothing
+- 주로 상체에 입는것이 이 분류에 포함됩니다 (예: shirt, crop top)
+### 바지 및 하의 (Pants and Bottomwear) clothing
+- 주로 하체에 입는것이 이 분류에 포함됩니다 (예: shorts, jeans)
+### 드레스 (Dress) clothing
+- 상체에 입지만, 보통 하의가 가려주는 부분까지 같이 가려 하의를 입을 필요가 없는 옷이 이 분류에 포함됩니다.
+### 스타일 (Style) appearance
+- 특정 테마나 시대적 특징을 가진 의상과 악세서리에 사용합니다 (예: gothic lolita, steampunk)
+### 속옷 및 양말류 (Underwear & Hosiery) clothing
+- 속옷이나 양말류가 이 분류에 포함됩니다 (예: bra, stockings)
+### 신발 (Footwear) clothing
+- 신발류가 이 분류에 포함됩니다 (예: boots, sneakers, high-heels)
+### 액세서리 (Accessories) accessory
+- 몸에 착용하거나 휴대하는 장신구중, 다른 특정 분류(머리 장식, 신발 등)에 속하지 않는 것이 이 분류에 포함됩니다 (예: glasses, necklace)
+### 코스튬 (Costume) clothing
+- 특정 직업 혹은 신분이 주로 입는 복장을 표현하는 태그가 이 분류에 포함됩니다. (예: maid apron, school uniform)
+### 상태 (State) appearance
+- 복장 및 악세서리의 상태를 표현하는 태그가 이 분류에 포함됩니다 (예: torn clothes, see-through clothes)
+
+## 포즈 (Pose)
+- 자세를 나타내는 태그들이 이 분류에 포함됩니다
+### 전신 자세 (Full Body Pose) pose
+- 몸 전체의 자세를 나타내는 태그가 이 분류에 포함됩니다. (예: standing, sitting, lying, on all fours)
+### 부분 자세 (Partial Pose) pose
+- 특정 신체 부위의 자세를 나타내는 태그가 이 분류에 포함됩니다 (예: arm up, legs crossed, head tilt)
+### 어필 자세 (Appealing Pose) pose
+- 누군가를 유혹하기 위해서, 혹은 기타 이유로 인해 다소 성적인 분위기를 포함하지만 "직접적으로" 성행위를 하는 자세가 아닌것을 나타내는 태그가 이 분류에 포함됩니다 (예: lifting own clothes, opened by self)
+### 제스쳐 (Gesture) pose
+- 손의 모양 혹은 자세가 이 분류에 포함됩니다 (예: v, heart hands)
+
+## 행동 (Action)
+- 행동을 표현하는 태그들이 이 분류에 포함됩니다.
+### 일상 행동 (Daily Activities) action
+- 일상적인 행동이 이 분류에 포함됩니다. (예: eating, drinking, walking, reading)
+### 신체 활동 (Physical Activities) action
+- 움직임이 큰 활동이 이 분류에 포함됩니다 (예: running, dancing, swimming, fighting)
+### 상호작용 (Interaction) action
+- 다른 대상과의 상호작용이 이 분류에 포함됩니다 (예: hugging, holding hands, kissing, talking)
+### 특수 행동 (Supernatural/Special Actions) action
+- 현실에서 불가능한 초자연적, 특수 행동이 이 분류에 포함됩니다 (예: casting spell, transformation, flying)
+
+## 배경 (Backgrounds)
+- 배경을 표현하는 태그가 이 분류에 포함됩니다
+### 자연 환경 (Natural Environment) background
+- 자연적인 장소가 이 분류에 포함됩니다 (예: forest, desert)
+### 실내 환경 (Indoor Environment) background
+- 건물의 내부를 표현하는 태그가 이 분류에 포함됩니다 (예: room, library)
+### 실외 환경 (Outdoor Environment) background
+- 건물의 외부를 표현하는 태그가 이 분류에 포함됩니다 (예: city, skyline)
+### 건축 요소 (Architectural Elements) background
+- 건물의 외부 혹은 내부에 존재하고 쉽게 이동시킬 수 없지만 환경이 아닌 요소에 해당하는 태그가 이 분류에 포함됩니다 (예: door, window, stained glass)
+### 단색 및 추상 (Solid & Abstract) background
+- 구체적인 형태가 없는 배경가 이 분류에 포함됩니다 (예: simple background, gradient background)
+### 시간 및 날씨 (Time & Weather) background
+- 배경의 시간대나 날씨가 이 분류에 포함됩니다 (예: day, night, rain, snow)
+
+## 물체 (Objects)
+- 그림에 등장하는 각종 물체를 나타내는 태그들이 이 분류에 포함됩니다.
+### 복장 및 악세서리(Clothing and Accessories) object
+- 착용하고 있지 않아 캐릭터의 패션과는 관계가 없는 복장과 악세서리를 나타내는 태그들이 이 분류에 포함됩니다 (예: unworn skirt)
+### 음식 및 음료 (Food & Drink) object
+- 먹고 마실 수 있는 것이 이 분류에 포함됩니다 (예: cake)
+### 무기 (Weapon) object - weapon
+- 보통 무기로 사용되는 물건이 이 분류에 포함됩니다 (예: knife)
+### 도구 및 기기 (Tools & Devices) object
+- 특정 목적을 가진 도구나 전자기기가 이 분류에 포함됩니다 (예: phone)
+### 가구 (Furniture) object
+- 가구가 이 분류에 포함됩니다 (예: couch)
+### 생활용품 (Household Goods) object
+- 일상에서 편의를 위해서 사용하는 용품이 이 분류에 포함됩니다 (예: cup, spatula)
+### 탈것 (Vehicle) object
+- 이동 수단이 이 분류에 포함됩니다 (예: airplane, motor vehicle)
+### 악기 (Musical Instruments) object
+- 음을 내는 악기가 이 분류에 포함됩니다 (예: violin)
+### 장난감 및 인형 (Toys & Dolls) object
+- 장난감이나 인형이 이 분류에 포함됩니다 (예: teddy bear)
+### 서적 및 문서 (Books & Documents) object
+- 글이나 정보가 담긴 매체가 이 분류에 포함됩니다 (예: book, paper)
+### 자연물 (Natural Objects) object
+- 자연물중 유동성이 있는것이 이 분류에 포함됩니다 (예: flower, pebble)
+### 기타 (Other) object
+- 적절한 소분류가 없는 사물이 이 분류에 포함됩니다
+
+## 개념 및 테마 (Concepts & Themes)
+- 이미지가 담고 있는 추상적인 개념, 문화적 맥락, 주제, 역할을 분류합니다.
+### 직업 및 신분 (Occupation & Status) concepts & themes
+- 캐릭터의 직업, 역할, 사회적 신분을 나타내는 태그가 이 분류에 포함됩니다 (예: office lady, maid, ninja, knight, student, slave)
+### 이벤트 및 기념일 (Events & Holidays) concepts & themes
+- 시기나 기념일과 관련된 테마가 이 분류에 포함됩니다 (예: christmas, halloween, birthday, summer festival, wedding)
+### 문화 (Cultural) concepts & themes
+- 문화, 하위문화, 밈, 국가적 특성을 나타내는 태그가 이 분류에 포함됩니다 (예: meme, otaku culture, steampunk, united states)
+### 동물 (Animals) species & traits
+- 인물화되지 않고 독립적인 개체로 등장하는 동물이 이 분류에 포함됩니다 (예: cat, dog, turtle, bird)
+### 학문 및 추상 개념 (Academic & Abstract Concepts) concepts & themes
+- 학문 분야나 눈에 보이지 않는 추상적인 개념이 이 분류에 포함됩니다 (예: math, science, surreal, dream)
+
+## 성인용 (Adult Content)
+- 태그가 성적인 내용을 담고 있거나 지나치게 폭력적이라 성인용으로 보이는 태그들을 이 분류에 포함합니다.
+- 성적인 내용으로 분류할때는 그 태그가 분명하게 성적인 의미를 포함하고 있어야 합니다
+  - 가령 비키니, 속옷등은 상황에 따라 성적이지 않을 수 있지만 섹스, 기승위 등은 어떤 상황에서도 성적인 내용을 의미합니다
+- 폭력적인것을 분류할때는 보통 신체에 상처가 발생했거나, 발생시키는 행위, 그로 인해 발생한 피 혹은 결손상황 등을 분류합니다. 주 분류 기준은 일상생활에서 발생할 수 있는 사소한 상처 및 손상인지 아닌지의 여부입니다.
+### 신체 (Body) sensitive
+- 직접적인 성기 또는 성적 부위 묘사를 나타내는 태그가 이 분류에 포함됩니다 (예: pussy, penis)
+### 행위 (Acts) sexual acts & poses
+- 성행위를 직접 묘사하는 태그가 이 분류에 포함됩니다 (예: sex, paizuri)
+### 자세 (Poses) sexual acts & poses
+- 성행위에 사용하는, 혹은 성적 어필이 심한 자세가 이 분류에 포함됩니다 (예: doggystyle, suspended congress)
+### 복장 및 악세서리 (Clothing & Accessories) sexual object
+- 착용 여부와 상관 없이 성적 어필이 있는 복장 및 악세서리가 이 분류에 포함됩니다. (예: lingerie, babydoll, condom belt)
+### 노출 (Exposure) sexual acts & poses
+- 성기 혹은 성적 부위를 노출하는 행위를 나타내는 태그가 이 분류에 포함됩니다 (예: undressing, exhibitionism)
+### 성인용품 (Sex Toys) sexual object
+- 성인용품이 이 분류에 포함됩니다. (예: vibrator, dildo)
+### 액체 (Fluids) sensitive
+- 성적인 맥락의 액체가 이 분류에 포함됩니다 (예: pussy juice, cum, suggestive fluid)
+### 페티시 (Fetishes) sexual acts & poses
+- 이상성욕에 가까운 페티시에 포함하는 태그가 이 분류에 포함됩니다. (예: BDSM, netorare, pet play)
+### 상태 및 분위기 및 감정 (Status & Mood & Sentiment) sexual acts & poses
+- 상태, 분위기, 감정을 표현하면서 성적 컨텐츠를 포함하는것이 이 분류에 포함됩니다 (예: chikan, public indecency)
+### 생물 (Creature) sexual object
+- 성적인 표현에 주로 사용되는 생물에 사용합니다 (예: tentacle)
+### 폭력성 (Violence) sexual acts & poses
+- 분류 기준에 따른, 과한 폭력성을 표현하는 태그가 이 분류에 포함됩니다.
+### 기타 (Other) sexual - other
+- 다른 소분류에 없지만 명백한 성인용 컨텐츠를 포함하고 있는 태그가 이 분류에 포함됩니다
+
+## 기타 (Other)
+### 기타 (Other) other
+- 위에 제시된 어떤 대분류에도 명확히 속하지 않는, 극소수의 예외적인 태그에 사용합니다.

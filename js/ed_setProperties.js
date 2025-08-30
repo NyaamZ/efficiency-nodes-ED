@@ -37,44 +37,58 @@ app.registerExtension({
         }
 		
 		// KSampler (Efficient) 💬ED
-        if (nodeData.name === "KSampler (Efficient) 💬ED") {
-            const onNodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = function () {
-                const result = onNodeCreated?.apply(this, arguments);
+		if (nodeData.name === "KSampler (Efficient) 💬ED") {
+			const onNodeCreated = nodeType.prototype.onNodeCreated;
+
+			nodeType.prototype.onNodeCreated = function () {
+				const result = onNodeCreated?.apply(this, arguments);
+
+				// 초기 프로퍼티 설정
 				this.setProperty("MaskDetailer mode", false);
 				this.setProperty("(MaskDetailer) drop size", 5);
 				this.setProperty("(MaskDetailer) cycle", 1);
 				this.setProperty("(MaskDetailer) inpaint model enable", false);
 				this.setProperty("(MaskDetailer) noise mask feather", 20);
 				this.setProperty("Use tiled VAE decode", false);
-				
+
+				// 위젯 토글 함수 정의
 				this.toggleWidgetByProperty = (value) => {
-					const adjustment  = this.size[1];
+					const originalHeight = this.size[1];
+
 					this.properties["MaskDetailer mode"] = value;
-					
-					//toggleWidget(this, findWidgetByName(this, 'preview_method'), !value);
-					toggleWidget(this, findWidgetByName(this, 'guide_size'), value);
-					toggleWidget(this, findWidgetByName(this, 'guide_size_for'), value);
-					toggleWidget(this, findWidgetByName(this, 'max_size'), value);
-					toggleWidget(this, findWidgetByName(this, 'feather'), value);
-					toggleWidget(this, findWidgetByName(this, 'crop_factor'), value);
-					//toggleWidget(this, findWidgetByName(this, 'cycle'), value);
-					
-					if (this.size[1] < adjustment)
-						this.setSize([this.size[0], adjustment]);
+
+					// 필요한 위젯 목록
+					const widgetNames = ["guide_size", "guide_size_for", "max_size", "feather", "crop_factor"];
+					const widget_list = widgetNames
+						.map(name => findWidgetByName(this, name))
+						.filter(Boolean); // null 제거
+
+					// 위젯 토글
+					widget_list.forEach(widget => toggleWidget(this, widget, value));
+
+					// 높이 조정
+					if (this.size[1] < originalHeight) {
+						this.setSize([this.size[0], originalHeight]);
+					}
+
+					this.setDirtyCanvas(true, true);
+					// 플래시 처리
+					//flashWidget(this, widget_list);
 				};
-				
-				this.onPropertyChanged = (property, value) => {				
-					if (property == "MaskDetailer mode"){						
+
+				// 프로퍼티 변경시 토글 호출
+				this.onPropertyChanged = (property, value) => {
+					if (property === "MaskDetailer mode") {
 						this.toggleWidgetByProperty(value);
 					}
 				};
-				
+
+				// 초기 상태 적용
 				this.toggleWidgetByProperty(this.properties["MaskDetailer mode"]);
-				
-                return result;
-            };
-        }
+
+				return result;
+			};
+		}
 		
 		// Wildcard Encode 💬ED
         if (nodeData.name === "Wildcard Encode 💬ED") {

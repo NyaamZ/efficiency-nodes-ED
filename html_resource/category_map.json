@@ -1,0 +1,106 @@
+{
+  "Image Composition": {
+    "Quality & Resolution": "meta",
+    "Source Marking": "meta",
+    "Image Format": "meta",
+    "Art Style": "meta",
+    "Color & Tone": "meta",
+    "Composition & Angle": "camera & composition",
+    "Focus": "camera & composition",
+    "Camera & Rendering Techniques": "camera & composition",
+    "Symbolic Representation": "symbolic representation",
+    "In-World Effects & Elements": "effect",
+    "Other": "meta"
+  },
+  "Source and Artist": {
+    "Series": "copyright",
+    "Character": "character",
+    "Artist": "artist",
+    "Other": "copyright"
+  },
+  "Character": {
+    "Headcount & Relationship": "person",
+    "Physical Traits": "body",
+    "Body Parts": "body",
+    "Body State & Modification": "body",
+    "Hairstyle & Color": "hair",
+    "Eye Traits": "face",
+    "Species & Traits": "species & traits",
+    "State & Emotion": "state & emotion",
+    "Other": "appearance"
+  },
+  "Clothing and Accessories": {
+    "Headwear and Headgear": "accessory",
+    "Shirts and Topwear": "clothing",
+    "Pants and Bottomwear": "clothing",
+    "Dress": "clothing",
+    "Style": "appearance",
+    "Underwear & Hosiery": "clothing",
+    "Footwear": "clothing",
+    "Accessories": "accessory",
+    "Costume": "clothing",
+    "State": "appearance",
+    "Other": "appearance"
+  },
+  "Pose": {
+    "Full Body Pose": "pose",
+    "Partial Pose": "pose",
+    "Appealing Pose": "pose",
+    "Gesture": "pose"
+  },
+  "Action": {
+    "Daily Activities": "action",
+    "Physical Activities": "action",
+    "Interaction": "action",
+    "Supernatural/Special Actions": "action",
+    "Other": "action"
+  },
+  "Backgrounds": {
+    "Natural Environment": "background",
+    "Indoor Environment": "background",
+    "Outdoor Environment": "background",
+    "Architectural Elements": "background",
+    "Solid & Abstract": "background",
+    "Time & Weather": "background",
+    "Other": "background"
+  },
+  "Objects": {
+    "Clothing and Accessories": "object",
+    "Food & Drink": "object",
+    "Weapon": "object - weapon",
+    "Tools & Devices": "object",
+    "Furniture": "object",
+    "Household Goods": "object",
+    "Vehicle": "object",
+    "Musical Instruments": "object",
+    "Toys & Dolls": "object",
+    "Books & Documents": "object",
+    "Natural Objects": "object",
+    "Other": "object"
+  },
+  "Concepts & Themes": {
+    "Occupation & Status": "concepts & themes",
+    "Events & Holidays": "concepts & themes",
+    "Cultural": "concepts & themes",
+    "Animals": "species & traits",
+    "Academic & Abstract Concepts": "concepts & themes",
+    "Other": "concepts & themes"
+  },
+  "Adult Content": {
+    "Body": "sensitive",
+    "Acts": "sexual acts & poses",
+    "Poses": "sexual acts & poses",
+    "Clothing & Accessories": "sexual object",
+    "Exposure": "sexual acts & poses",
+    "Sex Toys": "sexual object",
+    "Fluids": "sensitive",
+    "Fetishes": "sexual acts & poses",
+    "Status & Mood & Sentiment": "sexual acts & poses",
+    "Creature": "sexual object",
+    "Violence": "sexual acts & poses",
+    "Other": "sexual - other"
+  },
+  "Other": {
+    "Other": "other"
+  }
+}

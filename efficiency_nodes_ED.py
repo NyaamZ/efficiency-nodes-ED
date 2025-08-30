@@ -388,6 +388,11 @@ class wildcard_ED:
 
     @staticmethod
     def process(text, seed, iterate_count=0):
+        pattern = r"(__[\w.\-+/*\\]+?__)"
+        matches = re.findall(pattern, text)
+        if not matches:
+            return text
+        
         text = wildcard_ED.sq_wildcard(text, iterate_count)
 
         if 'ImpactWildcardProcessor' not in NODES:
@@ -432,7 +437,10 @@ class LoRA_Stacker_ED:
             inputs["required"][f"lora_name_{i}"] = (["None"] + folder_paths.get_filename_list("loras"),)
             inputs["required"][f"lora_wt_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
             inputs["required"][f"model_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
-            inputs["required"][f"clip_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})        
+            inputs["required"][f"clip_str_{i}"] = ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01})
+
+        for i in range(1, cls.MAX_LORA_COUNT +1):
+            inputs["required"][f"lora_name_{i}_toggle"] = ("BOOLEAN", {"default": True,})
 
         inputs["optional"] = {
             "lora_stack": ("LORA_STACK",),
@@ -446,25 +454,31 @@ class LoRA_Stacker_ED:
     CATEGORY = "Efficiency Nodes/Stackers"
 
     def lora_stacker_ed(self, input_mode, lora_count, lora_stack=None, **kwargs):
-        if lora_count > 0:
-            # Extract values from kwargs
-            loras = [kwargs.get(f"lora_name_{i}") for i in range(1, lora_count + 1)]
+        loras = []
 
-            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-            if input_mode == "simple":
-                weights = [kwargs.get(f"lora_wt_{i}") for i in range(1, lora_count + 1)]
-                loras = [(lora_name, lora_weight, lora_weight) for lora_name, lora_weight in zip(loras, weights) if lora_name != "None" and lora_weight != 0]
-            else:
-                model_strs = [kwargs.get(f"model_str_{i}") for i in range(1, lora_count + 1)]
-                clip_strs = [kwargs.get(f"clip_str_{i}") for i in range(1, lora_count + 1)]
-                loras = [(lora_name, model_str, clip_str) for lora_name, model_str, clip_str in zip(loras, model_strs, clip_strs) if lora_name != "None" and model_str != 0]
-        else:
-            loras = []
-        
-        # If lora_stack is not None, extend the loras list with lora_stack
-        if lora_stack is not None:
+        if lora_count > 0:
+            for i in range(1, lora_count + 1):
+                lora_name = kwargs.get(f"lora_name_{i}")
+                toggle = kwargs.get(f"lora_name_{i}_toggle")
+
+                if not lora_name or lora_name == "None" or not toggle:
+                    continue  # 조건 불만족 시 스킵
+
+                if input_mode == "simple":
+                    lora_weight = round(kwargs.get(f"lora_wt_{i}", 0), 2)
+                    if lora_weight != 0:
+                        loras.append((lora_name, lora_weight, lora_weight))
+                else:
+                    model_str = round(kwargs.get(f"model_str_{i}", 0), 2)
+                    clip_str = round(kwargs.get(f"clip_str_{i}", 0), 2)
+                    if model_str != 0:
+                        loras.append((lora_name, model_str, clip_str))
+
+        # lora_stack 처리
+        if lora_stack:
             loras.extend([l for l in lora_stack if l[0] != "None"])
-        #print(f"\033[36mloras:{(loras,)}\033[0m") 
+
+        # print(f"\033[36mloras:{(loras,)}\033[0m")
         return (loras,)
 
     @classmethod
@@ -497,10 +511,15 @@ class Embedding_Stacker_ED:
         
         for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
             inputs["required"][f"positive_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
-            inputs["required"][f"positive_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
+            inputs["required"][f"pos_weight_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
         for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
             inputs["required"][f"negative_embedding_{i}"] = (["None"] + folder_paths.get_filename_list("embeddings"),)
-            inputs["required"][f"negative_emphasis_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
+            inputs["required"][f"neg_weight_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 3.0, "step": 0.05})
+            
+        for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
+            inputs["required"][f"positive_embedding_{i}_toggle"] = ("BOOLEAN", {"default": True,})
+        for i in range(1, cls.MAX_EMBEDDING_COUNT +1):
+            inputs["required"][f"negative_embedding_{i}_toggle"] = ("BOOLEAN", {"default": True,})
 
         inputs["optional"] = {
             "lora_stack": ("LORA_STACK",),
@@ -514,31 +533,42 @@ class Embedding_Stacker_ED:
     CATEGORY = "Efficiency Nodes/Stackers"
 
     def embedding_stacker(self, positive_embeddings_count, negative_embeddings_count, lora_stack=None, **kwargs):
+        loras = []
+        
         # POSITIVE EMBEDDING
-        if positive_embeddings_count > 0:            
-            # Extract values from kwargs
-            pos_embs = [kwargs.get(f"positive_embedding_{i}") for i in range(1, positive_embeddings_count + 1)]
-            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-            pos_emps = [kwargs.get(f"positive_emphasis_{i}") for i in range(1, positive_embeddings_count + 1)]
-            pos_embs = [("POS_EMBEDDING", pos_emb, round(pos_emp, 2)) for pos_emb, pos_emp in zip(pos_embs, pos_emps) if pos_emb != "None" and pos_emp != 0]
-        else:
-            pos_embs = []
+        pos_embs = []
+        if positive_embeddings_count > 0:
+            for i in range(1, positive_embeddings_count + 1):
+                pos_emb = kwargs.get(f"positive_embedding_{i}")
+                pos_weight = round(kwargs.get(f"pos_weight_{i}"), 2)
+                toggle = kwargs.get(f"positive_embedding_{i}_toggle")
+
+                if not pos_emb or pos_emb == "None" or pos_weight == 0 or not toggle :
+                    continue  # 조건 불만족 시 스킵
+                
+                pos_embs.append(("POS_EMBEDDING", pos_emb, pos_weight))
         
-        # NEGTIVE EMBEDDING
+        # NEGATIVE EMBEDDING
+        neg_embs = []
         if negative_embeddings_count > 0:
-            # Extract values from kwargs
-            neg_embs = [kwargs.get(f"negative_embedding_{i}") for i in range(1, negative_embeddings_count + 1)]
-            # Create a list of tuples using provided parameters, exclude tuples with lora_name as "None"
-            neg_emps = [kwargs.get(f"negative_emphasis_{i}") for i in range(1, negative_embeddings_count + 1)]
-            neg_embs = [("NEG_EMBEDDING", neg_emb, round(neg_emp, 2)) for neg_emb, neg_emp in zip(neg_embs, neg_emps) if neg_emb != "None" and neg_emp != 0]
-        else:
-            neg_embs = []
+            for i in range(1, negative_embeddings_count + 1):
+                neg_emb = kwargs.get(f"negative_embedding_{i}")
+                neg_weight = round(kwargs.get(f"neg_weight_{i}"), 2)
+                toggle = kwargs.get(f"negative_embedding_{i}_toggle")
+
+                if not neg_emb or neg_emb == "None" or neg_weight == 0 or not toggle :
+                    continue  # 조건 불만족 시 스킵
+                
+                neg_embs.append(("NEG_EMBEDDING", neg_emb, neg_weight))
         
-        loras = pos_embs + neg_embs        
-        # If lora_stack is not None, extend the loras list with lora_stack
+        # 합치기
+        loras = pos_embs + neg_embs
+        
+        # lora_stack 추가
         if lora_stack is not None:
             loras.extend([l for l in lora_stack if l[0] != "None"])
-        #print(f"\033[36mlorasEmbedding:{(loras,)}\033[0m") 
+        
+        # print(f"\033[36mlorasEmbedding:{(loras,)}\033[0m") 
         return (loras,)
 
     @classmethod
@@ -666,7 +696,7 @@ class EfficientLoader_ED():
             "🎨 Inpaint(Ksampler)": 3,
             "🎨 Inpaint(MaskDetailer)": 4,
         }
-        inputs = {"required": { "ckpt_name": (["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints"),),
+        inputs = {"required": { "ckpt_name": (["🔌 ext model input"] + folder_paths.get_filename_list("checkpoints"),),
                               "vae_name": (["Baked VAE"] + folder_paths.get_filename_list("vae"),),
                               "clip_skip": ("INT", {"default": -2, "min": -24, "max": 0, "step": 1}),                        
                               "paint_mode": ( list(paint_mode.keys()), {"default": "✍️ Txt2Img"}),
@@ -681,12 +711,11 @@ class EfficientLoader_ED():
                               "image_height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
                               },
                 "optional": {
+                             "context_opt": ("RGTHREE_CONTEXT",),  
                              "lora_stack": ("LORA_STACK",),
                              "cnet_stack": ("CONTROL_NET_STACK",),
                              "pixels": ("IMAGE",),
                              "mask": ("MASK",),
-                             "model_opt": ("MODEL",),
-                             "clip_opt": ("CLIP",),
                              "positive": ("STRING", {"forceInput": True}),                             
                              "negative": ("STRING", {"forceInput": True}),},
                 "hidden": { "prompt": "PROMPT",
@@ -702,8 +731,8 @@ class EfficientLoader_ED():
     CATEGORY = "Efficiency Nodes/Loaders"
         
     def efficientloader_ed(self, ckpt_name, vae_name, clip_skip, paint_mode, batch_size, 
-                        seed, cfg, sampler_name, scheduler, image_width, image_height, lora_stack=None, cnet_stack=None,
-                        pixels=None, mask=None, model_opt=None, clip_opt=None, positive="", negative="",
+                        seed, cfg, sampler_name, scheduler, image_width, image_height,
+                        context_opt=None, lora_stack=None, cnet_stack=None, pixels=None, mask=None, positive="", negative="",
                         refiner_name="None", positive_refiner=None, negative_refiner=None, ascore=None, prompt=None,
                         my_unique_id=None, extra_pnginfo=None, loader_type="regular"):
         
@@ -715,46 +744,71 @@ class EfficientLoader_ED():
         
         # Strip comments
         positive_prompt = ED_Util.strip_comments(positive)
-        negative_prompt = ED_Util.strip_comments(negative)        
+        negative_prompt = ED_Util.strip_comments(negative)
+
+        # extract ext models from context
+        model_opt, clip_opt, vae_name, cfg, sampler_name, scheduler, ref_image, ref_mask, lora_stack = self.extract_model_context(context_opt, ckpt_name, vae_name, cfg, sampler_name, scheduler, pixels, mask, lora_stack)
 
         # Embedding stacker process
         lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner = Embedding_Stacker_ED.embedding_process(lora_stack, positive_prompt, negative_prompt, positive_refiner, negative_refiner)     
 
         # GET PROPERTIES #  
-        properties = self.get_properties(extra_pnginfo, my_unique_id, prompt)       
-
+        properties = self.get_properties(extra_pnginfo, my_unique_id, prompt)
+        
         # Model, clip, vae, lora_params 
         model, clip, vae, lora_stack, lora_params, is_flux_model = \
-            self.load_model_clip_vae(properties, ckpt_name, vae_name, clip_skip,lora_stack, model_opt, clip_opt, prompt, my_unique_id)       
+            self.load_model_clip_vae(properties, ckpt_name, vae_name, clip_skip, lora_stack, model_opt, clip_opt, prompt, my_unique_id) 
 
         #################### PROMPT ENCODING #####################
-        #Encode prompt
-        if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
-            print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
-            clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])            
-        else:
-            clip_encoder = None
-
-        negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
         
-        if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
-            positive_prompt = wildcard_ED.process(positive_prompt, seed)
-            positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
+        #Encode prompt
+        clip_encoder = None
+        
+        # For qwen prompt
+        if is_flux_model == 2 and paint_mode != "✍️ Txt2Img":
+            positive_prompt = wildcard_ED.process(positive_prompt, seed)   
+            positive_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, positive_prompt, vae, ref_image)[0]
+            
+            if not negative_prompt:            
+                negative_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, negative_prompt, vae, ref_image)[0]
+            else:
+                negative_encoded = nodes.ConditioningZeroOut().zero_out(positive_encoded)[0]
+
         else:
-            positive_encoded = None
+            
+            if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
+                print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
+                clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])
+
+            negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
+            
+            if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
+                positive_prompt = wildcard_ED.process(positive_prompt, seed)            
+                positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
+                
+            else:
+                positive_encoded = None
 
         #################### LATENT PROCESSING ####################
         #✍️ Txt2Img         
         if paint_mode == "✍️ Txt2Img":
             # Create Empty Latent
-            samples_latent = nodes.EmptyLatentImage().generate(image_width, image_height, batch_size)[0]
+            if is_flux_model != 2:
+                samples_latent = nodes.EmptyLatentImage().generate(image_width, image_height, batch_size)[0]
+            else:
+                samples_latent = NODES["EmptySD3LatentImage"]().generate(image_width, image_height, batch_size)[0]
+                
         else:
             if pixels is None:
                 raise Exception("Efficient Loader ED: Img2Img or inpaint mode requires an image.\n\n\n\n\n\n")
-            image_width, image_height = ED_Util.get_image_size(pixels)
 
             #VAE Encode
-            latent_t = ED_Util.vae_encode(vae, pixels, properties['tiled_vae_encode'])
+            if is_flux_model == 2 and paint_mode != "🎨 Inpaint(MaskDetailer)":
+                image_width, image_height = ED_Util.get_image_size(ref_image)
+                latent_t = NODES["EmptySD3LatentImage"]().generate(image_width, image_height, batch_size)[0]
+            else:
+                image_width, image_height = ED_Util.get_image_size(pixels)
+                latent_t = ED_Util.vae_encode(vae, pixels, properties['tiled_vae_encode'])
             
             # 🎨 Inpaint
             if paint_mode == "🎨 Inpaint(Ksampler)":
@@ -802,7 +856,7 @@ class EfficientLoader_ED():
     @classmethod
     def VALIDATE_INPUTS(cls, **kwargs):
         return_value = True
-        names = ["🔌 model_opt input"] + folder_paths.get_filename_list("checkpoints")
+        names = ["🔌 ext model input"] + folder_paths.get_filename_list("checkpoints")
 
         name = kwargs["ckpt_name"]
 
@@ -858,22 +912,18 @@ class EfficientLoader_ED():
 
         global loaded_objects
         lora_params = None
+        is_flux_model = 0
         
         if lora_stack:
             lora_params = []
             lora_params.extend(lora_stack)
         
-        if ckpt_name == "🔌 model_opt input":
-            if model_opt is None:
-                raise Exception("Efficient Loader ED: ckpt_name or model_opt is required.\n\n\n\n\n\n")        
-            if clip_opt is None:
-                raise Exception("Efficient Loader ED: clip_opt is required when using model_opt.\n\n\n\n\n\n")
-            
+        if model_opt is not None:            
             loaded_objects["ckpt"] = []
             loaded_objects["lora"] = []
             model = model_opt
             clip =clip_opt
-            loaded_objects["ckpt"].append(("using model_opt", None, None, None, [my_unique_id]))
+            loaded_objects["ckpt"].append(("using ext model input", None, None, None, [my_unique_id]))
             
             if vae_name != "Baked VAE":
                 vae = load_vae(vae_name, my_unique_id, cache=vae_cache, cache_overwrite=True)
@@ -911,19 +961,39 @@ class EfficientLoader_ED():
         modle_type = None
         if hasattr(model, "model"):
             modle_type = model.model.__class__.__name__
-        
-        if modle_type == "Flux":
+
+        if "qwen" in vae_name.lower():
+            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m Qwen VAE is in use, ignore clip skip\033[0m")
+            is_flux_model = 2
+
+        elif modle_type == "Flux":
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, ignore clip skip\033[0m")
-            is_flux_model = True
+            is_flux_model = 1
+
         elif clip_skip == 0:
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, ignore clip skip\033[0m")
-            is_flux_model = False
+            is_flux_model = 1
+
         else:
             clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
             print(f"Clip skip: {clip_skip}")
-            is_flux_model = False
+            is_flux_model = 0
            
         return model, clip, vae, lora_stack, lora_params, is_flux_model
+
+        model_opt, clip_opt, vae_name, cfg, sampler_name, scheduler, ref_image, ref_mask, lora_stack = self.extract_model_context(context_opt, ckpt_name, vae_name, cfg, sampler_name, scheduler, pixels, mask, lora_stack)
+
+    @staticmethod
+    def extract_model_context(context_opt, ckpt_name, vae_name, cfg, sampler_name, scheduler, image, mask, lora_stack):
+        model_opt, clip_opt = None, None
+        ref_image, ref_mask = image, mask
+        if context_opt and ckpt_name == "🔌 ext model input":
+            _, model_opt, clip_opt, t_image, t_mask, t_lora_stack = context_2_tuple_ed(context_opt, ["model", "clip", "images", "mask", "lora_stack"])
+            ref_image = t_image if t_image is not None else ref_image
+            ref_mask = t_mask if t_mask is not None else ref_mask
+            lora_stack = t_lora_stack if t_lora_stack is not None else lora_stack
+
+        return model_opt, clip_opt, vae_name, cfg, sampler_name, scheduler, ref_image, ref_mask, lora_stack
 
 #####################################################################################################
 # Load Image ED
@@ -1159,6 +1229,30 @@ class SaveImage_ED(nodes.SaveImage):
         # return (script,)
 
 ##############################################################################################################
+# Ext Model Input 💬ED
+class ExtModelInput_ED():    
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {
+                            "model": ("MODEL",),
+                            "clip": ("CLIP",),},
+
+                    "optional": {
+                            "lora_stack": ("LORA_STACK",),
+                            "ref_image": ("IMAGE",),
+                            "ref_mask": ("MASK",)}
+                    }
+    CATEGORY = "Efficiency Nodes/Loaders"
+    RETURN_TYPES = ("RGTHREE_CONTEXT",)
+    RETURN_NAMES = ("CONTEXT",)
+    FUNCTION = "ext_model_input"
+
+    def ext_model_input(self, model, clip, lora_stack=None, ref_image=None, ref_mask=None, ):
+        context = new_context_ed(None, model=model, clip=clip, images=ref_image, mask=ref_mask, lora_stack=lora_stack)
+        return (context,) 
+
+
+##############################################################################################################
 # Refiner Script ED
 class Refiner_Script_ED:
     SET_SEED_CFG_SAMPLER = {
@@ -1214,7 +1308,7 @@ class Refiner_Script_ED:
 class ED_Reg:
     @staticmethod
     def apply_controlnet_region(cnet_stack, positive_encoded, negative_encoded, model=None, clip=None, seed=0, clip_encoder=None):
-        if cnet_stack:        
+        if cnet_stack:
             for control_net_tuple in cnet_stack:
                 if str(control_net_tuple[-1]) == "Region_Stack":
                     model, positive_encoded = ED_Reg.process_region_stack(control_net_tuple, positive_encoded, model, clip, seed, clip_encoder)
@@ -1351,9 +1445,6 @@ class Regional_Script_ED():
     def INPUT_TYPES(s):
         return {"required": {
                             "url": ("STRING", {"default": "None", "multiline": False}),
-                            "use_blur_mask": ("BOOLEAN", {"default": False, "label_on": "Use Gaussian Blur Mask", "label_off": "Don't use Blur Mask"}),
-                            "blur_mask_kernel_size": ("INT", {"default": 10, "min": 0, "max": 100, "step": 1}),
-                            "blur_mask_sigma": ("FLOAT", {"default": 10.0, "min": 0.1, "max": 100.0, "step": 0.1}),
                             "prompt": ("STRING", {"multiline": True, "dynamicPrompts": False}),
                             "Select to add Wildcard": (["Select the Wildcard to add to the text"],),
                             "condition_strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
@@ -1371,18 +1462,12 @@ class Regional_Script_ED():
     FUNCTION = "regional_script"
     CATEGORY = "Efficiency Nodes/Scripts"
 
-    def regional_script(self, use_blur_mask, blur_mask_kernel_size, blur_mask_sigma, prompt, condition_strength, set_conditon_area, region_weight, region_script=None, image=None, mask=None, lora_stack=None, **kwargs):
+    def regional_script(self, prompt, condition_strength, set_conditon_area, region_weight, region_script=None, image=None, mask=None, lora_stack=None, **kwargs):
         region_script = [] if region_script is None else region_script
         mask_image = None
         prompt = ED_Util.strip_comments(prompt)
         
-        if mask is not None:
-            if use_blur_mask:
-                if 'ImpactGaussianBlurMask' not in NODES:
-                    ED_Util.try_install_custom_node('ComfyUI Impact Pack', 'https://github.com/ltdrdata/ComfyUI-Impact-Pack')
-
-                mask = NODES['ImpactGaussianBlurMask']().doit(mask, blur_mask_kernel_size, blur_mask_sigma)[0]
-            
+        if mask is not None:            
             mask_image = NODES['MaskToImage']().mask_to_image(mask)[0]
             region_script.extend([(mask, prompt, condition_strength, set_conditon_area, region_weight, lora_stack)])
 
@@ -1609,6 +1694,34 @@ class TIPOScript_ED:
         context = new_context_ed(context, positive=positive_encoded, text_pos_g=out_string[0])        
         
         return context, positive_encoded, out_string[0], out_string[1], out_string[2], out_string[3]
+
+
+##############################################################################################################
+# Test ED
+
+# class Test_ED:
+
+    # @classmethod
+    # def INPUT_TYPES(s):
+        # return {
+            # "required": {
+                # "model": ("MODEL", {"tooltip": "The diffusion model the LoRA will be applied to."}),
+                # "clip": ("CLIP", {"tooltip": "The CLIP model the LoRA will be applied to."}),
+                # "lora_name": (folder_paths.get_filename_list("loras"),),
+                # "strength_model": ("FLOAT", {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01, "tooltip": "How strongly to modify the diffusion model. This value can be negative."}),
+                # "strength_clip": ("FLOAT", {"default": 1.0, "min": -100.0, "max": 100.0, "step": 0.01, "tooltip": "How strongly to modify the CLIP model. This value can be negative."}),
+                # "lora_name_toggle": ("BOOLEAN", {"default": True,}),
+            # }
+        # }
+
+    # RETURN_TYPES = ("MODEL", "CLIP")
+    # OUTPUT_TOOLTIPS = ("The modified diffusion model.", "The modified CLIP model.")
+    # FUNCTION = "load_lora"
+    # CATEGORY = "Efficiency Nodes/Prompt"
+
+    # def load_lora(self, model, clip, lora_name, strength_model, strength_clip, on_off):
+        # return (model, clip)
+
 
 ##############################################################################################################
 # SAMPLER
@@ -2616,15 +2729,15 @@ NODE_CLASS_MAPPINGS = {
     "KSampler Text 💬ED": KSamplerTEXT_ED,    
     "Load Image 💬ED": LoadImage_ED,
     "Save Image 🔔ED": SaveImage_ED,
-    #"Control Net Script 💬ED": Control_Net_Script_ED,
     "Refiner Script 💬ED": Refiner_Script_ED,
     "Embedding Stacker 💬ED": Embedding_Stacker_ED,
     "Wildcard Encode 💬ED": WildcardEncode_ED,
     "LoRA Stacker 💬ED": LoRA_Stacker_ED,
-    "Int Holder 💬ED": Int_Holder_ED,    
+    "Int Holder 💬ED": Int_Holder_ED,
     "Regional Stacker 💬ED": Regional_Stacker_ED,
     "Regional Processor 💬ED": Regional_Processor_ED,
     "Regional Script 💬ED": Regional_Script_ED,
+    "Ext Model Input 💬ED": ExtModelInput_ED,
     "Context To BasicPipe": ContextToBasicPipe,
     "Context To DetailerPipe": ContextToDetailerPipe,
     "Get Booru Tag 💬ED": GetBooruTag_ED,
