@@ -44,19 +44,22 @@ class RgthreeApi {
     }
     getLoras(force = false) {
         if (!this.getLorasPromise || force) {
-            this.getLorasPromise = this.fetchJson("/loras?format=details", { cache: "no-store" });
+            //this.getLorasPromise = this.fetchJson("/loras?format=details", { cache: "no-store" });
+            this.getLorasPromise = this.fetchJson(`/loras?format=details&_=${Date.now()}`, { cache: "no-store" });
         }
         return this.getLorasPromise;
     }
     getCheckpoints(force = false) {
         if (!this.CheckpointsPromise || force) {
-            this.CheckpointsPromise = this.fetchJson("/checkpoints?format=details", { cache: "no-store" });
+            //this.CheckpointsPromise = this.fetchJson("/checkpoints?format=details", { cache: "no-store" });
+            this.CheckpointsPromise = this.fetchJson(`/checkpoints?format=details&_=${Date.now()}`, { cache: "no-store" });
         }
         return this.CheckpointsPromise;
     }
     getEmbeddings(force = false) {
         if (!this.EmbeddingsPromise || force) {
-            this.EmbeddingsPromise = this.fetchJson("/embeddings?format=details", { cache: "no-store" });
+            //this.EmbeddingsPromise = this.fetchJson("/embeddings?format=details", { cache: "no-store" });
+            this.EmbeddingsPromise = this.fetchJson(`/embeddings?format=details&_=${Date.now()}`, { cache: "no-store" });
         }
         return this.EmbeddingsPromise;
     }
