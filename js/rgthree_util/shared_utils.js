@@ -222,12 +222,15 @@ export async function showLoadingDialog(data) {
             "/extensions/efficiency-nodes-ED/assets/nowloading.gif",
             "/extensions/efficiency-nodes-ED/assets/tap-waiting.gif"
         ];
-        const index = Math.floor(Math.random() * gifs.length);
-        const selectedGif = gifs[index];
+
+        // 0~1 사이 난수 생성
+        const r = Math.random();
+        const index = r < 0.6 ? 0 : 1; // 0번 80%, 1번 20%
+        const selectedGif = gifs[index] + "?rand=" + r;
 
         const img = new Image();
         img.onload = () => {
-            // 이미지 로드 완료 후에 background 적용
+            // 이미지 로드 완료 후 background 적용
             element.style.backgroundImage = `url("${selectedGif}")`;
         };
         img.src = selectedGif;
@@ -285,7 +288,6 @@ export async function showLoadingDialog(data) {
     messageAnimContainer.style.marginTop = `-${messageAnimContainer.offsetHeight}px`;
     await wait(64);
 
-    // transition 적용 전에 강제로 reflow (안정적으로 보여주기)
     void messageAnimContainer.offsetWidth;
 
     messageAnimContainer.classList.add("-show");

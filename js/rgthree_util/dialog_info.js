@@ -289,6 +289,7 @@ class RgthreeInfoDialog extends RgthreeDialog {
                     timeout: 300000,
                 });
             }
+            await wait(500);
             await this.modleLoading(info);
 
             hideMessage("fetch-civitai-waiting");
