@@ -35,7 +35,7 @@ load_wildcards();
 
 
 // Get Booru Tag ED Handlers
-let gelApiKey = "";
+let ed_settings = {};
 
 export async function handleGetBooruTag(node, widget) {
 
@@ -116,7 +116,7 @@ export async function handleGetBooruTag(node, widget) {
 		},
 		gelbooru: {
 			type: "gelbooru",
-			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1" + gelApiKey + "&id=",
+			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1" + ed_settings["Gelbooru_api_key"] + "&id=",
 			func: (data) => data?.post?.[0]?.tags,
 		},
 		safebooru: {
@@ -294,7 +294,7 @@ function categorizeValue(widget) {
 			"gray_", "grey_", "cyan_", "lime_", "magenta_", "white_", "black_", "beige_",
 			"teal_", "navy_", "maroon_", "olive_", "silver_", "gold_", "violet_", "indigo_",
 			"turquoise_", "peach_", "salmon_", "chocolate_", "khaki_", "lavender_",
-			"tiny", "small", "large", "huge", "gigantic"
+			"tiny_", "small_", "large_", "huge_", "gigantic_"
 		];
 
 		// 정규식으로 접두사 제거 (시작 부분)
@@ -693,6 +693,7 @@ app.registerExtension({
 		tags_by_category.copyright = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/copyright.json?v=' + date);
 		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json?v=' + date);
 		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json?v=' + date);
-		gelApiKey = await fetchJson('./extensions/efficiency-nodes-ED/json/gelbooruApiKey.json?v=' + date);
+		ed_settings = await fetchJson('./ed_nodes/ed_settings') || {};
+		console.log(">>>>ed_settings-Gelbooru_api_key",ed_settings["Gelbooru_api_key"]);
 	},
 });

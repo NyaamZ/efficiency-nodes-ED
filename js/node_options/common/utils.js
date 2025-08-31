@@ -13,6 +13,7 @@ export async function fetchJson(fileAddress) {
         return data;
     } catch (error) {
         console.error(fileAddress + 'JSON 파일을 불러오는 중 오류 발생:', error);
+        return null;
     }
 }
 

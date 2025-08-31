@@ -67,6 +67,8 @@ category_map_file = "./html_resource/category_map.json"    # major/minor → lab
 tags_input_file = "./html_resource/tags.json"         # 변환할 태그 데이터
 tags_output_file = "./js/json/tag_category.json"    # 결과 저장
 map_output_file = "./map_output_file.json"
+ed_userDir = "./user"
+ed_settings_file = "./user/ed_settings.json"
 
 def is_file_exist(filepath):
     if not os.path.isfile(filepath):
@@ -233,7 +235,7 @@ Shortcut.Save
     
     def get_user_choice():
         while True:
-            choice = input("\n\n\n>>Would you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n     (y를 선택하면 ComfyUI의 웹 파비콘을 여우귀 소녀로 바꾸고 바탕화면에 같은 아이콘의 바로가기를 만듭니다.)\n\n>>y/n/r(restore/복구)").strip().lower()
+            choice = input("\n\n\nWould you like to change ComfyUI's favicon and create a desktop shortcut with the new icon?\n\n(y를 선택하면 ComfyUI의 웹 파비콘을 여우귀 소녀로 바꾸고 바탕화면에 같은 아이콘의 바로가기를 만듭니다.)\n\n>>y/n/r(restore/복구)").strip().lower()
             if choice in ['y', 'n', 'r']:
                 return choice
             else:
@@ -249,57 +251,72 @@ Shortcut.Save
     elif user_choice == 'r':
         copyFileFromDict(restore_icon_dict)
 
-def save_api_code_to_json():
-    def isRightApiKey(key): 
-        if "api_key=" not in key or "user_id=" not in key:
-            return ""
-        return key    
-    
-    gelbooruApikey_json = "./js/json/gelbooruApiKey.json"    
-    
-    if os.path.exists(gelbooruApikey_json):
-        with open(gelbooruApikey_json, "r", encoding="utf-8") as f:
-            pre_apiKey = json.load(f)[0]
-            pre_apiKey = isRightApiKey(pre_apiKey)            
-    
-    print("\n\n!!To extract tags from Gelbooru using Get Booru Tag ED, an API key is required.")
-    print("You can copy your API key from gelbooru.com by going to My Account > Options > API Access Credentials at the very bottom")
-    print(f"Input Gelbooru API Key(&api_key=...&user_id=... )")
-    print(f"\n!!Get Booru Tag ED에서 Gelbooru 태그를 추출하기 위해서는 Gelbooru api key가 필요합니다.")
-    print(f"gelbooru.com 에서 My account > options > 맨 마지막 줄 API Access Credentials에서 api key를 복사할 수 있습니다.")
-    if pre_apiKey:
-        print(f"\n(이전에 저장된 Gelbooru API Key가 있습니다. 엔터를 누르면 이전에 저장된 key를 재사용합니다.)")
-        print(f"저장된 API Key: {pre_apiKey}")
-    
-    else:
-        print(f"(Gelbooru 로그인 필요, Gelbooru 태그 추출을 사용하지 않는다면 엔터를 눌러 스킵하세요.)")
-        print(f"Gelbooru API Key 입력(&api_key=...&user_id=... 형식)")
+def get_ed_settingsJson():
+    if not os.path.exists(ed_userDir):
+        os.mkdir(ed_userDir)
+    if not os.path.exists(ed_settings_file):
+        return None
+    try:
+        with open(ed_settings_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"Error loading JSON: {e}")
+        return None
 
-    # 전체 API 코드 입력 받기
-    apiKey = input(">>").strip()
-    if pre_apiKey and not apiKey:
-        apiKey = pre_apiKey
-        
-    if apiKey == "z":
+
+
+import json
+import os
+
+def save_gelbooru_api_key():
+    def is_valid_api_key(key: str) -> bool:
+        if not key:
+            print("Gelbooru API Key SKIP!!")
+            return False
+        if "api_key=" not in key or "user_id=" not in key:
+            print("Wrong Gelbooru API Key!!")
+            return False
+        return True
+
+    # 기존 설정 불러오기
+    settings_json = get_ed_settingsJson() or {}
+    stored_api_key = settings_json.get("Gelbooru_api_key")
+
+
+    # 안내 메시지
+    print("\n\n\n\n\n!!To extract tags from Gelbooru using Get Booru Tag ED, an API key is required.")
+    print("You can copy your API key from gelbooru.com: My Account > Options > API Access Credentials (bottom)")    
+    print("\n(!!Get Booru Tag ED에서 Gelbooru 태그를 추출하려면 API key가 필요합니다.")
+    print("gelbooru.com > My account > Options > API Access Credentials에서 복사 가능합니다.)")
+    if stored_api_key:
+        print(f"\n\n\nPreviously saved Gelbooru API Key exists. Press Enter to reuse it.")
+        print(f"\n(이 전에 저장된 Gelbooru API가 존재합니다. Enter를 눌러 재사용 할 수 있습니다.)")
+        print(f"Saved API Key(저장된 API 키): {stored_api_key}")
+    else:
+        print("\n\n\nInput Gelbooru API Key (&api_key=...&user_id=... format, Press Enter to skip)")
+        print("\nGelbooru API Key를 입력 (&api_key=...&user_id=... 형식, Gelbooru 로그인 필요.)")
+        print("                        (Gelbooru 태그 추출 기능을 사용을 안 할 경우 Enter로 스킵)")
+
+    # 사용자 입력
+    new_api_key = input("\n\n>> ").strip() or stored_api_key
+
+    # 특수 명령 처리
+    if new_api_key == "z":
         jsonFile_convert_tags(tags_input_file, category_map_file, tags_output_file)
         quit()
-        
-    if apiKey == "zz":
+    if new_api_key == "zz":
         restructure_categories(tags_input_file, category_map_file, map_output_file)
         quit()
-        
-    apiKey = isRightApiKey(apiKey)
-        
-    if not apiKey:
-        print(f"Wrong Gelbooru API Key!!")
-        return
 
-    # JSON 파일로 저장
-    with open(gelbooruApikey_json, "w", encoding="utf-8") as f:
-        json.dump([apiKey], f, indent=2, ensure_ascii=False)
+    if not is_valid_api_key(new_api_key):
+        new_api_key = ""
 
-    print(f"\n{gelbooruApikey_json} 파일이 변경되었습니다.")
+    # JSON 저장
+    settings_json["Gelbooru_api_key"] = new_api_key
+    with open(ed_settings_file, "w", encoding="utf-8") as f:
+        json.dump(settings_json, f, indent=2, ensure_ascii=False)
 
+    print(f"\n{ed_settings_file} 파일이 변경되었습니다.")
 
 def restructure_categories(input_file, order_file, output_file):
 
@@ -403,7 +420,7 @@ except Exception as e:
     print(f"\n\n\n[ERROR] efficiency nodes ED: An error occurred while replace python codes.\n{e}")
 
 if len(sys.argv) > 1 and sys.argv[1] == "run_from_batch":
-    save_api_code_to_json()
+    save_gelbooru_api_key()
     replaceIconFavicon()
 
 print(f"\n\nEfficiency Nodes ED: {printout} is complete.\n\n")

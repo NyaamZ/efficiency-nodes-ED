@@ -190,4 +190,12 @@ async def load_notedata(request):
 
     return web.json_response(note)
     
-    
+@PromptServer.instance.routes.get("/ed_nodes/ed_settings")
+async def get_ed_settings(request):
+    dir = os.path.abspath(os.path.join(__file__, "../user"))
+    file = os.path.join(dir, "ed_settings.json")
+    if os.path.isfile(file):
+        with open(file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return web.json_response(data)
+    return web.json_response({"error": "file not found"}, status=404)
