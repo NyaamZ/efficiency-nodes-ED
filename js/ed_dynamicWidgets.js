@@ -437,36 +437,6 @@ function handleEmbeddingStacker(node, widget) {
     node.setDirtyCanvas(true, true);
 }
 
-function clearWidgets(node) {
-    const baseWidgetMap = {
-        "LoRA Stacker 💬ED": ["lora_name", "model_str", "clip_str", "lora_wt"],
-        "Embedding Stacker 💬ED": ["positive_embedding", "pos_weight", "negative_embedding", "neg_weight"]
-    };
-
-    const widgetNames = baseWidgetMap[node.comfyClass];
-    if (!widgetNames) return;
-
-    for (let i = 1; i <= 9; i++) {
-        for (let widgetName of widgetNames) {
-            const fullName = `${widgetName}_${i}`;
-            const widget = findWidgetByName(node, fullName);
-            if (!widget) continue;
-
-            if (widgetName === "lora_name" || widgetName === "positive_embedding" || widgetName === "negative_embedding") {
-                const toggle_widget = findWidgetByName(node, `${fullName}_toggle`);
-                if (toggle_widget) toggle_widget.value = true;
-                widget.value = "None";
-                if (widget.constructor.name === "EdToggleComboWidget") widget.toggle = true;
-            } else {
-                widget.value = 1;
-            }
-        }
-    }
-
-    node.setDirtyCanvas(true, true);
-    showMessage("Info", node.comfyClass + " has been cleared.")
-}
-
 function applyWidgetLogic_Init(node) {
     if (!NODE_WIDGET_HANDLERS[node.comfyClass]) return;
 
