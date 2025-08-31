@@ -206,7 +206,9 @@
       </p>
 
     - Wildcards are shared with Impact Pack’s wildcards: `ComfyUI\custom_nodes\comfyui-impact-pack\wildcards`
-    - All standard wildcard syntax is supported, but nested wildcards and LoRAs are not.
+    - All common wildcard syntax can be used. LoRA is also supported, but nested wildcards inside a wildcard are not allowed.
+    - LoRA can be used in the following formats: `<lora:File>`, `<lora:File:0.7>`, or `<lora:File:0.2:0.4>`.
+    - The LoRA ‘File’ name can be found in the LoRA information screen under File.
     - Wildcard encoding is handled by Efficient Loader 💬ED, so Get booru Tag 💬ED is not strictly required.
     - Supports comments: `#`, `//`, `/* */`.
 

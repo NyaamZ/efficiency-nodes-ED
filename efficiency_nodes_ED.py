@@ -387,18 +387,24 @@ class wildcard_ED:
         return text
 
     @staticmethod
-    def process(text, seed, iterate_count=0):
-        pattern = r"(__[\w.\-+/*\\]+?__)"
-        matches = re.findall(pattern, text)
-        if not matches:
-            return text
+    def process(text, model, clip, clip_encoder, seed, iterate_count=0):
+        pattern1 = r"(__[\w.\-+/*\\]+?__)"
+        matches1 = re.findall(pattern1, text)
+        pattern2 = r'<lora:([^>]+)>'
+        matches2 = re.findall(pattern2, text)
+        if not matches1 and not matches2:
+            return model, clip, BNK_EncoderWrapper.imp_encode(text, clip, clip_encoder), text
         
         text = wildcard_ED.sq_wildcard(text, iterate_count)
 
-        if 'ImpactWildcardProcessor' not in NODES:
+        if 'ImpactWildcardEncode' not in NODES:
             ED_Util.try_install_custom_node('ComfyUI Impact Pack', 'https://github.com/ltdrdata/ComfyUI-Impact-Pack')
 
-        return NODES['ImpactWildcardProcessor'].process(text=text, seed=seed)
+        processed = []
+        result = NODES['ImpactWildcardEncode'].process_with_loras(wildcard_opt=text, model=model, clip=clip, clip_encoder=clip_encoder, seed=seed, processed=processed)
+
+        return result + (processed[1],)
+
 
 class BNK_EncoderWrapper:
     
@@ -675,8 +681,7 @@ class WildcardEncode_ED:
                 seed += count
             
             if not positive:
-                pos_prompt = wildcard_ED.process(pos_prompt, seed, count)
-                positive = BNK_EncoderWrapper.imp_encode(pos_prompt, clip, clip_encoder)
+                model, clip, positive, pos_prompt = wildcard_ED.process(pos_prompt, model, clip, clip_encoder, seed, count)
         
         if lora_stack:
             model, clip = ED_Util.apply_load_lora(lora_stack, model, clip, "Wildcard Encode ED")
@@ -766,7 +771,7 @@ class EfficientLoader_ED():
         
         # For qwen prompt
         if is_flux_model == 2 and paint_mode != "✍️ Txt2Img":
-            positive_prompt = wildcard_ED.process(positive_prompt, seed)   
+            model, clip, _, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
             positive_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, positive_prompt, vae, ref_image)[0]
             
             if not negative_prompt:            
@@ -783,8 +788,7 @@ class EfficientLoader_ED():
             negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
             
             if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
-                positive_prompt = wildcard_ED.process(positive_prompt, seed)            
-                positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
+                model, clip, positive_encoded, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
                 
             else:
                 positive_encoded = None
@@ -815,8 +819,7 @@ class EfficientLoader_ED():
                 if  mask is None:
                     raise Exception("Efficient Loader ED: inpaint mode requires an mask.\n\n\n\n\n\n")
                 if not positive_encoded:
-                    positive_prompt = wildcard_ED.process(positive_prompt, seed)
-                    positive_encoded = BNK_EncoderWrapper.imp_encode(positive_prompt, clip, clip_encoder)
+                    model, clip, positive_encoded, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
                     
                 positive_encoded, negative_encoded, latent_t = nodes.InpaintModelConditioning().encode(positive_encoded, negative_encoded, pixels, vae, mask)
                 
@@ -980,8 +983,6 @@ class EfficientLoader_ED():
             is_flux_model = 0
            
         return model, clip, vae, lora_stack, lora_params, is_flux_model
-
-        model_opt, clip_opt, vae_name, cfg, sampler_name, scheduler, ref_image, ref_mask, lora_stack = self.extract_model_context(context_opt, ckpt_name, vae_name, cfg, sampler_name, scheduler, pixels, mask, lora_stack)
 
     @staticmethod
     def extract_model_context(context_opt, ckpt_name, vae_name, cfg, sampler_name, scheduler, image, mask, lora_stack):
@@ -1345,8 +1346,7 @@ class ED_Reg:
         for region_tuple in region_script:
             mask, prompt, condition_strength, set_conditon_area, region_weight, lora_stack = region_tuple
 
-            prompt = wildcard_ED.process(prompt, seed)
-            reg_positive = BNK_EncoderWrapper.imp_encode(prompt, clip, clip_encoder)
+            _, _, reg_positive, prompt = wildcard_ED.process(prompt, model, clip, clip_encoder, seed)
             hooks = ED_Reg.process_script_lora_stack(lora_stack)
             base_positive = NODES['ConditioningSetPropertiesAndCombine']().set_properties(base_positive, reg_positive, condition_strength, set_conditon_area, mask, hooks, None)[0]
             regions.extend([{"cond": reg_positive, "mask": mask, "weight": region_weight}])

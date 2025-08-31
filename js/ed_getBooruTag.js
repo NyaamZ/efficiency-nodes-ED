@@ -694,6 +694,5 @@ app.registerExtension({
 		tags_by_category.character = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/character.json?v=' + date);
 		tags_by_category.meta = await fetchJson('./extensions/efficiency-nodes-ED/json/tags_by_category/meta.json?v=' + date);
 		ed_settings = await fetchJson('./ed_nodes/ed_settings') || {};
-		console.log(">>>>ed_settings-Gelbooru_api_key",ed_settings["Gelbooru_api_key"]);
 	},
 });

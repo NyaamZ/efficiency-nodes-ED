@@ -34,8 +34,8 @@ replaceLine_dict = {"efficeincy_nodes_py": {
                                         "replacement": '"ksampler_output_image": (["Images","Plot"], {"default": "Plot"}),},',},
                             "impact_wildcard_py": {
                                         "file": "../ComfyUI-Impact-Pack/modules/impact/wildcards.py",
-                                        "target": "print(f\"CLIP: {str.join(' + ', pass3_str)}\")",
-                                        "replacement": "# print (f\"CLIP: {str.join(' + ', pass3_str)}\")",},
+                                        "target": "logging.info(f\"CLIP: {str.join(' + ', pass3_str)}\")",
+                                        "replacement": "# logging.info(f\"CLIP: {str.join(' + ', pass3_str)}\")",},
                           }
 
 
