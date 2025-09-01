@@ -20,15 +20,15 @@ async function showLoraChooser(event, modelType, callback, parentMenu, modelList
     const canvas = app.canvas;
     if (modelType === "loras") {
         if (!modelList) {
-            modelList = ["None", ...(await rgthreeApi.getLoras().then((modelList) => modelList.map((l) => l.file)))];
+            modelList = ["None", ...(await rgthreeApi.getLoras(true).then((modelList) => modelList.map((l) => l.file)))];
         }
     } else if (modelType === "checkpoints") {
         if (!modelList) {
-            modelList = ["🔌 ext model input", ...(await rgthreeApi.getCheckpoints().then((modelList) => modelList.map((l) => l.file)))];
+            modelList = ["🔌 ext model input", ...(await rgthreeApi.getCheckpoints(true).then((modelList) => modelList.map((l) => l.file)))];
         }
     } else if (modelType === "embeddings") {
         if (!modelList) {
-            modelList = ["None", ...(await rgthreeApi.getEmbeddings().then((modelList) => modelList.map((l) => l.file)))];
+            modelList = ["None", ...(await rgthreeApi.getEmbeddings(true).then((modelList) => modelList.map((l) => l.file)))];
         }
     }
 
@@ -175,7 +175,6 @@ export class RgthBaseWidget {
         this.secondary_text_color = widget.secondary_text_color;
         this.text_color = widget.text_color;
 
-        this.type = "custom";
         this.y = 0;
         this.last_y = 0;
         this.mouseDowned = null;
@@ -293,6 +292,7 @@ export class EdToggleComboWidget extends RgthBaseWidget {
     toggle = true;
     constructor(widget, node, modelType) {
         super(widget, node);
+        this.type = "custom_combo";
         this.haveMouseMovedStrength = false;
         this.loraInfoPromise = null;
         this.loraInfo = null;
