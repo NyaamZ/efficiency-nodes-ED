@@ -70,7 +70,7 @@ function isMatchingNode(node, nodeType) {
     return node.type?.includes(nodeType);
 }
 
-function findPreviousNode(node, targetType) {
+export function findPreviousNode(node, targetType) {
     if (!node) return null;
 
     for (const port of node.inputs) {

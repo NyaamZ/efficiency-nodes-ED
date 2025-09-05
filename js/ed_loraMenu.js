@@ -1,13 +1,11 @@
 import { app } from "../../scripts/app.js";
-import { ComfyWidgets } from "../../scripts/widgets.js";
 import { $el } from "../../scripts/ui.js";
 import { api } from "../../scripts/api.js";
 
 const NODE_TYPES = {
   "Efficient Loader 💬ED": "checkpoints",
   "LoRA Stacker 💬ED": "loras",
-  "Embedding Stacker 💬ED": "embeddings",
-  "Test_ED": "loras",
+  "Embedding Stacker 💬ED": "embeddings"
 };
 
 const WIDGET_NAMES = {

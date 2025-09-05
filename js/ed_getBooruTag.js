@@ -4,6 +4,7 @@ import { ComfyApp } from "../../scripts/app.js";
 import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
 
 import { findWidgetByName, showMessage, fetchJson } from "./node_options/common/utils.js";
+import { findPreviousNode } from "./ed_dynamicWidgets.js";
 
 let wildcards_list = [];
 
@@ -435,16 +436,6 @@ function categorizeValue(widget) {
 }
 
 async function createEmptyImage(width, height, color = "white") {
-
-	function findPreviousNode(node, nodeType) {
-		if (!node) return null;
-
-		const linkId = node.inputs?.[2]?.link;
-		if (!linkId) return null;
-
-		const targetNode = getNodeFromLink(node, linkId, "origin");
-		return (targetNode && isMatchingNode(targetNode, nodeType)) ? targetNode : null;
-	}
 
 	function find_script_load_image(width, height, reg_script = "Regional Script 💬ED", load_image = "LoadImage") {
 		const script_nodes = app.graph._nodes.filter((n) => n.type.includes(reg_script));
