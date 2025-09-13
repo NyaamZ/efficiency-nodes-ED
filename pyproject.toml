@@ -1,7 +1,7 @@
 [project]
 name = "efficiency-nodes-ED"
 description = "Expansion of Efficiency Nodes for ComfyUI. Significant UX improvements.[w/NOTE: This node requires [a/efficiency-nodes-comfyui](https://github.com/jags111/efficiency-nodes-comfyui) and [a/rgthree-comfy](https://github.com/rgthree/rgthree-comfy); it also requires start.bat to run.]"
-version = "0.9.0"
+version = "0.9.1"
 license = { file = "LICENSE" }
 dependencies = []
 

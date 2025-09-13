@@ -36,6 +36,10 @@ replaceLine_dict = {"efficeincy_nodes_py": {
                                         "file": "../ComfyUI-Impact-Pack/modules/impact/wildcards.py",
                                         "target": "logging.info(f\"CLIP: {str.join(' + ', pass3_str)}\")",
                                         "replacement": "# logging.info(f\"CLIP: {str.join(' + ', pass3_str)}\")",},
+                            "routes_model_info_py": {
+                                        "file": "../rgthree-comfy/py/server/routes_model_info.py",
+                                        "target": "if model_type not in ['loras', 'checkpoints']:",
+                                        "replacement": "if model_type not in ['loras', 'checkpoints', 'embeddings']:",},
                           }
 
 
