@@ -15,31 +15,42 @@ export const COMBO_WIDGET_NAMES = {
     embeddings: "embedding_",
 };
 
-async function showLoraChooser(event, modelType, callback, parentMenu, modelList) {
-    var _a, _b;
+async function showLoraChooser(event, modelType, callback, parentMenu, model_options) {
     const canvas = app.canvas;
+    let modelList = [];
+
     if (modelType === "loras") {
-        if (!modelList) {
-            modelList = ["None", ...(await rgthreeApi.getLoras(true).then((modelList) => modelList.map((l) => l.file)))];
+        modelList = await rgthreeApi.getLoras(true).then(list => list.map(l => l.file));
+        if (modelList && modelList.length > 0) {
+            modelList = ["None", ...modelList];
+        } else {
+            modelList = model_options.values;
         }
     } else if (modelType === "checkpoints") {
-        if (!modelList) {
-            modelList = ["🔌 ext model input", ...(await rgthreeApi.getCheckpoints(true).then((modelList) => modelList.map((l) => l.file)))];
+        modelList = await rgthreeApi.getCheckpoints(true).then(list => list.map(l => l.file));
+        if (modelList && modelList.length > 0) {
+            modelList = ["🔌 ext model input", ...modelList];
+        } else {
+            modelList = model_options.values;
         }
     } else if (modelType === "embeddings") {
-        if (!modelList) {
-            modelList = ["None", ...(await rgthreeApi.getEmbeddings(true).then((modelList) => modelList.map((l) => l.file)))];
+        modelList = await rgthreeApi.getEmbeddings(true).then(list => list.map(l => l.file));
+        if (modelList && modelList.length > 0) {
+            modelList = ["None", ...modelList];
+        } else {
+            modelList = model_options.values;
         }
     }
 
     new LiteGraph.ContextMenu(modelList, {
         event: event,
-        parentMenu: parentMenu != null ? parentMenu : undefined,
-        scale: Math.max(1, (_b = (_a = canvas.ds) === null || _a === void 0 ? void 0 : _a.scale) !== null && _b !== void 0 ? _b : 1),
+        parentMenu: parentMenu ?? undefined,
+        scale: Math.max(1, canvas?.ds?.scale ?? 1),
         className: "dark",
         callback,
     });
 }
+
 
 function drawInfoIcon(ctx, widget, x, y, size = 12) {
     ctx.save();
@@ -423,7 +434,7 @@ export class EdToggleComboWidget extends RgthBaseWidget {
                 this.getLoraInfo();
             }
             node.setDirtyCanvas(true, true);
-        });
+        }, null, this.options);
         this.cancelMouseDown();
     }
     onMouseUp(event, pos, node) {
