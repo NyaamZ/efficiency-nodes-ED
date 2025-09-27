@@ -2,8 +2,6 @@ import os
 import shutil
 import sys
 import json
-import csv
-import re
 from collections import OrderedDict
 
 
@@ -266,11 +264,6 @@ def get_ed_settingsJson():
     except (json.JSONDecodeError, OSError) as e:
         print(f"Error loading JSON: {e}")
         return None
-
-
-
-import json
-import os
 
 def save_gelbooru_api_key():
     def is_valid_api_key(key: str) -> bool:

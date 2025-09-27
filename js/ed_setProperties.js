@@ -1,10 +1,10 @@
 import {app} from "../../scripts/app.js";
-import {ComfyWidgets} from "../../scripts/widgets.js";
 import { applyTextReplacements } from "../../scripts/utils.js";
 
 import { toggleWidget, findWidgetByName } from "./node_options/common/utils.js";
 
 let is_playing_sound = false;
+
 // Set Properties
 app.registerExtension({
     name: "ED.SetProperties",
@@ -17,8 +17,7 @@ app.registerExtension({
             nodeType.prototype.onNodeCreated = function () {
                 const result = onNodeCreated?.apply(this, arguments);				
 				
-				this.setProperty("Use Latent Rebatch", true);				
-				//this.setProperty("Synchronize widget with image size", true);
+				this.setProperty("Use Latent Rebatch", true);
 				this.setProperty("Token normalization", "none")
 				this.constructor["@Token normalization"] = {
 					type: "combo",
@@ -30,7 +29,6 @@ app.registerExtension({
 					values: ["comfy", "A1111", "compel", "comfy++", "down_weight"],
 				};
 				this.setProperty("Use tiled VAE encode", false);
-				//this.setProperty("Tiled VAE encode tile size", 512);
 
                 return result;
             };

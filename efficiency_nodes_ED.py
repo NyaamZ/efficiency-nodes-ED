@@ -835,7 +835,7 @@ class EfficientLoader_ED():
             PromptServer.instance.send_sync("ed-node-feedback", {"node_id": my_unique_id, "widget_name": "image_height", "type": "text", "data": image_height})
         
         # LatentRebatch -> List
-        if properties['use_latent_rebatch'] and paint_mode != "🎨 Inpaint(MaskDetailer)" and not properties['use_apply_lora']:
+        if not properties['ignore_batch_size'] or (properties['use_latent_rebatch'] and paint_mode != "🎨 Inpaint(MaskDetailer)" and not properties['use_apply_lora']):
             latent_list = LatentRebatch().rebatch((samples_latent,), (1,))[0]
         else:
             latent_list = []
@@ -878,6 +878,7 @@ class EfficientLoader_ED():
             "token_normalization": "none",
             "weight_interpretation": "comfy",
             "wildcard_node_exist": False,
+            "ignore_batch_size": True
         }
         
         if extra_pnginfo and "workflow" in extra_pnginfo:
@@ -905,6 +906,8 @@ class EfficientLoader_ED():
                 if node["type"] == "Refiner Script 💬ED" and node["mode"] == 0:
                     if ED_Util.get_widget_value(prompt, node, "ignore_batch_size") == True:
                         properties['use_latent_rebatch'] = False
+                    else:
+                        properties['ignore_batch_size'] = False
 
         return properties
 

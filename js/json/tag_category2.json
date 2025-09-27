@@ -1,4 +1,12 @@
 {
   "head_between_legs": ["pose"],
-  "ugly_man": ["body"]
+  "ugly_man": ["body"],
+  "erect_nipples": ["sexual acts & poses"],
+  "side_view": ["camera & composition"],
+  "front_view": ["camera & composition"],
+  "from_front": ["camera & composition"],
+  "low-angle_view": ["camera & composition"],
+  "high-angle_view": ["camera & composition"],
+  "male_pov": ["camera & composition"],
+  "female_pov": ["camera & composition"]
 }

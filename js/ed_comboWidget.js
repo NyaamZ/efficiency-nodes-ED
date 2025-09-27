@@ -16,7 +16,6 @@ export const COMBO_WIDGET_NAMES = {
 };
 
 async function showLoraChooser(event, modelType, callback, parentMenu, model_options) {
-    const canvas = app.canvas;
     let modelList = [];
 
     if (modelType === "loras") {
@@ -45,7 +44,7 @@ async function showLoraChooser(event, modelType, callback, parentMenu, model_opt
     new LiteGraph.ContextMenu(modelList, {
         event: event,
         parentMenu: parentMenu ?? undefined,
-        scale: Math.max(1, canvas?.ds?.scale ?? 1),
+        scale: Math.max(1, app.canvas?.ds?.scale ?? 1),
         className: "dark",
         callback,
     });
@@ -482,39 +481,3 @@ export function edComboWidget_Init(node) {
         }
     }
 }
-
-
-
-/* 
-app.registerExtension({
-    name: "ED.test",
-    nodeCreated(node) {
-        if (!node || !ED_COMBO_NODES[node.comfyClass]) {
-            return;				
-        }		
-
-        if (node.widgets) {
-            for (let i = 0; i < node.widgets.length; i++) {
-                const w = node.widgets[i];
-                if (w.name.includes("toggle")) {
-                    toggleWidget(node, w, false);
-                }				
-                else if (w.name.includes(COMBO_WIDGET_NAMES[ED_COMBO_NODES[node.comfyClass]])) {
-                    node.widgets[i] = new EdToggleComboWidget(w, node, ED_COMBO_NODES[node.comfyClass]);
-                }
-            }
-        }
-    },
-    afterConfigureGraph() {
-        const filteredNodes = app.graph._nodes.filter(node => ED_COMBO_NODES.hasOwnProperty(node.comfyClass));
-
-        filteredNodes.forEach(node => {
-            node.widgets.forEach(widget => {
-                if (widget.constructor.name === "EdToggleComboWidget") {
-                    widget.setInitToggle();
-                }
-            });
-        });
-    },
-});
- */

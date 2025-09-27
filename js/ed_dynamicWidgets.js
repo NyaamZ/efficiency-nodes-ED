@@ -1,9 +1,9 @@
 import { app } from "../../scripts/app.js";
 // import { toRaw } from "vue";
 
-import { toggleWidget, findWidgetByName, updateNodeHeight, showMessage, flashWidget } from "./node_options/common/utils.js";
+import { toggleWidget, findWidgetByName, updateNodeHeight, flashWidget } from "./node_options/common/utils.js";
 
-import { EdToggleComboWidget, edComboWidget_Init, ED_COMBO_NODES, COMBO_WIDGET_NAMES } from "./ed_comboWidget.js"
+import { edComboWidget_Init, ED_COMBO_NODES } from "./ed_comboWidget.js"
 import { handleGetBooruTag, getBooruTagRegionalScript_Init } from "./ed_getBooruTag.js"
 import { edAppearance_Init } from "./ed_appearance.js"
 
