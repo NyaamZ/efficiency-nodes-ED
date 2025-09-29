@@ -836,7 +836,12 @@ class EfficientLoader_ED():
         
         # LatentRebatch -> List
         if not properties['ignore_batch_size'] or (properties['use_latent_rebatch'] and paint_mode != "🎨 Inpaint(MaskDetailer)" and not properties['use_apply_lora']):
-            latent_list = LatentRebatch().execute((samples_latent,), (1,))[0]
+            latent_rebatch = LatentRebatch()
+            if hasattr(latent_rebatch, "execute"):
+                latent_list = latent_rebatch.execute((samples_latent,), (1,))[0]
+            else:
+                latent_list = latent_rebatch.rebatch((samples_latent,), (1,))[0]
+
         else:
             latent_list = []
             latent_list.append(samples_latent)
