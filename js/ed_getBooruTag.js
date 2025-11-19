@@ -329,7 +329,8 @@ function categorizeValue(widget) {
 		// 태그가 속한 가장 높은 우선순위의 카테고리를 찾는 함수
 		function getTopCategory(tag, categoryMaps) {
 			for (const map of categoryMaps) {
-				tag = tag.replaceAll(" ", "_");
+				// 공백을 _로 치환 & 소문자로 변환
+				tag = tag.replaceAll(" ", "_").toLowerCase();
 				let categories = map[tag] || [];
 
 				if (Array.isArray(categories) && categories.length === 0) {

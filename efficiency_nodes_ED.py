@@ -392,7 +392,9 @@ class wildcard_ED:
         matches1 = re.findall(pattern1, text)
         pattern2 = r'<lora:([^>]+)>'
         matches2 = re.findall(pattern2, text)
-        if not matches1 and not matches2:
+        pattern3 = r'(?<!\\)\{((?:[^{}]|(?<=\\)[{}])*?)(?<!\\)\}'
+        matches3 = re.findall(pattern3, text)
+        if not matches1 and not matches2 and not matches3:
             return model, clip, BNK_EncoderWrapper.imp_encode(text, clip, clip_encoder), text
         
         text = wildcard_ED.sq_wildcard(text, iterate_count)

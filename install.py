@@ -30,6 +30,10 @@ replaceLine_dict = {"efficeincy_nodes_py": {
                                         "file": "../efficiency-nodes-comfyui/efficiency_nodes.py",
                                         "target": '"ksampler_output_image": (["Images","Plot"],),},',
                                         "replacement": '"ksampler_output_image": (["Images","Plot"], {"default": "Plot"}),},',},
+                            "efficeincy_nodes_py2": {
+                                        "file": "../efficiency-nodes-comfyui/efficiency_nodes.py",
+                                        "target": 'return GITSScheduler().get_sigmas(1.20, steps, denoise=1.0)[0]',
+                                        "replacement": 'return GITSScheduler().execute(1.20, steps, denoise=1.0)[0]',},
                             "impact_wildcard_py": {
                                         "file": "../ComfyUI-Impact-Pack/modules/impact/wildcards.py",
                                         "target": "logging.info(f\"CLIP: {str.join(' + ', pass3_str)}\")",
