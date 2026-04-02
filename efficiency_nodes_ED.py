@@ -1014,7 +1014,7 @@ prompt_blacklist_ed = set([
 
 class LoadImage_ED(nodes.LoadImage):
     UPSCALE_METHODS = ["🚫 Do not upscale", "nearest-exact", "bilinear", "area", "bicubic", "lanczos"] + ["upscale_models/"+x for x in folder_paths.get_filename_list("upscale_models")]    
-    PROPORTION_METHODS = ["disabled", "1.5x", "2x", "3x", "4x", "based on width", "based on height", "disabled & crop center"]
+    PROPORTION_METHODS = ["disabled", "0.5x", "1.5x", "2x", "3x", "4x", "based on width", "based on height", "disabled & crop center"]
     
     @classmethod
     def INPUT_TYPES(s):
@@ -1057,7 +1057,7 @@ class LoadImage_ED(nodes.LoadImage):
 
     @staticmethod
     def calculate_dimensions(width, height, keep_proportions, original_width, original_height):
-        scale_factors = {"1.5x": 1.5, "2x": 2, "3x": 3, "4x": 4}
+        scale_factors = {"0.5x":0.5, "1.5x": 1.5, "2x": 2, "3x": 3, "4x": 4}
 
         if keep_proportions in {"based on width", "based on height"}:
             width = original_width if width == 0 else width
