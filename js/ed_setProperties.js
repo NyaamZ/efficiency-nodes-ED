@@ -104,6 +104,9 @@ app.registerExtension({
             nodeType.prototype.onNodeCreated = function () {
                 const result = onNodeCreated?.apply(this, arguments);
 				this.setProperty("Use tiled VAE decode", false);
+				this.setProperty("cycle", 1);
+				this.setProperty("inpaint model", false);
+				this.setProperty("noise mask feather", 20);
                 return result;
             };
         }

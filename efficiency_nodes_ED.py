@@ -338,19 +338,29 @@ class wildcard_ED:
             with open(file_path, "r") as file:
                 lines = file.readlines()
 
-            counter = max(0, min(counter, len(lines) - 1))
+            if not lines:
+                raise Exception(f"Efficient nodes ED: wildcard file ({card_name}.txt) is empty.")
 
+            length = len(lines)
+
+            # 🔥 순환 처리 (핵심 수정 부분)
             if operation == "ASC":
-                counter = min(counter + iterate_count, len(lines) - 1)
+                counter = ((counter - 1 + iterate_count) % length) + 1
             elif operation == "DSC":
-                counter = max(counter - iterate_count, 0)
+                counter = ((counter - 1 - iterate_count) % length) + 1
             else:
                 operation = "FIX"
+                counter = max(1, min(counter, length))  # FIX는 범위 제한
 
-            result = lines[counter].strip()
+            result = lines[counter - 1].strip()
             match_after = f"__{card_name}__#{operation}{counter}"
 
-            print(f"     {match} >> {message('counter:')}: {warning('#' + operation + str(counter))}, {message('replaced text:')} {warning(result)}")
+            print(
+                f"     {match} >> {message('counter:')}: "
+                f"{warning('#' + operation + str(counter))}, "
+                f"{message('replaced text:')} {warning(result)}"
+            )
+
             return result, match_after
 
         global get_booru_tag_id, get_booru_tag_text_b
@@ -370,7 +380,9 @@ class wildcard_ED:
                 operation, counter = operation_counter[:3], int(operation_counter[3:])
 
                 if card_name.replace('/', '\\') + ".txt" in card_files:
-                    wc_text, match_after = read_wildcard(match, card_name, operation, counter, iterate_count)
+                    wc_text, match_after = read_wildcard(
+                        match, card_name, operation, counter, iterate_count
+                    )
                     text_b = text_b.replace(match, match_after)
                 else:
                     raise Exception(f"Efficient nodes ED: wildcard file ({match}) is not found.")
@@ -387,7 +399,7 @@ class wildcard_ED:
         return text
 
     @staticmethod
-    def process(text, model, clip, clip_encoder, seed, iterate_count=0):
+    def process(text, model, clip, clip_encoder, seed, iterate_count=1):
         pattern1 = r"(__[\w.\-+/*\\]+?__)"
         matches1 = re.findall(pattern1, text)
         pattern2 = r'<lora:([^>]+)>'
@@ -674,7 +686,7 @@ class WildcardEncode_ED:
         if pos_prompt:        
             #Process wildcard
             if unique_id not in list_counter_map:
-                count = 0
+                count = 1
             else:
                 count = list_counter_map[unique_id]
             list_counter_map[unique_id] = count + 1
@@ -2095,15 +2107,15 @@ class FaceDetailer_ED():
                     "sam_mask_hint_threshold": ("FLOAT", {"default": 0.7, "min": 0.0, "max": 1.0, "step": 0.01}),
                     "sam_mask_hint_use_negative": (["False", "Small", "Outter"],),
                     "drop_size": ("INT", {"min": 1, "max": nodes.MAX_RESOLUTION, "step": 1, "default": 10}),                     
-                    "cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
+                    #"cycle": ("INT", {"default": 1, "min": 1, "max": 10, "step": 1}),
                     },
                 "optional": {
                     "image_opt": ("IMAGE",),
                     "wildcard": ("STRING", {"forceInput": True}),
                     "detailer_hook": ("DETAILER_HOOK",),
                     #"wildcard": ("STRING", {"multiline": True, "dynamicPrompts": False}),
-                    "inpaint_model": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
-                    "noise_mask_feather": ("INT", {"default": 20, "min": 0, "max": 100, "step": 1}),
+                    #"inpaint_model": ("BOOLEAN", {"default": False, "label_on": "enabled", "label_off": "disabled"}),
+                    #"noise_mask_feather": ("INT", {"default": 20, "min": 0, "max": 100, "step": 1}),
                     "scheduler_func_opt": ("SCHEDULER_FUNC",),
                 },     
                 "hidden": {
@@ -2123,14 +2135,17 @@ class FaceDetailer_ED():
             max_size, seed, steps, cfg, sampler_name, scheduler, denoise, feather, noise_mask, force_inpaint,
             bbox_threshold, bbox_dilation, bbox_crop_factor,
             sam_detection_hint, sam_dilation, sam_threshold, sam_bbox_expansion, sam_mask_hint_threshold,
-            sam_mask_hint_use_negative, drop_size, wildcard="", image_opt=None, cycle=1,
-            detailer_hook=None, inpaint_model=False, noise_mask_feather=0, 
+            sam_mask_hint_use_negative, drop_size, wildcard="", image_opt=None, 
+            detailer_hook=None, 
             scheduler_func_opt=None, my_unique_id=None, extra_pnginfo=None):
 
         _, model, clip, vae, positive, negative, image, c_seed, c_steps, c_cfg, c_sampler, c_scheduler = context_2_tuple_ed(context,["model", "clip", "vae", "positive", "negative",  "images", "seed", "steps", "cfg", "sampler", "scheduler"])
 
         # GET PROPERTIES #  
         properties = self.get_properties(extra_pnginfo, my_unique_id)
+        cycle = int(properties['cycle']) # 1                    
+        inpaint_model = properties['inpaint_model'] # False
+        noise_mask_feather = int(properties['noise_mask_feather']) # 20
 
         if image_opt is not None:       
             image = image_opt
@@ -2181,6 +2196,9 @@ class FaceDetailer_ED():
     def get_properties(extra_pnginfo, my_unique_id):
         properties = {
             "tiled_vae_decode": False,
+            "cycle" :1,
+            "inpaint_model" : False,
+            "noise_mask_feather" : 20
         }
         
         if extra_pnginfo and "workflow" in extra_pnginfo:
@@ -2188,6 +2206,9 @@ class FaceDetailer_ED():
             for node in workflow["nodes"]:
                 if node["id"] == int(my_unique_id):
                     properties['tiled_vae_decode'] = node["properties"]["Use tiled VAE decode"]
+                    properties['cycle'] = node["properties"]["cycle"]
+                    properties['inpaint_model'] = node["properties"]["inpaint model"]
+                    properties['noise_mask_feather'] = node["properties"]["noise mask feather"]
 
         return properties
 
