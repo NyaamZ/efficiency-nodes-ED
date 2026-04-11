@@ -42,8 +42,19 @@ replaceLine_dict = {"efficeincy_nodes_py": {
                                         "file": "../rgthree-comfy/py/server/routes_model_info.py",
                                         "target": "if model_type not in ['loras', 'checkpoints']:",
                                         "replacement": "if model_type not in ['loras', 'checkpoints', 'embeddings']:",},
+                            "utils_info_py1": {
+                                        "file": "../rgthree-comfy/py/server/utils_info.py",
+                                        "target": "def _get_model_civitai_data(file: str, model_type, default=None, refresh=False):",
+                                        "replacement": "def _get_model_civitai_data(file: str, model_type, default=None, refresh=False, file_hash=None):",},
+                            "utils_info_py2": {
+                                        "file": "../rgthree-comfy/py/server/utils_info.py",
+                                        "target": "file_hash = _get_sha256_hash(get_folder_path(file, model_type))",
+                                        "replacement": "file_hash = file_hash or _get_sha256_hash(get_folder_path(file, model_type))",},
+                            "utils_info_py3": {
+                                        "file": "../rgthree-comfy/py/server/utils_info.py",
+                                        "target": "file, model_type, default={}, refresh=force_fetch_civitai",
+                                        "replacement": "file, model_type, default={}, refresh=force_fetch_civitai, file_hash=info_data.get('sha256')",}
                           }
-
 
 replace_icon_dict = {
                     "favicon.ico": {

@@ -5,6 +5,52 @@ import { MenuButton, generateId, wait, injectCss, showMessage, hideMessage, show
 import { createElement as $el, empty, appendChildren, getClosestOrSelf, query, queryAll, setAttributes } from "./utils_dom.js";
 import { logoCivitai, iconStar, link, pencilColored, diskColored, dotdotdot } from "./svgs.js";
 
+
+// CSS
+if (!document.getElementById("civitai-tags-style")) {
+    const style = document.createElement("style");
+    style.id = "civitai-tags-style";
+
+    style.textContent = `
+    .rgthree-info-tag a {
+        text-decoration: none;
+        color: inherit;
+        box-shadow: inset 0px 0px 0 1px rgba(0,0,0,0.5)!important;
+    }
+    .rgthree-info-dialog .rgthree-info-tag.-civitaitag-category > a {
+        background: #228BE626 !important;
+        color: #74C0FC !important;
+    }
+    .rgthree-info-dialog .rgthree-info-tag.-civitaitag > a {
+        background: #343A40 !important;
+        color: #FEFEFE !important;
+    }
+    .rgthree-info-dialog .rgthree-info-tag.-civitaitag-more > span {
+        background: #343A40 !important;
+        color: #FEFEFE !important;
+    }
+	.tag-separator {
+        background: transparent !important;
+		margin-left: 50px !important;
+	}
+    .tag-divider {
+        display: flex;
+        align-items: center;
+        margin: 0 6px;
+    }
+
+    .tag-divider::before {
+        content: "";
+        display: block;
+        width: 1px;
+        height: 18px;
+        background: rgba(255,255,255,0.25);
+    }
+	`;
+    document.head.appendChild(style);
+}
+
+
 //import { RgthreeDialog } from "../../rgthree/common/dialog.js";
 export class RgthreeDialog extends EventTarget {
     constructor(options) {
@@ -218,7 +264,7 @@ export function MODEL_INFO_SERVICE(modelType) {
 //###############################################################################
 
 class RgthreeInfoDialog extends RgthreeDialog {
-    isDevMode = false;
+    isDevMode = app.ui.settings.getSettingValue("Comfy.DevMode");
 
     constructor(file, modelType) {
         const dialogOptions = {
@@ -395,19 +441,158 @@ class RgthreeInfoDialog extends RgthreeDialog {
         this.modelInfo.userNote = await getNote(this.modelInfo, this.modelType);
         MODEL_INFO_SERVICE(this.modelType).savePartialInfo(info.file, { ["userNote"]: this.modelInfo.userNote });
         await deleteFilesFromURL(this.modelType, this.modelInfo.file);
+        await this.getCivitaiTag();
+        if (!this.modelInfo.name) {
+            const fileName = this.modelInfo.file.split('\\').pop().replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+            this.modelInfo.name = fileName;
+            MODEL_INFO_SERVICE(this.modelType).savePartialInfo(info.file, { ["name"]: this.modelInfo.name });
+        }
 
         const totalEnd = performance.now();
         console.log(`모델 로딩 시간: ${((totalEnd - totalStart) / 1000).toFixed(2)}초`);
     }
 
+    async getCivitaiTag() {
+        if ("civitaiTags" in this.modelInfo) return;
+
+        if (!("links" in this.modelInfo)) {
+            console.log("No links in model info");
+            return;
+        }
+
+        // 첫 번째 model ID만 추출
+        let firstId = null;
+
+        for (const link of this.modelInfo.links) {
+            const match = link.match(/https:\/\/civitai\.com\/models\/(\d+)/);
+            if (match) {
+                firstId = match[1];
+                break;
+            }
+        }
+
+        if (!firstId) {
+            console.log("No valid Civitai model ID found");
+            return;
+        }
+
+        // API 1회 호출
+        try {
+            const url = `https://civitai.com/api/v1/models/${firstId}`;
+            const res = await fetch(url);
+
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            const json = await res.json();
+
+            // 카테고리 목록
+            const CATEGORY_LIST = [ 
+                "character",
+                "concept",
+                "style",
+                "poses",
+                "base model",
+                "action",
+                "clothing",
+                "animal",
+                "assets",
+                "background",
+                "buildings",
+                "celebrity",
+                "objects",
+                "tool",
+                "vehicle"
+            ];
+
+            if (json.tags) {
+                let foundCategory = null;
+
+                // 첫 번째 카테고리 찾기
+                const filteredTags = json.tags.filter(tag => {
+                    const lower = tag.toLowerCase();
+
+                    if (!foundCategory && CATEGORY_LIST.includes(lower)) {
+                        foundCategory = tag; // 하나만 저장
+                        return false; // tags에서 제거
+                    }
+                    return true;
+                });
+
+                // 저장
+                this.modelInfo.civitaiTags = filteredTags;
+                MODEL_INFO_SERVICE(this.modelType).savePartialInfo(this.modelInfo.file, { ["civitaiTags"]: filteredTags })
+
+                if (foundCategory) {
+                    this.modelInfo.civitaiCategory = foundCategory;
+                    MODEL_INFO_SERVICE(this.modelType).savePartialInfo(this.modelInfo.file, { ["civitaiCategory"]: foundCategory })
+                }
+            }
+
+        } catch (err) {
+            console.log("Civitai fetch error:", err.message);
+        }
+    }
+
     getInfoContent() {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
         const info = this.modelInfo || {};
+
+        const civitaiTagsHtml =
+            (info.civitaiTags?.length || info.civitaiCategory)
+                ? (() => {
+                    const tags = info.civitaiTags ?? [];
+
+                    const hasMore = tags.length > 5;
+                    const hasMorelen = "+" + (tags.length - 5);
+                    const limitedTags = tags.slice(0, 5);
+
+                    const category = info.civitaiCategory;
+                    const categorySlug = category?.toLowerCase().replace(/\s+/g, "-");
+
+                    return `
+                    <!-- 🏷️ -->
+                    <li class="tag-separator">
+                        <span>🏷️</span>
+                    </li>
+
+                    ${category ? `
+                        <li class="tag-divider"></li>
+
+                        <li class="rgthree-info-tag -civitaitag-category -civitaitag-${categorySlug}">
+                            <a href="https://civitai.com/tag/${categorySlug}" target="_blank">
+                                ${category}
+                            </a>
+                        </li>
+
+                        ${limitedTags.length ? `<li class="tag-divider"></li>` : ""}
+                    ` : ""}
+
+                    ${limitedTags.map(tag => {
+                        const slug = tag.toLowerCase().replace(/\s+/g, "-");
+                        return `
+                            <li class="rgthree-info-tag -civitaitag -civitaitag-${slug}">
+                                <a href="https://civitai.com/tag/${slug}" target="_blank">
+                                    ${tag}
+                                </a>
+                            </li>
+                        `;
+                    }).join("")}
+
+                    ${hasMore ? `
+                        <li class="rgthree-info-tag -civitaitag-more">
+                            <span>${hasMorelen}</span>
+                        </li>
+                    ` : ""}
+                    `;
+                })()
+                : "";
+
         const civitaiLink = (_a = info.links) === null || _a === void 0 ? void 0 : _a.find((i) => i.includes("civitai.com/models"));
         const html = `
       <ul class="rgthree-info-area">
         <li title="Type" class="rgthree-info-tag -type -type-${(info.type || "").toLowerCase()}"><span>${info.type || ""}</span></li>
         <li title="Base Model" class="rgthree-info-tag -basemodel -basemodel-${(info.baseModel || "").toLowerCase()}"><span>${info.baseModel || ""}</span></li>
+        ${civitaiTagsHtml}
         <li class="rgthree-info-menu" stub="menu"></li>
         ${""}
       </ul>
@@ -475,22 +660,47 @@ class RgthreeInfoDialog extends RgthreeDialog {
                     fetch(url);
                 },
             },
+            {
+                label: "🏷️ Get civitai model tag",
+                callback: async (e) => {
+                    if (this.modelInfo?.file) {
+                        await this.getCivitaiTag();
+                        this.setContent(this.getInfoContent());
+                    }
+                },
+            },
+            {
+                label: "👉 Input sha256 hash directly",
+                callback: async (e) => {
+                    if (this.modelInfo?.file) {
+                        let sha256Input = prompt("Input sha256 hash:", "");
+                        if (sha256Input) {
+                            this.modelInfo.sha256 = sha256Input;
+                            this.modelInfo.raw = {};
+                            MODEL_INFO_SERVICE(this.modelType).savePartialInfo(this.modelInfo.file, { ["sha256"]: sha256Input });
+                            MODEL_INFO_SERVICE(this.modelType).savePartialInfo(this.modelInfo.file, { ["raw"]: this.modelInfo.raw });
+                            this.modelInfo = await MODEL_INFO_SERVICE(this.modelType).refreshInfo(this.modelInfo.file);
+                            this.setContent(this.getInfoContent());
+                        }
+                    }
+                },
+            }
         ];
 
         // 개발 모드에서만 추가 옵션
         if (this.isDevMode) {
             options.push(
-                {
-                    label: "ℹ️ dialog TEST",
-                    callback: async (e) => {
-                        showLoadingDialog({
-                            id: "fetch-civitai-waiting",
-                            type: "",
-                            message: "Checkpoint loading is quiet long...",
-                            timeout: 3000,
-                        });
-                    },
-                },
+                // {
+                // label: "ℹ️ dialog TEST",
+                // callback: async (e) => {
+                // showLoadingDialog({
+                // id: "fetch-civitai-waiting",
+                // type: "",
+                // message: "Checkpoint loading is quiet long...",
+                // timeout: 3000,
+                // });
+                // },
+                // },
                 {
                     label: "🧾 Open API JSON",
                     callback: async (e) => {

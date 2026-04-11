@@ -271,11 +271,9 @@ function handleEfficientLoaderPaintMode_ED(node, widget) {
 
 let PREV_value = {
     denoise: 0.8,
-    vae: "Baked VAE",
-    clipSkip: -2,
-    cfg: 2,
-    sampler: "euler",
-    scheduler: "normal"
+    sdxl : { vae: null, clipSkip: null, cfg: null, sampler: null, scheduler: null },
+	flux : { vae: null, clipSkip: null, cfg: null, sampler: null, scheduler: null },
+	anima : { vae: null, clipSkip: null, cfg: null, sampler: null, scheduler: null },
 };
 
 // ----------------------
@@ -283,9 +281,18 @@ let PREV_value = {
 // ----------------------
 
 // 값을 새로운 값으로 덮어쓰고, 기존 값을 반환 (백업용)
-function backupAndSet(widget, newValue, flashWidgetList = []) {
+function backupAndSet(widget, newValue, flashWidgetList=[], prevValue=null) {
     if (!widget) return null;
-    if (widget.value === newValue) return widget.value; // 변화 없음
+	
+	if (prevValue != null ) {
+		if (widget.value != prevValue) {
+			widget.value = prevValue;
+			flashWidgetList.push(widget);
+		}
+		return prevValue;
+	}
+	
+    if (widget.value === newValue) return widget.value; // 변화 없음	
     const oldVal = widget.value;
     widget.value = newValue;
     flashWidgetList.push(widget);
@@ -301,6 +308,26 @@ function restoreIfMatch(widget, matchValue, prevValue, flashWidgetList = []) {
     }
     return prevValue;
 }
+
+function findVaeAndSave(wVae, wClipSkip, wCfg, wSampler, wScheduler) {
+	if (!wVae) return;
+	
+	let prevType;	
+	if (wVae.value === "🔌 ext model input")	{
+		prevType = PREV_value.flux;
+	} else if (contains(wVae.value, "anima") || contains(wVae.value, "qwen")) {
+		prevType = PREV_value.anima;
+	} else {
+		prevType = PREV_value.sdxl;
+	}
+	
+	prevType.vae = wVae.value;
+	prevType.clipSkip = wClipSkip.value;
+	prevType.cfg = wCfg.value;
+	prevType.sampler =  wSampler.value;
+	prevType.scheduler = wScheduler.value;	
+}
+
 
 // 텍스트에 특정 키워드 포함 여부 확인
 function contains(text, keyword) {
@@ -333,25 +360,45 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
     const wScheduler = findWidgetByName(node, "scheduler");
 
     const fluxVae = wVae.options.values.find(v => contains(v, "flux"));
-    const sdxlVae = wVae.options.values.find(v => contains(v, "xl"));
+    const sdxlVae = wVae.options.values.find(v => contains(v, "sdxl_vae"));
+	const animaVae = wVae.options.values.find(v => contains(v, "anima") || contains(v, "qwen"));
 
     if (widget.value === "🔌 ext model input") {
         // ------------------
         // Flux 모드
         // ------------------
         let flashWidgetList = [];
-
-        // VAE 값이 flux가 아니면 fluxVae로 교체
-        if (fluxVae && (contains(wVae.value, "xl") || contains(wVae.value, "Baked"))) {
-            PREV_value.vae = backupAndSet(wVae, fluxVae, flashWidgetList);
-        }
-
-        PREV_value.clipSkip = backupAndSet(wClipSkip, 0, flashWidgetList);
-        PREV_value.cfg = backupAndSet(wCfg, 1.0, flashWidgetList);
-        PREV_value.sampler = backupAndSet(wSampler, "euler", flashWidgetList);
-        PREV_value.scheduler = backupAndSet(wScheduler, "normal", flashWidgetList);
+		
+		//이전 값 backup
+		findVaeAndSave(wVae, wClipSkip, wCfg, wSampler, wScheduler);
+		
+        PREV_value.flux.vae = backupAndSet(wVae, fluxVae, flashWidgetList, PREV_value.flux.vae);
+        PREV_value.flux.clipSkip = backupAndSet(wClipSkip, 0, flashWidgetList, PREV_value.flux.clipSkip);
+        PREV_value.flux.cfg = backupAndSet(wCfg, 1, flashWidgetList, PREV_value.flux.cfg);
+        PREV_value.flux.sampler = backupAndSet(wSampler, "euler", flashWidgetList, PREV_value.flux.sampler);
+        PREV_value.flux.scheduler = backupAndSet(wScheduler, "normal", flashWidgetList, PREV_value.flux.scheduler);
 
         changeStackerMode(node, 4);
+
+        // 위젯 깜빡임 효과
+        flashWidget(node, flashWidgetList);
+
+    } else if (widget.value.includes("Anima")) {
+        // ------------------
+        // Anima 모드
+        // ------------------
+        let flashWidgetList = [];
+
+		//이전 값 backup
+		findVaeAndSave(wVae, wClipSkip, wCfg, wSampler, wScheduler);
+		
+        PREV_value.anima.vae = backupAndSet(wVae, animaVae, flashWidgetList, PREV_value.anima.vae);
+        PREV_value.anima.clipSkip = backupAndSet(wClipSkip, 0, flashWidgetList, PREV_value.anima.clipSkip);
+        PREV_value.anima.cfg = backupAndSet(wCfg, 5, flashWidgetList, PREV_value.anima.cfg);
+        PREV_value.anima.sampler = backupAndSet(wSampler, "er_sde", flashWidgetList, PREV_value.anima.sampler);
+        PREV_value.anima.scheduler = backupAndSet(wScheduler, "simple", flashWidgetList, PREV_value.anima.scheduler);
+
+        changeStackerMode(node, 0);
 
         // 위젯 깜빡임 효과
         flashWidget(node, flashWidgetList);
@@ -362,17 +409,14 @@ function handleEfficientLoaderFluxMode_ED(node, widget) {
         // ------------------
         let flashWidgetList = [];
 
-        // flux VAE가 남아있다면 sdxlVae나 이전 값으로 되돌림
-        if (!contains(wVae.value, "xl") && !contains(wVae.value, "Baked")) {
-            wVae.value = (contains(PREV_value.vae, "xl") || contains(PREV_value.vae, "Baked"))
-                ? PREV_value.vae : sdxlVae;
-            flashWidgetList.push(wVae);
-        }
-
-        PREV_value.clipSkip = restoreIfMatch(wClipSkip, 0, PREV_value.clipSkip, flashWidgetList);
-        PREV_value.cfg = restoreIfMatch(wCfg, 1.0, PREV_value.cfg, flashWidgetList);
-        PREV_value.sampler = restoreIfMatch(wSampler, "euler", PREV_value.sampler, flashWidgetList);
-        PREV_value.scheduler = restoreIfMatch(wScheduler, "normal", PREV_value.scheduler, flashWidgetList);
+		//이전 값 backup
+		findVaeAndSave(wVae, wClipSkip, wCfg, wSampler, wScheduler);
+		
+        PREV_value.sdxl.vae = backupAndSet(wVae, sdxlVae, flashWidgetList, PREV_value.sdxl.vae);
+        PREV_value.sdxl.clipSkip = backupAndSet(wClipSkip, -2, flashWidgetList, PREV_value.sdxl.clipSkip);
+        PREV_value.sdxl.cfg = backupAndSet(wCfg, 5, flashWidgetList, PREV_value.sdxl.cfg);
+        PREV_value.sdxl.sampler = backupAndSet(wSampler, "euler_ancestral", flashWidgetList, PREV_value.sdxl.sampler);
+        PREV_value.sdxl.scheduler = backupAndSet(wScheduler, "normal", flashWidgetList, PREV_value.sdxl.scheduler);
 
         changeStackerMode(node, 0);
 

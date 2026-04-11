@@ -784,28 +784,28 @@ class EfficientLoader_ED():
         clip_encoder = None
         
         # For qwen prompt
-        if is_flux_model == 2 and paint_mode != "✍️ Txt2Img":
-            model, clip, _, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
-            positive_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, positive_prompt, vae, ref_image)[0]
+        # if is_flux_model == 2 and paint_mode != "✍️ Txt2Img":
+            # model, clip, _, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
+            # positive_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, positive_prompt, vae, ref_image)[0]
             
-            if not negative_prompt:            
-                negative_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, negative_prompt, vae, ref_image)[0]
-            else:
-                negative_encoded = nodes.ConditioningZeroOut().zero_out(positive_encoded)[0]
+            # if not negative_prompt:            
+                # negative_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, negative_prompt, vae, ref_image)[0]
+            # else:
+                # negative_encoded = nodes.ConditioningZeroOut().zero_out(positive_encoded)[0]
 
+        # else:
+            
+        if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
+            print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
+            clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])
+
+        negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
+        
+        if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
+            model, clip, positive_encoded, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
+            
         else:
-            
-            if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
-                print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
-                clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])
-
-            negative_encoded = BNK_EncoderWrapper.imp_encode(negative_prompt, clip, clip_encoder)
-            
-            if is_flux_model or not properties['wildcard_node_exist'] or cnet_stack or not properties['use_latent_rebatch'] or batch_size == 1 or properties['use_apply_lora']:
-                model, clip, positive_encoded, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
-                
-            else:
-                positive_encoded = None
+            positive_encoded = None
 
         #################### LATENT PROCESSING ####################
         #✍️ Txt2Img         
@@ -987,11 +987,11 @@ class EfficientLoader_ED():
         if hasattr(model, "model"):
             modle_type = model.model.__class__.__name__
 
-        if "qwen" in vae_name.lower():
-            print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m Qwen VAE is in use, ignore clip skip\033[0m")
-            is_flux_model = 2
+        # if "qwen" in vae_name.lower():
+            # print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m Qwen VAE is in use, ignore clip skip\033[0m")
+            # is_flux_model = 2
 
-        elif modle_type == "Flux":
+        if modle_type == "Flux":
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, ignore clip skip\033[0m")
             is_flux_model = 1
 
