@@ -1638,6 +1638,9 @@ class SimpleText_ED():
             "required": {                              
                 "text": ("STRING", {"multiline": True, "dynamicPrompts": False}),
             },
+            "optional": {                
+                "text_a": ("STRING", {"forceInput": True})
+            }
         }
 
     RETURN_TYPES = ("STRING",)
@@ -1645,14 +1648,18 @@ class SimpleText_ED():
     FUNCTION = 'get_text'
     CATEGORY = 'Efficiency Nodes/Prompt'
 
-    def get_text(self, text):
+    def get_text(self, text, text_a=""):
         #strip commet
         text = ED_Util.strip_comments(text)
+        text_a = ED_Util.strip_comments(text_a)
 
+        out_text = ""
         strip = " ,\n"
-        text = f"{text.lstrip(strip).rstrip(strip)}"
+        if text_a != "":
+            out_text = f"{text_a.lstrip(strip).rstrip(strip)},\n\n"
+        out_text += f"{text.lstrip(strip).rstrip(strip)}"
         
-        return (text,)
+        return (out_text,)
 
 ##############################################################################################################
 # TIPO Script ED
