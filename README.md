@@ -531,7 +531,6 @@
    </ul>	   
   </details>
   <details>
-  <p></p>
       <summary><b>Save Image 🔔ED</b></summary>
   <ul>
   <p></p>
@@ -547,7 +546,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>LoRA Stacker 💬ED</b></summary>
   <ul>
     <p></p>
@@ -570,7 +568,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Embedding Stacker 💬ED</b></summary>
   <ul>
     <p></p>
@@ -586,7 +583,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Wildcard Encode 💬ED</b></summary>
   <ul>
     <p></p>
@@ -606,7 +602,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>TIPO Script 💬ED</b></summary>
   <ul>
     <p></p>
@@ -619,7 +614,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Regional Stacker 💬ED, Regional Script 💬ED</b></summary>
   <ul>
     <p></p>
@@ -632,7 +626,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Refiner Script 💬ED</b></summary>
   <ul>
     <p></p>
@@ -646,7 +639,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Int Holder 💬ED</b></summary>
   <ul>
     <p></p>
@@ -659,8 +651,8 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>FaceDetailer 💬ED</b></summary>
+  <ul>
     <p></p>
     <p align="left">
     <img src="https://github.com/jags111/efficiency-nodes-comfyui/assets/43065065/3c79367f-e2f7-4f3c-bffe-48be9a6627c9" width="250">
@@ -670,7 +662,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>MaskDetailer 💬ED</b></summary>
   <ul>
     <p></p>
@@ -682,7 +673,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Detailer (SEGS) 💬ED</b></summary>
   <ul>
     <p></p>
@@ -694,7 +684,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>Ultimate SD Upscale 💬ED</b></summary>
   <ul>
     <p></p>
@@ -706,7 +695,6 @@
   </ul>
   </details>
   <details>
-    <p></p>
     <summary><b>SUPIR 💬ED</b></summary>
   <ul>
     <p></p>
