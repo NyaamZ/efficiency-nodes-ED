@@ -1,10 +1,32 @@
 import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
-import { ComfyApp } from "../../scripts/app.js";
-import { ClipspaceDialog } from "../../extensions/core/clipspace.js";
+// TODO: 나중에 복구 (clipspace 기능) — import { ComfyApp } from "../../scripts/app.js";
 
-import { findWidgetByName, showMessage, fetchJson } from "./node_options/common/utils.js";
-import { findPreviousNode } from "./ed_dynamicWidgets.js";
+import { findWidgetByName, showMessage, fetchJson, ed_log, ed_warn, ed_error } from "./node_options/common/utils.js";
+
+// [수정] 정적 import 는 하나만 실패해도 이 파일 전체(그리고 이 파일을 import 하는 ed_dynamicWidgets.js)가
+//        로드되지 않는다. 신버전에서 사라졌을 수 있는 clipspace.js 는 동적 import + 실패 허용으로 바꿈.
+// TODO: 나중에 복구 (clipspace 기능)
+// let ClipspaceDialog = null;
+// import("../../extensions/core/clipspace.js")
+	// .then(m => { ClipspaceDialog = m.ClipspaceDialog ?? null; })
+	// .catch(e => console.warn("clipspace.js 를 불러오지 못했습니다 (빈 이미지 생성 기능에만 영향)", e));
+
+// [수정] ed_dynamicWidgets.js 와의 순환 import 제거 → findPreviousNode 는 필요한 시점에 동적 import
+
+// 신버전에서는 nodeCreated 시점에 node.type 이 비어 있을 수 있으므로 comfyClass 를 우선 사용
+const nodeClass = (n) => n?.comfyClass || n?.type || "";
+const getGraphNodes = () => app.graph?._nodes ?? app.graph?.nodes ?? [];
+
+// app.ui.settings 는 deprecated → extensionManager.setting 우선
+function getLocale() {
+	try {
+		return app.extensionManager?.setting?.get("Comfy.Locale")
+			?? app.ui?.settings?.getSettingValue("Comfy.Locale");
+	} catch {
+		return undefined;
+	}
+}
 
 let wildcards_list = [];
 
@@ -13,27 +35,26 @@ async function load_wildcards() {
 		let res = await api.fetchApi('/impact/wildcards/list');
 
 		if (!res.ok) {
-			console.log(`From ED>> 서버 오류: ${res.status} ${res.statusText}`);
+			ed_log(`서버 오류: ${res.status} ${res.statusText}`);
 			wildcards_list = [];
 			return;
 		}
 		let data = await res.json();
 		if (!data || !data.data) {
-			console.log("From ED>> 응답 데이터에 'data' 필드가 없습니다.");
+			ed_log("응답 데이터에 'data' 필드가 없습니다.");
 			wildcards_list = [];
 			return;
 		}
 		wildcards_list = data.data;
-		console.log("From ED>> 와일드카드 불러오기 성공:", wildcards_list);
+		ed_log("와일드카드 불러오기 성공:", wildcards_list);
 
 	} catch (err) {
-		console.log("From ED>> 와일드카드 불러오기 실패:", err.message);
+		ed_log("와일드카드 불러오기 실패:", err.message);
 		wildcards_list = [];
 	}
 }
 
 load_wildcards();
-
 
 // Get Booru Tag ED Handlers
 let ed_settings = {};
@@ -54,14 +75,25 @@ export async function handleGetBooruTag(node, widget) {
 	}
 
 	function updateTagsAndNotify(tags, booruSite, widget) {
-		if (!tags) return showError('ERROR: Tags not found in JSON file.');
-		if (typeof tags !== 'string') return showError('ERROR: Tags are not string.');
+		if (!tags)
+			return showError('ERROR: Tags not found in JSON file.');
+
+		if (typeof tags !== 'string')
+			return showError('ERROR: Tags are not string.');
 
 		setTags(tags);
-		const capitalizedSite = capitalizeFirstLetter(booruSite);
-		widget.value = widget.value.replaceAll(booruSite, capitalizedSite);
 
-		showMessage("Success", `${capitalizedSite} tags are successfully loaded`);
+		const capitalizedSite = capitalizeFirstLetter(booruSite);
+
+		widget.value = widget.value.replaceAll(
+			booruSite,
+			capitalizedSite
+		);
+
+		showMessage(
+			"Success",
+			`${capitalizedSite} tags are successfully loaded`
+		);
 	}
 
 	function capitalizeFirstLetter(text) {
@@ -71,124 +103,268 @@ export async function handleGetBooruTag(node, widget) {
 	// 태그 설정 함수
 	function setTags(tags) {
 		if (tagsWidget) {
-			let tag_data = htmlUnescape(tags.replaceAll(' ', ', ') + ",");
+			let tag_data = htmlUnescape(
+				tags.replaceAll(' ', ', ') + ","
+			);
+
 			tagsWidget.value = tag_data;
 		}
 	}
+
 	// 에러 표시
 	function showError(error, showTag = false) {
-		// if (showTag) tagsWidget.value = '// ' + error + '\n\n' + tagsWidget.value;
 		showMessage("Error", error);
 	}
 
-	// 에러 처리 및 데이터 요청 함수
-	async function fetchData(url) {
+	// --------------------------------------------------------
+	// Booru API 요청
+	// --------------------------------------------------------
+	async function fetchData(booru, id, api_key = "") {
+
 		try {
-			console.log(`Fetching from: ${url}`)
-			const req = await fetch(url);
-			if (!req.ok) throw new Error(`HTTP Error! Status Code: ${req.status}`);
-			return await req.json();
+
+			// ------------------------------------------------
+			// Danbooru: 브라우저에서 직접 요청
+			// ------------------------------------------------
+			if (booru === "danbooru") {
+				const url = `https://danbooru.donmai.us/posts/${id}.json`;
+
+				ed_log(`Danbooru direct request: ${url}`);
+
+				const response = await fetch(url, {
+					method: "GET",
+					headers: {
+						"Accept": "application/json"
+					}
+				});
+
+				ed_log(`Danbooru HTTP Status: ${response.status}`);
+
+				if (!response.ok) {
+					throw new Error(`Danbooru HTTP ${response.status}`);
+				}
+
+				const result = await response.json();
+
+				ed_log("Danbooru request successful");
+
+				return result;
+			}
+
+			// ------------------------------------------------
+			// 나머지 Booru: Python 백엔드 요청
+			// ------------------------------------------------
+			ed_log(`Fetching from Python backend: ${booru} ID ${id}`);
+
+			const response = await fetch(
+				"/ed/booru_tags",
+				{
+					method: "POST",
+
+					headers: {
+						"Content-Type": "application/json"
+					},
+
+					body: JSON.stringify({
+						booru: booru,
+						id: id,
+						api_key: api_key
+					})
+				}
+			);
+
+			if (!response.ok) {
+
+				let errorMessage = `HTTP Error! Status Code: ${response.status}`;
+
+				try {
+					const errorData = await response.json();
+
+					if (errorData.error) {
+						errorMessage = errorData.error;
+
+						if (errorData.details) {
+							errorMessage += "\n" + errorData.details;
+						}
+					}
+
+				} catch (e) {}
+
+				throw new Error(errorMessage);
+			}
+
+			return await response.json();
+
 		} catch (error) {
-			showError(error, true);
+
+			showError(error.message, true);
+
+			ed_log(`Booru API Error: ${error}`);
+
 			return null;
 		}
 	}
 
+	// --------------------------------------------------------
+	// Danbooru 태그 정리
+	// --------------------------------------------------------
 	function getDanbooruTags(data) {
-		if (!data) return null;
+
+		if (!data)
+			return null;
+
 		let tags = "";
-		if (data.tag_string_artist) tags += "/*artist*/" + data.tag_string_artist + " \n";
-		if (data.tag_string_character) tags += "/*character*/" + data.tag_string_character + " \n";
-		if (data.tag_string_copyright) tags += "/*copyright*/" + data.tag_string_copyright + " \n";
+
+		if (data.tag_string_artist)
+			tags += "/*artist*/" + data.tag_string_artist + " \n";
+
+		if (data.tag_string_character)
+			tags += "/*character*/" + data.tag_string_character + " \n";
+
+		if (data.tag_string_copyright)
+			tags += "/*copyright*/" + data.tag_string_copyright + " \n";
+
 		tags += data.tag_string_general || "";
+
 		return tags;
 	}
 
+	// --------------------------------------------------------
+	// Booru 설정
+	// --------------------------------------------------------
 	const booruDict = {
+
 		danbooru: {
 			type: "danbooru",
-			base_url: "https://danbooru.donmai.us/posts/",
 			func: (data) => getDanbooruTags(data),
 		},
+
 		aibooru: {
 			type: "danbooru",
-			base_url: "https://aibooru.online/posts/",
 			func: (data) => getDanbooruTags(data),
 		},
+
 		gelbooru: {
 			type: "gelbooru",
-			base_url: "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1" + ed_settings["Gelbooru_api_key"] + "&id=",
 			func: (data) => data?.post?.[0]?.tags,
 		},
+
 		safebooru: {
 			type: "gelbooru",
-			base_url: "https://safebooru.org/index.php?page=dapi&s=post&q=index&json=1&id=",
 			func: (data) => data?.[0]?.tags,
 		},
+
 		xbooru: {
 			type: "gelbooru",
-			base_url: "https://xbooru.com/index.php?page=dapi&s=post&q=index&json=1&id=",
 			func: (data) => data?.[0]?.tags,
 		},
+
 		konachan: {
 			type: "moebooru",
-			base_url: "https://konachan.net/post.json?tags=id:",
 			func: (data) => data?.[0]?.tags,
 		},
+
 		yande: {
 			type: "moebooru",
-			base_url: "https://yande.re/post.json?tags=id:",
 			func: (data) => data?.[0]?.tags,
 		},
 	};
 
-	if (!widget.value || widget.value === "None" || /[A-Z]/.test(widget.value.slice(0, 10))) return;
+	// --------------------------------------------------------
+	// 입력값 검사
+	// --------------------------------------------------------
+	if (
+		!widget.value ||
+		widget.value === "None" ||
+		/[A-Z]/.test(widget.value.slice(0, 10))
+	)
+		return;
 
-	let tagsWidget
+	let tagsWidget;
+
 	if (node.comfyClass == "Get Booru Tag 💬ED")
 		tagsWidget = findWidgetByName(node, "text_b");
+
 	if (node.comfyClass == "Regional Script 💬ED")
 		tagsWidget = findWidgetByName(node, "prompt");
 
-	let booru_name = Object.keys(booruDict).find(key => widget.value.includes(key));
-	if (!booru_name) return showError('ERROR: No matching booru found.');
+	// --------------------------------------------------------
+	// Booru 사이트 판별
+	// --------------------------------------------------------
+	const booru_name = Object.keys(booruDict).find(
+		key => widget.value.includes(key)
+	);
 
-	const { type, base_url, func } = booruDict[booru_name];
-	const proxy = 'https://corsproxy.io/?';
+	if (!booru_name)
+		return showError('ERROR: No matching booru found.');
 
-	// danbooru
+	const { type, func } = booruDict[booru_name];
+
+	let match;
+	let post_id;
+
+	// --------------------------------------------------------
+	// ID 추출
+	// --------------------------------------------------------
 	if (type === "danbooru") {
-		const match = /posts\/(\d+)/.exec(widget.value);
-		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
 
-		const url = base_url + match[1] + '.json';
-		const data = await fetchData(url);
-		const tags = func(data);
+		match = /posts\/(\d+)/.exec(widget.value);
 
-		updateTagsAndNotify(tags, booru_name, widget);
+		if (!match)
+			return showError(`ERROR: ID not found in ${booru_name} URL.`);
 
-		// gelbooru
+		post_id = match[1];
+
 	} else if (type === "gelbooru") {
-		const match = /id=(\d+)/.exec(widget.value);
-		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
 
-		const url = proxy + base_url + match[1];
-		const data = await fetchData(url);
-		const tags = func(data);
+		match = /id=(\d+)/.exec(widget.value);
 
-		updateTagsAndNotify(tags, booru_name, widget);
+		if (!match)
+			return showError(`ERROR: ID not found in ${booru_name} URL.`);
 
-		// moebooru
+		post_id = match[1];
+
 	} else if (type === "moebooru") {
-		const match = /\/show\/(\d+)/.exec(widget.value);
-		if (!match) return showError(`ERROR: ID not found in ${booru_name} URL.`);
 
-		const url = proxy + base_url + match[1];
-		const data = await fetchData(url);
-		const tags = func(data);
+		match = /\/show\/(\d+)/.exec(widget.value);
 
-		updateTagsAndNotify(tags, booru_name, widget);
+		if (!match)
+			return showError(`ERROR: ID not found in ${booru_name} URL.`);
+
+		post_id = match[1];
 	}
+
+	// --------------------------------------------------------
+	// Python 백엔드 요청
+	// --------------------------------------------------------
+	const api_key =
+		booru_name === "gelbooru"
+			? (ed_settings["Gelbooru_api_key"] ?? "")
+			: "";
+
+	const data = await fetchData(
+		booru_name,
+		post_id,
+		api_key
+	);
+
+	if (!data)
+		return;
+	ed_log("json data :\n", data);
+
+	// --------------------------------------------------------
+	// 태그 추출
+	// --------------------------------------------------------
+	const tags = func(data);
+
+	// --------------------------------------------------------
+	// 위젯 업데이트
+	// --------------------------------------------------------
+	updateTagsAndNotify(
+		tags,
+		booru_name,
+		widget
+	);
 }
 
 // 태그를 카테고리별로 나누는 함수 //////////////////////////////////////////////////////////////////////
@@ -403,7 +579,7 @@ function categorizeValue(widget) {
 		});
 
 		let outputText = "";
-		const localeSetting = app.ui.settings.getSettingValue("Comfy.Locale");
+		const localeSetting = getLocale();
 		sortedEntries.forEach(([category, tags]) => {
 			if (localeSetting === "ko") category = (category_priority[category]) ? category_priority[category] : category;
 			category = (category === "artist") ? "artist:" : category;
@@ -436,124 +612,135 @@ function categorizeValue(widget) {
 	}
 }
 
-async function createEmptyImage(width, height, color = "white") {
+// TODO: 나중에 복구 (clipspace 기능) — createEmptyImage 전체
+// async function createEmptyImage(width, height, color = "white") {
 
-	function find_script_load_image(width, height, reg_script = "Regional Script 💬ED", load_image = "LoadImage") {
-		const script_nodes = app.graph._nodes.filter((n) => n.type.includes(reg_script));
-		let find_node_list = []
-		if (script_nodes.length) {
-			script_nodes.forEach((n) => {
-				find_node_list.push(findPreviousNode(n, load_image));
-			});
-		}
-		if (find_node_list.length) {
-			find_node_list.forEach((n) => {
-				if (n) ComfyApp.pasteFromClipspace(n);
-			});
-		}
-		const eff_loader = app.graph._nodes.find((n) => n.type.includes("Efficient Loader 💬ED"));
-		if (eff_loader) {
-			let widget_width = findWidgetByName(eff_loader, "image_width");
-			let widget_height = findWidgetByName(eff_loader, "image_height");
-			widget_width.value = width;
-			widget_height.value = height;
-		}
-	}
+	// // 순환 import 를 피하기 위해 호출 시점에 가져온다
+	// const { findPreviousNode } = await import("./ed_dynamicWidgets.js");
 
-	async function uploadImage(filepath, formData) {
-		try {
-			await api.fetchApi('/upload/image', {
-				method: 'POST',
-				body: formData
-			});
+	// function find_script_load_image(width, height, reg_script = "Regional Script 💬ED", load_image = "LoadImage") {
+		// const script_nodes = getGraphNodes().filter((n) => nodeClass(n).includes(reg_script));
+		// let find_node_list = []
+		// if (script_nodes.length) {
+			// script_nodes.forEach((n) => {
+				// find_node_list.push(findPreviousNode(n, load_image));
+			// });
+		// }
+		// if (find_node_list.length) {
+			// find_node_list.forEach((n) => {
+				// if (n) ComfyApp.pasteFromClipspace(n);
+			// });
+		// }
+		// const eff_loader = getGraphNodes().find((n) => nodeClass(n).includes("Efficient Loader 💬ED"));
+		// if (eff_loader) {
+			// let widget_width = findWidgetByName(eff_loader, "image_width");
+			// let widget_height = findWidgetByName(eff_loader, "image_height");
+			// if (widget_width) widget_width.value = width;
+			// if (widget_height) widget_height.value = height;
+		// }
+	// }
 
-			const selectedIndex = ComfyApp.clipspace['selectedIndex'];
-			ComfyApp.clipspace.imgs[selectedIndex] = new Image();
-			ComfyApp.clipspace.imgs[selectedIndex].src = `view?filename=${filepath.filename}&type=${filepath.type}`;
+	// async function uploadImage(filepath, formData) {
+		// try {
+			// await api.fetchApi('/upload/image', {
+				// method: 'POST',
+				// body: formData
+			// });
 
-			if (ComfyApp.clipspace.images) {
-				ComfyApp.clipspace.images[selectedIndex] = filepath;
-			}
+			// const selectedIndex = ComfyApp.clipspace['selectedIndex'];
+			// ComfyApp.clipspace.imgs[selectedIndex] = new Image();
+			// ComfyApp.clipspace.imgs[selectedIndex].src = `view?filename=${filepath.filename}&type=${filepath.type}`;
 
-			ClipspaceDialog.invalidatePreview();
-		} catch (error) {
-			console.error('Error uploading image:', error);
-		}
-	}
+			// if (ComfyApp.clipspace.images) {
+				// ComfyApp.clipspace.images[selectedIndex] = filepath;
+			// }
 
-	try {
-		// Canvas 생성 및 설정
-		const canvas = document.createElement('canvas');
-		canvas.width = width;
-		canvas.height = height;
+			// ClipspaceDialog?.invalidatePreview?.();
+		// } catch (error) {
+			// console.error('Error uploading image:', error);
+		// }
+	// }
 
-		const ctx = canvas.getContext("2d");
-		ctx.fillStyle = color;
-		ctx.fillRect(0, 0, width, height);
+	// // 신버전에서 Clipspace API 가 ComfyApp 에서 제거/이동됐을 가능성에 대비
+	// if (typeof ComfyApp.pasteFromClipspace !== "function" || typeof ComfyApp.onClipspaceEditorSave !== "function") {
+		// showMessage("Error", "이 ComfyUI 버전에서는 Clipspace API(ComfyApp.pasteFromClipspace 등)를 찾을 수 없습니다.");
+		// console.error("ComfyApp clipspace API missing", Object.getOwnPropertyNames(ComfyApp).filter(k => /clipspace/i.test(k)));
+		// return;
+	// }
 
-		// Data URL 생성
-		const imageDataURL = canvas.toDataURL("image/png");
+	// try {
+		// // Canvas 생성 및 설정
+		// const canvas = document.createElement('canvas');
+		// canvas.width = width;
+		// canvas.height = height;
 
-		// Blob 생성
-		const byteString = atob(imageDataURL.split(',')[1]);
-		const byteArray = new Uint8Array(byteString.length);
-		for (let i = 0; i < byteString.length; i++) {
-			byteArray[i] = byteString.charCodeAt(i);
-		}
-		const myBlob = new Blob([byteArray], { type: 'image/png' });
+		// const ctx = canvas.getContext("2d");
+		// ctx.fillStyle = color;
+		// ctx.fillRect(0, 0, width, height);
 
-		// FormData 준비
-		const filename = "clipspace-tmp_image.png";
-		const formData = new FormData();
-		formData.append("image", new File([myBlob], filename));
-		formData.append("overwrite", "true");
-		formData.append("type", "input");
+		// // Data URL 생성
+		// const imageDataURL = canvas.toDataURL("image/png");
 
-		const item = {
-			filename,
-			subfolder: "",
-			type: "input",
-		};
+		// // Blob 생성
+		// const byteString = atob(imageDataURL.split(',')[1]);
+		// const byteArray = new Uint8Array(byteString.length);
+		// for (let i = 0; i < byteString.length; i++) {
+			// byteArray[i] = byteString.charCodeAt(i);
+		// }
+		// const myBlob = new Blob([byteArray], { type: 'image/png' });
 
-		// ComfyApp 관련 상태 업데이트
-		if (!ComfyApp.clipspace) {
-			const load_image_nodes = app.graph._nodes.filter((n) => n.type.includes("Load Image") || n.type.includes("LoadImage"));
-			let found_node = false;
-			for (let n of load_image_nodes) {
-				if (n && n.imgs[0]) {
-					ComfyApp.copyToClipspace(n);
-					ComfyApp.clipspace_return_node = null;
-					found_node = true;
-					break;
-				}
-			}
-			if (!found_node) {
-				console.error('Unable copy Clipspace image:');
-				return;
-			}
-		}
+		// // FormData 준비
+		// const filename = "clipspace-tmp_image.png";
+		// const formData = new FormData();
+		// formData.append("image", new File([myBlob], filename));
+		// formData.append("overwrite", "true");
+		// formData.append("type", "input");
 
-		if (ComfyApp.clipspace.images) {
-			ComfyApp.clipspace.images[0] = item;
-		}
+		// const item = {
+			// filename,
+			// subfolder: "",
+			// type: "input",
+		// };
 
-		if (ComfyApp.clipspace.widgets) {
-			const index = ComfyApp.clipspace.widgets.findIndex(obj => obj.name === 'image');
-			if (index >= 0) {
-				ComfyApp.clipspace.widgets[index].value = `${filename} [input]`;
-			}
-		}
+		// // ComfyApp 관련 상태 업데이트
+		// if (!ComfyApp.clipspace) {
+			// const load_image_nodes = getGraphNodes().filter((n) => nodeClass(n).includes("Load Image") || nodeClass(n).includes("LoadImage"));
+			// let found_node = false;
+			// for (let n of load_image_nodes) {
+				// if (n && n.imgs?.[0]) {
+					// ComfyApp.copyToClipspace(n);
+					// ComfyApp.clipspace_return_node = null;
+					// found_node = true;
+					// break;
+				// }
+			// }
+			// if (!found_node) {
+				// console.error('Unable copy Clipspace image:');
+				// return;
+			// }
+		// }
 
-		// 파일 업로드 및 후속 작업
-		await uploadImage(item, formData);
-		ComfyApp.onClipspaceEditorSave();
+		// if (ComfyApp.clipspace.images) {
+			// ComfyApp.clipspace.images[0] = item;
+		// }
 
-		find_script_load_image(width, height);
-		showMessage("Info", "Created empty image to Regional Script 💬ED")
-	} catch (error) {
-		console.error('Error saving image:', error);
-	}
-}
+		// if (ComfyApp.clipspace.widgets) {
+			// const index = ComfyApp.clipspace.widgets.findIndex(obj => obj.name === 'image');
+			// if (index >= 0) {
+				// ComfyApp.clipspace.widgets[index].value = `${filename} [input]`;
+			// }
+		// }
+
+		// // 파일 업로드 및 후속 작업
+		// await uploadImage(item, formData);
+		// ComfyApp.onClipspaceEditorSave();
+
+		// find_script_load_image(width, height);
+		// showMessage("Info", "Created empty image to Regional Script 💬ED")
+	// } catch (error) {
+		// console.error('Error saving image:', error);
+	// }
+// }
 
 function clearWidgets(node) {
 	const baseWidgetMap = {
@@ -574,7 +761,7 @@ function clearWidgets(node) {
 				const toggle_widget = findWidgetByName(node, `${fullName}_toggle`);
 				if (toggle_widget) toggle_widget.value = true;
 				widget.value = "None";
-				if (widget.constructor.name === "EdToggleComboWidget") widget.toggle = true;
+				if (widget.isEdToggleCombo) widget.toggle = true;
 			} else {
 				widget.value = 1;
 			}
@@ -586,120 +773,173 @@ function clearWidgets(node) {
 }
 
 export function getBooruTagRegionalScript_Init(node) {
-	const CLASS_CONFIG = {
-		"Get Booru Tag 💬ED": { tbox_id: 1, combo_id: 1, has_lora: false, has_group_tag: true },
-		"Regional Script 💬ED": { tbox_id: 1, combo_id: 1, has_lora: false, has_group_tag: false },
-		"Context To DetailerPipe": { tbox_id: 0, combo_id: 1, has_lora: true, has_group_tag: false }
-	};
+    if (!node || !node.widgets) return;
 
-	function applyComboBehavior(comboWidget, tboxWidget, isWildcard = true, lora = false) {
-		comboWidget.callback = (value, canvas, node, pos, e) => {
-			if (isWildcard) {
-				if (tboxWidget.value !== '') {
-					tboxWidget.value = tboxWidget.value.replace(/,\s*$/, '') + ', ';
-				}
-				tboxWidget.value += node._wildcard_value + ",";
-			} else if (lora) {
-				let lora_name = node._value;
-				if (lora_name.endsWith('.safetensors')) {
-					lora_name = lora_name.slice(0, -12);
-				}
-				tboxWidget.value += `<lora:${lora_name}>`;
-				if (node.widgets_values) {
-					node.widgets_values[config.tbox_id] = tboxWidget.value;
-				}
-			}
-		};
-	}
+    const CLASS_CONFIG = {
+        "Get Booru Tag 💬ED": {
+            tbox_id: 1,
+            combo_id: 1,
+            has_lora: false,
+            has_group_tag: true
+        },
+        "Regional Script 💬ED": {
+            tbox_id: 1,
+            combo_id: 1,
+            has_lora: false,
+            has_group_tag: false
+        },
+        "Context To DetailerPipe": {
+            tbox_id: 0,
+            combo_id: 1,
+            has_lora: true,
+            has_group_tag: false
+        }
+    };
 
-	function defineComboValue(widget, defaultText, propName) {
-		Object.defineProperty(widget, "value", {
-			set: (value) => {
-				if (value !== defaultText)
-					node[propName] = value;
-			},
-			get: () => defaultText
-		});
-	}
+    function setupActionCombo(widget, {
+        defaultText,
+        propName,
+        optionsGetter,
+        onSelect
+    }) {
+        if (!widget) return;
 
-	function defineComboOptions(widget, optionsGetter) {
-		Object.defineProperty(widget.options, "values", {
-			set: (_) => { },
-			get: optionsGetter
-		});
-	}
+        // 중복 초기화 방지
+        if (widget.__edActionComboInitialized) return;
+        widget.__edActionComboInitialized = true;
 
-	// For the first group of nodes
-	if (CLASS_CONFIG[node.comfyClass]) {
-		const config = CLASS_CONFIG[node.comfyClass];
-		node._value = "Select the LoRA to add to the text";
+        // 콤보 옵션 동적 제공
+        if (optionsGetter && widget.options) {
+            try {
+                Object.defineProperty(widget.options, "values", {
+                    configurable: true,
+                    enumerable: true,
 
-		const tboxWidget = node.widgets[config.tbox_id];
-		const wildcardCombo = node.widgets[config.combo_id + 1];
+                    get: optionsGetter,
+                    set: function () {}
+                });
+            } catch (e) {
+                ed_warn("options.values 설정 실패:", e);
+                widget.options.values = optionsGetter;
+            }
+        }
 
-		// Wildcard combo behavior
-		applyComboBehavior(wildcardCombo, tboxWidget, true);
-		defineComboValue(wildcardCombo, "Select the Wildcard to add to the text", "_wildcard_value");
-		defineComboOptions(wildcardCombo, () => wildcards_list);
-		wildcardCombo.serializeValue = () => "Select the Wildcard to add to the text";
+        // 표시값과 저장값을 고정
+        widget.value = defaultText;
 
-		// Optional: Group tag feature
-		if (config.has_group_tag) {
-			const groupCombo = node.widgets[config.combo_id + 2];
-			groupCombo.callback = () => categorizeValue(tboxWidget);
-			defineComboOptions(groupCombo, () => ["[Group tags by category]"]);
-			defineComboValue(groupCombo, "Group tags by category", "_value");
-		}
+        widget.serializeValue = () => defaultText;
 
-		// Optional: LoRA handling
-		if (config.has_lora) {
-			const loraCombo = node.widgets[config.combo_id];
-			applyComboBehavior(loraCombo, tboxWidget, false, true);
-			defineComboValue(loraCombo, "Select the LoRA to add to the text", "_value");
-			loraCombo.serializeValue = () => "Select the LoRA to add to the text";
-		}
-	}
+        // 사용자 선택 이벤트
+        widget.callback = function (value, canvas, currentNode, pos, event) {
+            if (typeof value === "string" && value !== defaultText) {
+                node[propName] = value;
 
-	// For Regional Stacker / Processor
-	if (node.comfyClass === "Regional Stacker 💬ED" || node.comfyClass === "Regional Processor 💬ED") {
-		const emptyImageWidget = node.widgets[3];
-		const widthWidget = node.widgets[1];
-		const heightWidget = node.widgets[2];
+                try {
+                    onSelect?.(value);
+                } catch (e) {
+                    ed_error("combo action error:", e);
+                }
+            }
 
-		emptyImageWidget.callback = () => {
-			createEmptyImage(widthWidget.value, heightWidget.value);
-		};
+            // 액션 실행 후 기본 문구로 복원
+            widget.value = defaultText;
 
-		defineComboValue(emptyImageWidget, "Create empty image", "_wildcard_value");
-		defineComboOptions(emptyImageWidget, () => ["[Create empty image]"]);
-		emptyImageWidget.serializeValue = () => "Create empty image";
-	}
+            node.setDirtyCanvas?.(true, true);
+        };
+    }
 
-	// For LoRA Stacker 💬ED
-	if (node.comfyClass === "LoRA Stacker 💬ED") {
-		const clearLorasWidget = findWidgetByName(node, "Clear LoRAs");
+    const widgets = node.widgets;
 
-		clearLorasWidget.callback = () => {
-			clearWidgets(node);
-		};
+    // -----------------------------------------
+    // Get Booru Tag / Regional Script / Context
+    // -----------------------------------------
+    const config = CLASS_CONFIG[node.comfyClass];
 
-		defineComboValue(clearLorasWidget, "Clear LoRAs", "_wildcard_value");
-		defineComboOptions(clearLorasWidget, () => ["[Clear LoRAs]"]);
-		clearLorasWidget.serializeValue = () => "Clear LoRAs";
-	}
+    if (config) {
+        node._value = "Select the LoRA to add to the text";
 
-	// For Embedding Stacker 💬ED
-	if (node.comfyClass === "Embedding Stacker 💬ED") {
-		const clearEmbeddingWidget = findWidgetByName(node, "Clear embeddings");
+        const tboxWidget = widgets[config.tbox_id];
+        const wildcardCombo = widgets[config.combo_id + 1];
 
-		clearEmbeddingWidget.callback = () => {
-			clearWidgets(node);
-		};
+        if (tboxWidget && wildcardCombo) {
 
-		defineComboValue(clearEmbeddingWidget, "Clear embeddings", "_wildcard_value");
-		defineComboOptions(clearEmbeddingWidget, () => ["[Clear embeddings]"]);
-		clearEmbeddingWidget.serializeValue = () => "Clear embeddings";
-	}
+            // Wildcard 선택
+            setupActionCombo(wildcardCombo, {
+                defaultText: "Select the Wildcard to add to the text",
+                propName: "_wildcard_value",
+                optionsGetter: () => wildcards_list,
+
+                onSelect: (value) => {
+                    if (tboxWidget.value !== "") {
+                        tboxWidget.value =
+                            tboxWidget.value.replace(/,\s*$/, "") + ", ";
+                    }
+
+                    tboxWidget.value += value + ",";
+                }
+            });
+
+            // Group tags
+            if (config.has_group_tag) {
+                setupActionCombo(widgets[config.combo_id + 2], {
+                    defaultText: "Group tags by category",
+                    propName: "_value",
+                    optionsGetter: () => ["[Group tags by category]"],
+
+                    onSelect: () => categorizeValue(tboxWidget)
+                });
+            }
+
+            // LoRA
+            if (config.has_lora) {
+                setupActionCombo(widgets[config.combo_id], {
+                    defaultText: "Select the LoRA to add to the text",
+                    propName: "_value",
+
+                    onSelect: (value) => {
+                        let lora_name = value;
+
+                        if (lora_name.endsWith(".safetensors")) {
+                            lora_name = lora_name.slice(0, -12);
+                        }
+
+                        tboxWidget.value += `<lora:${lora_name}>`;
+
+                        if (node.widgets_values) {
+                            node.widgets_values[config.tbox_id] =
+                                tboxWidget.value;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    // -----------------------------------------
+    // LoRA Stacker - Clear LoRAs
+    // -----------------------------------------
+    if (node.comfyClass === "LoRA Stacker 💬ED") {
+        setupActionCombo(findWidgetByName(node, "Clear LoRAs"), {
+            defaultText: "Clear LoRAs",
+            propName: "_wildcard_value",
+            optionsGetter: () => ["[Clear LoRAs]"],
+
+            onSelect: () => clearWidgets(node)
+        });
+    }
+
+    // -----------------------------------------
+    // Embedding Stacker - Clear embeddings
+    // -----------------------------------------
+    if (node.comfyClass === "Embedding Stacker 💬ED") {
+        setupActionCombo(findWidgetByName(node, "Clear embeddings"), {
+            defaultText: "Clear embeddings",
+            propName: "_wildcard_value",
+            optionsGetter: () => ["[Clear embeddings]"],
+
+            onSelect: () => clearWidgets(node)
+        });
+    }
 }
 
 

@@ -783,18 +783,6 @@ class EfficientLoader_ED():
         #Encode prompt
         clip_encoder = None
         
-        # For qwen prompt
-        # if is_flux_model == 2 and paint_mode != "✍️ Txt2Img":
-            # model, clip, _, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
-            # positive_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, positive_prompt, vae, ref_image)[0]
-            
-            # if not negative_prompt:            
-                # negative_encoded = NODES["TextEncodeQwenImageEdit"]().encode(clip, negative_prompt, vae, ref_image)[0]
-            # else:
-                # negative_encoded = nodes.ConditioningZeroOut().zero_out(positive_encoded)[0]
-
-        # else:
-            
         if not is_flux_model and (properties['token_normalization'] != "none" or properties['weight_interpretation'] != "comfy"):            
             print(f"\033[34mEfficient Loader ED : Use CLIP Text Encode Advanced  - token normalization : {properties['token_normalization']}, weight interpretation : {properties['weight_interpretation']}\033[0m")
             clip_encoder = BNK_EncoderWrapper(properties['token_normalization'], properties['weight_interpretation'])
@@ -811,10 +799,10 @@ class EfficientLoader_ED():
         #✍️ Txt2Img         
         if paint_mode == "✍️ Txt2Img":
             # Create Empty Latent
-            if is_flux_model != 2:
-                samples_latent = nodes.EmptyLatentImage().generate(image_width, image_height, batch_size)[0]
-            else:
+            if is_flux_model == 2:                
                 samples_latent = NODES["EmptySD3LatentImage"]().generate(image_width, image_height, batch_size)[0]
+            else:
+                samples_latent = nodes.EmptyLatentImage().generate(image_width, image_height, batch_size)[0]
                 
         else:
             if pixels is None:
@@ -831,7 +819,7 @@ class EfficientLoader_ED():
             # 🎨 Inpaint
             if paint_mode == "🎨 Inpaint(Ksampler)":
                 if  mask is None:
-                    raise Exception("Efficient Loader ED: inpaint mode requires an mask.\n\n\n\n\n\n")
+                    raise Exception("Efficient Loader ED: Inpaint mode requires an mask.\n\n\n\n\n\n")
                 if not positive_encoded:
                     model, clip, positive_encoded, positive_prompt = wildcard_ED.process(positive_prompt, model, clip, clip_encoder, seed)
                     
@@ -962,6 +950,94 @@ class EfficientLoader_ED():
             if lora_stack and not properties['use_apply_lora']:
                 model, clip = ED_Util.apply_load_lora(lora_stack, model, clip)
                 lora_stack = None
+                
+
+        elif "anima" in ckpt_name.lower() and "unet" in ckpt_name.lower():
+            loaded_objects["lora"] = []
+            # ==========================================
+            # Check checkpoint cache
+            # ==========================================
+            cache_entry = None
+
+            for entry in loaded_objects["ckpt"]:
+                if entry[0] == ckpt_name:
+                    cache_entry = entry
+                    break
+
+            if cache_entry is not None:
+                # Cache HIT
+                _, model, clip, _, ids = cache_entry
+
+                cache_full = ckpt_cache and len([
+                    entry for entry in loaded_objects["ckpt"]
+                    if my_unique_id in entry[-1]
+                ]) >= ckpt_cache
+
+                if cache_full:
+                    clear_cache(my_unique_id, ckpt_cache, "ckpt")
+                elif my_unique_id not in ids:
+                    ids.append(my_unique_id)
+
+                print(f"[ED] Anima UNET Cache HIT: {ckpt_name}")
+
+            else:
+                # Cache MISS
+                print(f"[ED] Anima UNET Cache MISS: {ckpt_name}")
+
+                if os.path.isabs(ckpt_name):
+                    ckpt_path = ckpt_name
+                else:
+                    ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+
+                model = comfy.sd.load_diffusion_model(ckpt_path, model_options={})
+                clip = NODES['CLIPLoader']().load_clip("qwen_3_06b_base.safetensors", type="stable_diffusion", device="default")[0]
+
+                # ==========================================
+                # Save checkpoint cache
+                # ==========================================
+                if ckpt_cache:
+                    cache_list = [
+                        entry for entry in loaded_objects["ckpt"]
+                        if my_unique_id in entry[-1]
+                    ]
+
+                    if len(cache_list) < ckpt_cache:
+                        loaded_objects["ckpt"].append((ckpt_name, model, clip, None, [my_unique_id]))
+
+                    else:
+                        clear_cache(my_unique_id, ckpt_cache, "ckpt")
+
+                        if True:
+                            for e in loaded_objects["ckpt"]:
+                                if my_unique_id in e[-1]:
+                                    e[-1].remove(my_unique_id)
+
+                                    if not e[-1]:
+                                        loaded_objects["ckpt"].remove(e)
+
+                                    break
+
+                            loaded_objects["ckpt"].append((ckpt_name, model, clip, None, [my_unique_id]))
+
+            # ==========================================
+            # Load VAE
+            # ==========================================
+            if vae_name != "Baked VAE":
+                vae = load_vae(vae_name, my_unique_id, cache=vae_cache, cache_overwrite=True)
+            else:
+                raise Exception("Efficient Loader ED: Baked VAE is None")
+
+            # ==========================================
+            # Print loaded objects
+            # ==========================================
+            print_loaded_objects_entries(my_unique_id, prompt)
+
+            # ==========================================
+            # Apply LoRA
+            # ==========================================
+            if lora_stack and not properties['use_apply_lora']:
+                model, clip = ED_Util.apply_load_lora(lora_stack, model, clip)
+                lora_stack = None
         
         else:            
             if lora_stack and not properties['use_apply_lora']:   
@@ -987,17 +1063,13 @@ class EfficientLoader_ED():
         if hasattr(model, "model"):
             modle_type = model.model.__class__.__name__
 
-        # if "qwen" in vae_name.lower():
-            # print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m Qwen VAE is in use, ignore clip skip\033[0m")
-            # is_flux_model = 2
-
         if modle_type == "Flux":
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m model type is {modle_type}, ignore clip skip\033[0m")
             is_flux_model = 1
 
         elif clip_skip == 0:
             print(f"\r{message('Efficient Loader ED :')}\033[38;5;173m clip skip is 0, ignore clip skip\033[0m")
-            is_flux_model = 1
+            # is_flux_model = 1
 
         else:
             clip = nodes.CLIPSetLastLayer().set_last_layer(clip, clip_skip)[0]
@@ -1417,8 +1489,8 @@ class Regional_Stacker_ED:
                             "region_script": ("REGION_SCRIPT",),
                             "global_prompt_weight": ("FLOAT",{"default": 1.0, "min": 0.01, "max": 1.0, "step": 0.1, "tooltip": "Base prompt strength.", }, ),
                             "width": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
-                            "height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),
-                            "empty image": (["Create empty image"],),},
+                            "height": ("INT", {"default": 1024, "min": 64, "max": nodes.MAX_RESOLUTION, "step": 1}),},
+                            #"empty image": (["Create empty image"],),},
                     }
 
     RETURN_TYPES = ("CONTROL_NET_STACK",)
@@ -1426,7 +1498,7 @@ class Regional_Stacker_ED:
     FUNCTION = "regional_stacker"
     CATEGORY = "Efficiency Nodes/Stackers"
 
-    def regional_stacker(self, region_script, global_prompt_weight, width, height, **kwargs):
+    def regional_stacker(self, region_script, global_prompt_weight, width, height):
         # Extend the control_net_stack with the new tuple
         cnet_stack = []
         cnet_stack.extend([(region_script, global_prompt_weight, width, height, "Region_Stack")])

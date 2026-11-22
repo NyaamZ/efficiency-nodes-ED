@@ -325,8 +325,6 @@
   
      - [xbooru](https://xbooru.com)
   
-     - [konachan.net](https://konachan.net) (konachan.com X)
-  
      - [yande.re](https://yande.re)
 	   
        

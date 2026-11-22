@@ -1,7 +1,12 @@
 import { app } from '../../../../scripts/app.js'
 import { $el } from "../../../../scripts/ui.js";
 
-let origProps = {};
+const LOG = false;     // 진단 로그 (로드/생성/후킹 등). 확인이 끝나면 false 로
+export const ed_log = (...a) => { console.log("%c[ED]", "color:#4af;font-weight:bold", ...a); };
+export const ed_dlog = (...a) => { if (LOG) console.log("%c[ED]", "color:#4af;font-weight:bold", ...a); };
+export const ed_warn = (...a) => { console.warn("%c[ED]", "color:#4af;font-weight:bold", ...a); };
+export const ed_dwarn = (...a) => { if (LOG) console.warn("%c[ED]", "color:#4af;font-weight:bold", ...a); };
+export const ed_error = (...a) => { console.error("%c[ED]", "color:#4af;font-weight:bold", ...a); };
 
 export async function fetchJson(fileAddress) {
     try {
@@ -29,26 +34,81 @@ const doesInputWithNameExist = (node, name) => {
 
 export function updateNodeHeight(node) { node.setSize([node.size[0], node.computeSize()[1]]); }
 
-export function toggleWidget(node, widget, show = false, suffix = "") {
-    if (!widget || doesInputWithNameExist(node, widget.name)) return;
+// 위젯 인스턴스별 원본 속성 저장
+const origProps = new WeakMap();
 
-    // Store the original properties of the widget if not already stored
-    if (!origProps[widget.name]) {
-        origProps[widget.name] = { origType: widget.type, origComputeSize: widget.computeSize };
+// 노드 크기 갱신을 허용할 노드 목록
+export const RESIZE_ALLOWED_NODES = [
+    "FaceDetailer 💬ED",
+    "MaskDetailer 💬ED",
+    "Detailer (SEGS) 💬ED",
+    "Embedding Stacker 💬ED",
+    "Ultimate SD Upscale 💬ED",
+    "LoRA Stacker 💬ED",
+    "SUPIR Sampler 💬ED",
+    "Refiner Script 💬ED",
+];
+
+export function toggleWidget(node, widget, show = false, suffix = "") {
+    if (!node || !widget) return;
+
+    if (doesInputWithNameExist(node, widget.name)) return;
+
+    // 원본 속성 저장 (최초 1회)
+    let original = origProps.get(widget);
+    if (!original) {
+        original = {
+            type: widget.type,
+            hadOwnComputeSize: Object.prototype.hasOwnProperty.call(widget, "computeSize"),
+            computeSize: widget.computeSize,
+        };
+        origProps.set(widget, original);
     }
 
-    const origSize = node.size;
+    if (show) {
+        // 신버전: hidden 플래그
+        widget.hidden = false;
+        if (widget.options) widget.options.hidden = false;
 
-    // Set the widget type and computeSize based on the show flag
-    widget.type = show ? origProps[widget.name].origType : "tschide" + suffix;
-    widget.computeSize = show ? origProps[widget.name].origComputeSize : () => [0, -4];
+        // 구버전 호환: type / computeSize 복원
+        widget.type = original.type;
 
-    // Recursively handle linked widgets if they exist
-    widget.linkedWidgets?.forEach(w => toggleWidget(node, w, ":" + widget.name, show));
+        if (original.hadOwnComputeSize) {
+            widget.computeSize = original.computeSize;
+        } else {
+            delete widget.computeSize;
+        }
+    } else {
+        // 신버전: hidden 플래그
+        widget.hidden = true;
+        if (widget.options) widget.options.hidden = true;
 
-    // Calculate the new height for the node based on its computeSize method
-    const height = show ? Math.max(node.computeSize()[1], origSize[1]) : node.size[1];
-    node.setSize([node.size[0], height]);
+        // 구버전 호환
+        widget.type = "hidden";
+        widget.computeSize = () => [0, -4];
+    }
+
+    // 연결된 위젯도 동일하게 처리
+    if (Array.isArray(widget.linkedWidgets)) {
+        for (const linkedWidget of widget.linkedWidgets) {
+            toggleWidget(node, linkedWidget, show, suffix);
+        }
+    }
+
+    // 배열에 등록된 노드만 크기 갱신
+    if (
+        RESIZE_ALLOWED_NODES.includes(node.comfyClass) &&
+        node.computeSize &&
+        node.setSize
+    ) {
+        const computed = node.computeSize();
+
+        if (computed && Number.isFinite(computed[1])) {
+            node.setSize([node.size[0], computed[1]]);
+        }
+    }
+
+    node.setDirtyCanvas?.(true, true);
 }
 
 export function showMessage(short_msg, detail_msg) {
@@ -196,13 +256,12 @@ const hslToHex = ({ h, s, l }) => {
 }
 
 function overrideBackground_color(widget) {
-    // 이미 오버라이드 되어 있는지 확인
-    const desc = Object.getOwnPropertyDescriptor(widget, "background_color");
-    if (desc && (desc.get || desc.set)) {
-        return; // 이미 오버라이드 된 경우
-    }
+    // 우리가 만든 오버라이드가 이미 있으면 그대로 사용
+    if (widget._bgOverridden) return;
 
-    widget._background_color = widget.background_color;
+    // 원본 descriptor 보관 (복원용)
+    widget._origBgDesc = Object.getOwnPropertyDescriptor(widget, "background_color");
+    widget._background_color = widget.background_color; // getter가 있으면 현재 값 읽힘
 
     Object.defineProperty(widget, "background_color", {
         get() {
@@ -212,7 +271,24 @@ function overrideBackground_color(widget) {
             this._background_color = value;
         },
         configurable: true,
+        enumerable: false,
     });
+    widget._bgOverridden = true;
+}
+
+function restoreBackground_color(widget) {
+    if (!widget._bgOverridden) return;
+
+    if (widget._origBgDesc) {
+        // 원래 own getter로 복귀
+        Object.defineProperty(widget, "background_color", widget._origBgDesc);
+    } else {
+        // 원래 own 프로퍼티가 없었다면 제거 → 프로토타입 값 사용
+        delete widget.background_color;
+    }
+    delete widget._origBgDesc;
+    delete widget._background_color;
+    widget._bgOverridden = false;
 }
 
 export function flashWidget(node, widgets, maxL = 50, duration = 2000, delay = 300) {
@@ -223,15 +299,21 @@ export function flashWidget(node, widgets, maxL = 50, duration = 2000, delay = 3
 
     widgets.forEach((widget) => {
         overrideBackground_color(widget);
-        orig_bg_list.push(widget.background_color);
-        minHSLList.push(hexToHSL(widget.background_color));
+        // flash가 중복 실행 중이면 이미 변한 색이 아니라 처음 원본 색을 써야 함
+        if (widget._flashOrigColor === undefined) {
+            widget._flashOrigColor = widget._origBgDesc?.get
+                ? widget._origBgDesc.get.call(widget)
+                : widget.background_color;
+        }
+        orig_bg_list.push(widget._flashOrigColor);
+        minHSLList.push(hexToHSL(widget._flashOrigColor));
     });
 
-    // 각 위젯마다 현재 HSL값 복사
     const hslList = minHSLList.map((hsl) => ({ ...hsl }));
     const start = performance.now();
+    const token = Symbol();
+    widgets.forEach((w) => (w._flashToken = token));
 
-    // easing 함수
     function easeInOutExpo(t) {
         if (t === 0) return 0;
         if (t === 1) return 1;
@@ -240,33 +322,41 @@ export function flashWidget(node, widgets, maxL = 50, duration = 2000, delay = 3
             : (2 - Math.pow(2, -20 * t + 10)) / 2;
     }
 
+    const finished = new Set();
+
     function step(time) {
         let allDone = true;
 
         widgets.forEach((widget, i) => {
-            const delayTime = i * delay;
-            const elapsed = time - start - delayTime;
-            let t = elapsed / duration;
+            if (finished.has(i)) return;
+
+            // 다른 flash가 이 위젯을 인계받았으면 이 애니메이션은 종료
+            if (widget._flashToken !== token) {
+                finished.add(i);
+                return;
+            }
+
+            const t = (time - start - i * delay) / duration;
 
             if (t < 0) {
-                allDone = false; // 아직 시작 전
+                allDone = false;
                 return;
             }
 
             if (t >= 1) {
-                // 원래 색으로 복원
-                widget.background_color = orig_bg_list[i];
+                restoreBackground_color(widget);
+                delete widget._flashOrigColor;
+                finished.add(i);
                 return;
             }
 
-            allDone = false; // 아직 애니메이션 진행 중
+            allDone = false;
 
-            let eased;
             if (t <= 0.5) {
-                eased = easeInOutExpo(t * 2);
+                const eased = easeInOutExpo(t * 2);
                 hslList[i].l = minHSLList[i].l + (maxL - minHSLList[i].l) * eased;
             } else {
-                eased = easeInOutExpo((t - 0.5) * 2);
+                const eased = easeInOutExpo((t - 0.5) * 2);
                 hslList[i].l = maxL - (maxL - minHSLList[i].l) * eased;
             }
 
@@ -275,31 +365,9 @@ export function flashWidget(node, widgets, maxL = 50, duration = 2000, delay = 3
 
         node.setDirtyCanvas(true, true);
 
-        if (!allDone) {
-            requestAnimationFrame(step);
-        }
+        if (!allDone) requestAnimationFrame(step);
     }
 
     requestAnimationFrame(step);
 }
 
-/* 
-function easeInOutQuad(t) {
-    return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-}
-// easeInOutQuart easing 함수
-function easeInOutQuart(t) {
-    return t < 0.5
-        ? 8 * t * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 4) / 2;
-}
-
-// easeInOutExpo easing 함수
-function easeInOutExpo(t) {
-    if (t === 0) return 0;
-    if (t === 1) return 1;
-    return t < 0.5
-        ? Math.pow(2, 20 * t - 10) / 2
-        : (2 - Math.pow(2, -20 * t + 10)) / 2;
-}
- */

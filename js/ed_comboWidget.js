@@ -302,6 +302,9 @@ export class EdToggleComboWidget extends RgthBaseWidget {
     toggle = true;
     constructor(widget, node, modelType) {
         super(widget, node);
+        // 신버전 프론트엔드는 위젯을 BaseWidget 으로 변환/교체할 수 있어서
+        // constructor.name / instanceof 대신 이 플래그로 식별한다.
+        this.isEdToggleCombo = true;
         this.type = "custom_combo";
         this.haveMouseMovedStrength = false;
         this.loraInfoPromise = null;
@@ -431,6 +434,8 @@ export class EdToggleComboWidget extends RgthBaseWidget {
                 this.value = value;
                 this.loraInfo = null;
                 this.getLoraInfo();
+                // 신버전: 값 변경이 value 프로퍼티 후킹으로는 감지되지 않으므로 callback 을 직접 호출
+                try { this.callback?.(value, app.canvas, node); } catch (e) { console.error("[ED] callback error", e); }
             }
             node.setDirtyCanvas(true, true);
         }, null, this.options);
@@ -471,12 +476,14 @@ export function edComboWidget_Init(node) {
         return;
     }
 
+    if (!node.widgets) return;   // 신버전: node.widgets 는 undefined 일 수 있음
+
     for (let i = 0; i < node.widgets.length; i++) {
         const w = node.widgets[i];
         if (w.name.includes("toggle")) {
             toggleWidget(node, w, false);
         }
-        else if (w.name.includes(COMBO_WIDGET_NAMES[ED_COMBO_NODES[node.comfyClass]]) && w.constructor.name != "EdToggleComboWidget") {
+        else if (w.name.includes(COMBO_WIDGET_NAMES[ED_COMBO_NODES[node.comfyClass]]) && !w.isEdToggleCombo) {
             node.widgets[i] = new EdToggleComboWidget(w, node, ED_COMBO_NODES[node.comfyClass]);
         }
     }
